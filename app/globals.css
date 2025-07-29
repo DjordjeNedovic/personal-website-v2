@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Fixed spacing that doesn't scale with zoom */
+.fixed-spacing-bottom {
+  margin-bottom: 16px !important;
+}
+
+/* Footer spacing fix */
+footer {
+  margin-top: 8px !important;
+}
+
+/* POSTS CSS*/
+/* Post Container Styles */
+.post-container {
+  @apply container mx-auto px-4;
+}
+
+.post-grid {
+  @apply lg:-mx-6 lg:flex lg:items-center gap-6;
+}
+
+/* Slika - 1/3 prostora */
+.post-thumbnail-small {
+  @apply lg:w-1/3 rounded-xl h-72 border border-gray-300/40;
+}
+
+/* Tekst - 2/3 prostora */
+.post-content-large {
+  @apply lg:w-2/3 flex flex-col justify-between min-h-full py-4;
+}
+
+/* Stare klase za backup */
+.post-thumbnail {
+  @apply lg:w-1/2 rounded-xl h-72 border border-gray-300/40;
+}
+
+.post-content {
+  @apply lg:w-1/2 flex flex-col justify-between min-h-full py-4;
+}
+
+/* Typography */
+.post-title {
+  @apply block text-xl font-semibold text-gray-800 dark:text-white md:text-2xl;
+}
+
+.post-summary {
+  @apply text-gray-600 dark:text-gray-300 leading-relaxed mt-3;
+}
+
+/* Tags */
+.post-tags {
+  @apply flex flex-wrap gap-2 mt-4;
+}
+
+.post-tag {
+  @apply mr-2 my-1;
+}
+
+/* Scroll Button */
+.scroll-icon-button {
+  @apply rounded-full bg-gray-200 p-2 text-gray-500 transition-all hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .post-grid {
+    @apply flex-col gap-4;
+  }
+
+  .post-thumbnail,
+  .post-content {
+    @apply w-full;
+  }
+}
+
+/* Projects specific styles */
+/*
+.project-card {
+  @apply group h-full bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1;
+}
+*/
+.project-image {
+  @apply relative h-48 overflow-hidden rounded-t-xl;
+}
+
+.project-content {
+  @apply flex flex-col flex-1 p-6;
+}
+
+.project-title {
+  @apply text-xl font-bold text-slate-900 dark:text-slate-100 mb-3 line-clamp-2 min-h-[3.5rem] leading-tight;
+}
+
+.project-description {
+  @apply text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 line-clamp-4 flex-1;
+}
+
+.project-tech-tag {
+  @apply inline-flex items-center px-2.5 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full;
+}
+
+.project-footer {
+  @apply flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700 mt-auto;
+}
+
+/* Responsive grid */
+@media (max-width: 768px) {
+  .projects-grid {
+    @apply grid-cols-1 gap-4;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .projects-grid {
+    @apply grid-cols-2 gap-5;
+  }
+}
+
+@media (min-width: 1025px) {
+  .projects-grid {
+    @apply grid-cols-3 gap-6;
+  }
+}

@@ -1,0 +1,161 @@
+---
+title: 'Goodbye AutoMapper: Simple Mapping with Extension Methods and Delegates in .NET'
+date: '2023-06-04'
+lastmod: '2023-06-04'
+tags: ['.NET', 'Performance', 'Architecture', 'AutoMapper']
+draft: false
+summary: 'Learn how to replace AutoMapper with simple extension methods and delegates in .NET for better performance, testability, and maintainability. Complete guide with code examples.'
+images: ['/static/images/thumbnail/dotnet.png']
+canonicalUrl: 'https://djordjenedovic.netlify.app/posts/migrate-from-automapper.mdx'
+---
+
+# Replacing AutoMapper with Custom Extension Methods in .NET
+
+In this post, we will explain why we stopped using AutoMapper and changed it with simple extension methods and delegates in our .NET project. This helped us write cleaner and easier-to-test code.
+
+## 📌 Problem with AutoMapper
+
+AutoMapper is a strong tool for mapping objects, but in some situations it becomes a problem:
+
+- It is hard to debug when something goes wrong
+- It is not easy to test
+- Mapping rules are hidden, so you don't see what happens
+- It is too complex for simple 1-to-1 object mapping
+- It is not free any more
+
+In our case, we had a generic service `BaseFileService<TModel, TEntity>` that saves files. Each file type uses a
+different model and entity.
+
+## 🎯 Solution: Custom Extension Methods
+
+We decided to create one static mapping file for each model/entity pair, for example `ClientFileModel` and `ClientFileEntity`.
+
+Example: `ClientFileMappingExtensions.cs`:
+
+```csharp
+public static class ClientFileMappingExtensions
+{
+    public static ClientFileModel ToModel(this ClientFileEntity entity)
+    {
+        if (entity == null) return null;
+
+        return new ClientFileModel
+        {
+            Id = entity.Id,
+            File = null, // we don't map the file itself
+            Status = entity.Status,
+            CreatedBy = entity.CreatedBy,
+            CreateDate = entity.CreateDate,
+        };
+    }
+
+    public static ClientFileEntity FromModel(this ClientFileModel model)
+    {
+        if (model == null) return null;
+
+        return new ClientFileEntity
+        {
+            Status = model.Status,
+            CreatedBy = model.CreatedBy,
+            CreateDate = model.CreateDate
+        };
+    }
+}
+```
+
+## 💡 Delegates in `BaseFileService`
+
+To keep our service generic, we added two delegates in the constructor:
+
+```csharp
+private readonly Func<TModel, TEntity> _fromModel;
+private readonly Func<TEntity, TModel> _toModel;
+
+public BaseFileService(
+    Func<TModel, TEntity> fromModel,
+    Func<TEntity, TModel> toModel,
+    ...
+)
+{
+    _fromModel = fromModel;
+    _toModel = toModel;
+}
+```
+
+Then in `ClientFileService` we use those mapping methods:
+
+```csharp
+public ClientFileService(...)
+    : base(ClientFileMappingExtensions.FromModel, ClientFileMappingExtensions.ToModel, ...)
+{ }
+```
+
+## 🛠️ How it works in the service
+
+```csharp
+public async Task<TModel> SaveFile(TModel file)
+{
+    if (file == null)
+        throw new ArgumentNullException(nameof(file));
+
+    if (file.File.Length > _appSettings.MaxUploadFileSize)
+        throw new ArgumentException("File too large.");
+
+    var fileEntity = _fromModel(file);
+
+    var pathData = await _filePathGenerator.GetPathToFile(ApplicationId, Path.GetExtension(file.File.FileName));
+    fileEntity.PointerToSource = pathData.FileName;
+
+    await _networkFileService.UploadFile(new FileLocation(pathData), file.File.OpenReadStream());
+
+    var savedEntity = await _baseFileRepository.AddFile(fileEntity, _currentUserService.CurrentUserId());
+
+    return _toModel(savedEntity);
+}
+```
+
+## ✅ Unit Test Example
+
+```csharp
+[Fact]
+public async Task SaveFile_WhenValidInput_ShouldSaveAndReturnModel()
+{
+    // Arrange
+    var fakeFile = new Mock<IFormFile>();
+    var stream = new MemoryStream(new byte[100]);
+
+    fakeFile.Setup(f => f.Length).Returns(100);
+    fakeFile.Setup(f => f.FileName).Returns("invoice.pdf");
+    fakeFile.Setup(f => f.OpenReadStream()).Returns(stream);
+
+    var inputModel = new ClientFileModel { File = fakeFile.Object };
+    var entity = new ClientFileEntity();
+    var savedEntity = new ClientFileEntity { PointerToSource = "file123.pdf" };
+    var filePath = new FilePathEntity { FileName = "file123.pdf" };
+
+    _filePathGenerator.Setup(f => f.GetPathToFile(It.IsAny<int>(), ".pdf")).ReturnsAsync(filePath);
+    _networkFileService.Setup(n => n.UploadFile(It.IsAny<FileLocation>(), stream)).Returns(Task.CompletedTask);
+    _repository.Setup(r => r.AddFile(It.IsAny<ClientFileEntity>(), It.IsAny<Guid>())).ReturnsAsync(savedEntity);
+    _currentUser.Setup(u => u.CurrentUserId()).Returns(Guid.NewGuid());
+
+    // Act
+    var result = await _service.SaveFile(inputModel);
+
+    // Assert
+    Assert.NotNull(result);
+    Assert.Equal("file123.pdf", result?.PointerToSource); // if model has it
+    _filePathGenerator.Verify(f => f.GetPathToFile(It.IsAny<int>(), ".pdf"), Times.Once);
+}
+```
+
+## 📈 Benefits
+
+- 💡 Clear and explicit mapping – no hidden rules
+- 🔬 Easier to test – it's just a simple method
+- 🧠 Less “magic” – no need to learn AutoMapper internals
+- 🛠️ Easy to add custom logic if needed
+
+## 🧹 Conclusion
+
+By removing AutoMapper, we now have full control over mapping logic. This is a good solution when your project has
+specific models and you want to keep things simple, readable, and testable.

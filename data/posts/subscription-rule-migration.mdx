@@ -1,0 +1,88 @@
+---
+title: 'Terraform 0.12 to 0.13 Migration: Fixing AzureRM Provider Subscription Rule Issues'
+date: '2023-05-24'
+lastmod: '2023-05-24'
+tags: ['Terraform', 'Azure', 'Infrastructure as Code', 'Migration']
+draft: false
+summary: 'Comprehensive guide to resolving AzureRM provider subscription rule migration issues when upgrading from Terraform 0.12 to 0.13, including solutions for resource naming conflicts.'
+images: ['/static/images/thumbnail/terraform.png']
+canonicalUrl: 'https://djordjenedovic.netlify.app/posts/subscription-rule-migration.mdx'
+---
+
+This document outlines the process of updating Terraform from version 0.12 to the latest version, including an issue
+encountered during the terraform apply step. The issue, related to using the $ character in a resource name, caused
+an unexpected error with the AzureRM provider. The investigation and solution, which involved modifying the resource
+name, are discussed in detail below.
+
+# Story time
+
+The task was simple: "Update Terraform to the latest version." The challenge arose because the current solution was
+using Terraform version `0.12`, and as you may know, updating Terraform requires upgrading through a series of steps:
+
+```
+0.12v -> 0.13v -> 0.14v -> latest version
+```
+
+This process is straightforward, so in `provider.tf`, I updated the version constraint:
+
+```
+terraform {
+    required_version = ">= 0.12" # to "~> 0.13"
+}
+
+```
+
+After pushing the changes to the branch and running the release pipeline, I encountered an error
+during the `terraform apply` step:
+
+```
+Error: Provider produces incosistent result after apply
+
+When appliying chagens to azurerm_servicebus_subscription_rule.example,
+provider "registry.terraform.io/hashicorp/azurerm" produced an unexpected new
+value: Root resource was present, but not absent.
+
+This is a bug in the provider, which should be reported in the provider's own
+issue tracker.
+
+```
+
+A quick glance at the resource didn’t raise any alarms:
+
+```
+resource "azurerm_servicebus_subscription_rule" "example" {
+  name            = "$Default"
+  subscription_id = azurerm_servicebus_subscription.example.id
+  filter_type     = "SqlFilter"
+  sql_filter      = "colour = 'red'"
+}
+```
+
+Searching for a solution didn’t yield any helpful results, not even from ChatGPT. So, I decided to experiment with the
+configuration to see if I could identify the root cause. First thing that I changed was the name. From the `$Default` to
+the `TestNameSubscription` and on my dismay `terraform apply` passed. It appears that the `$` sign in the resource name
+was causing the issue, although this behavior is **undocumented** and not mentioned in Terraform’s official documentation.
+
+# Solution
+
+Before:
+
+```
+resource "azurerm_servicebus_subscription_rule" "example" {
+  name            = "$Default"
+  subscription_id = azurerm_servicebus_subscription.example.id
+  filter_type     = "SqlFilter"
+  sql_filter      = "colour = 'red'"
+}
+```
+
+After:
+
+```
+resource "azurerm_servicebus_subscription_rule" "example" {
+  name            = "tfex_servicebus_rule"
+  subscription_id = azurerm_servicebus_subscription.example.id
+  filter_type     = "SqlFilter"
+  sql_filter      = "colour = 'red'"
+}
+```
