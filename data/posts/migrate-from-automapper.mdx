@@ -11,20 +11,83 @@ canonicalUrl: 'https://djordjenedovic.netlify.app/posts/migrate-from-automapper.
 
 # Replacing AutoMapper with Custom Extension Methods in .NET
 
-In this post, we will explain why we stopped using AutoMapper and changed it with simple extension methods and delegates in our .NET project. This helped us write cleaner and easier-to-test code.
-
-## 📌 Problem with AutoMapper
-
-AutoMapper is a strong tool for mapping objects, but in some situations it becomes a problem:
-
-- It is hard to debug when something goes wrong
-- It is not easy to test
-- Mapping rules are hidden, so you don't see what happens
-- It is too complex for simple 1-to-1 object mapping
-- It is not free any more
-
 In our case, we had a generic service `BaseFileService<TModel, TEntity>` that saves files. Each file type uses a
 different model and entity.
+
+## Project structure:
+
+/YourProject
+│
+├── Controllers
+│   ├── A1Controller.cs
+│   ├── A2Controller.cs
+│   ├── A3Controller.cs
+│   └── A4Controller.cs
+│
+├── Services
+│   ├── BaseService.cs
+│   ├── A1Service.cs
+│   ├── A2Service.cs
+│   ├── A3Service.cs
+│   └── A4Service.cs
+│
+├── Models
+│   ├── BaseModel.cs
+│   ├── A1Model.cs
+│   ├── A2Model.cs
+│   ├── A3Model.cs
+│   └── A4Model.cs
+│
+├── Entities
+│   ├── BaseEntity.cs
+│   ├── A1Entity.cs
+│   ├── A2Entity.cs
+│   ├── A3Entity.cs
+│   └── A4Entity.cs
+│
+├── Program.cs
+└── YourProject.csproj
+
+## Example of the contoller
+
+  using Microsoft.AspNetCore.Mvc;
+  using YourProject.Services;
+  using YourProject.Entities;
+
+  namespace YourProject.Controllers
+  {
+  [ApiController]
+  [Route("api/[controller]")]
+  public class A1Controller : ControllerBase
+  {
+    private readonly A1Service _service;
+
+          public A1Controller(A1Service service)
+          {
+              _service = service;
+          }
+
+          [HttpGet]
+          public IActionResult GetAll()
+          {
+              var data = _service.GetAll();
+              return Ok(data);
+          }
+
+          [HttpGet("{id:guid}")]
+          public IActionResult GetById(Guid id)
+          {
+              var entity = _service.GetById(id);
+              if (entity == null)
+              {
+                  return NotFound();
+              }
+
+              return Ok(entity);
+          }
+      }
+  }
+
 
 ## 🎯 Solution: Custom Extension Methods
 
@@ -113,47 +176,6 @@ public async Task<TModel> SaveFile(TModel file)
     return _toModel(savedEntity);
 }
 ```
-
-## ✅ Unit Test Example
-
-```csharp
-[Fact]
-public async Task SaveFile_WhenValidInput_ShouldSaveAndReturnModel()
-{
-    // Arrange
-    var fakeFile = new Mock<IFormFile>();
-    var stream = new MemoryStream(new byte[100]);
-
-    fakeFile.Setup(f => f.Length).Returns(100);
-    fakeFile.Setup(f => f.FileName).Returns("invoice.pdf");
-    fakeFile.Setup(f => f.OpenReadStream()).Returns(stream);
-
-    var inputModel = new ClientFileModel { File = fakeFile.Object };
-    var entity = new ClientFileEntity();
-    var savedEntity = new ClientFileEntity { PointerToSource = "file123.pdf" };
-    var filePath = new FilePathEntity { FileName = "file123.pdf" };
-
-    _filePathGenerator.Setup(f => f.GetPathToFile(It.IsAny<int>(), ".pdf")).ReturnsAsync(filePath);
-    _networkFileService.Setup(n => n.UploadFile(It.IsAny<FileLocation>(), stream)).Returns(Task.CompletedTask);
-    _repository.Setup(r => r.AddFile(It.IsAny<ClientFileEntity>(), It.IsAny<Guid>())).ReturnsAsync(savedEntity);
-    _currentUser.Setup(u => u.CurrentUserId()).Returns(Guid.NewGuid());
-
-    // Act
-    var result = await _service.SaveFile(inputModel);
-
-    // Assert
-    Assert.NotNull(result);
-    Assert.Equal("file123.pdf", result?.PointerToSource); // if model has it
-    _filePathGenerator.Verify(f => f.GetPathToFile(It.IsAny<int>(), ".pdf"), Times.Once);
-}
-```
-
-## 📈 Benefits
-
-- 💡 Clear and explicit mapping – no hidden rules
-- 🔬 Easier to test – it's just a simple method
-- 🧠 Less “magic” – no need to learn AutoMapper internals
-- 🛠️ Easy to add custom logic if needed
 
 ## 🧹 Conclusion
 
