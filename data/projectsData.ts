@@ -19,7 +19,7 @@ const projectsData = [
     description: `A secure tool for extracting keywords from job ads and complete CVs, ensuring all data is
      processed locally with no external LLM transmissions. Built with Next.js, Express.js, and Tailwind CSS..`,
     imgSrc: '/static/images/thumbnail/analyzer.png',
-    href: 'https://github.com/DjordjeNedovic/personal-website-v2',
+    href: 'https://adskeywordanalizer.onrender.com',
   },
 ]
 
