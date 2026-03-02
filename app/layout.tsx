@@ -7,6 +7,8 @@ import Header from '@/components/header/Header'
 import siteMetadata from '@/data/siteMetadata'
 import { Metadata } from 'next'
 import { ThemeProviders } from './theme-providers'
+import { GoogleAnalytics } from '@next/third-parties/google'
+
 const space_grotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
@@ -70,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </SectionContainer>
         </ThemeProviders>
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ID!} />
       </body>
     </html>
   )
