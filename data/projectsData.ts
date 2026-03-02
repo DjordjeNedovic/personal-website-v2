@@ -14,13 +14,6 @@ const projectsData = [
     imgSrc: '/static/images/thumbnail/github.jpg',
     href: 'https://github.com/DjordjeNedovic/personal-website-v2',
   },
-  {
-    title: 'BETA AI Keyword Generator',
-    description: `A secure tool for extracting keywords from job ads and complete CVs, ensuring all data is
-     processed locally with no external LLM transmissions. Built with Next.js, Express.js, and Tailwind CSS..`,
-    imgSrc: '/static/images/thumbnail/analyzer.png',
-    href: 'https://adskeywordanalizer.onrender.com',
-  },
 ]
 
 export default projectsData
