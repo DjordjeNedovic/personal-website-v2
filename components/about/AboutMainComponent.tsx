@@ -133,16 +133,16 @@ export default function AboutMainComponent() {
             </CardHeader>
             <CardContent>
               <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                I'm a passionate Senior Software Engineer with over 7 years of experience
-                specializing in
-                <strong> performance optimization</strong>, <strong>cloud architecture</strong>, and{' '}
-                <strong>full-stack development</strong>. My expertise lies in designing and
-                implementing scalable solutions that deliver measurable business value. I have a
-                proven track record of reducing operational costs, improving system performance, and
-                leading cross-functional teams to deliver high-quality software solutions. As a
-                certified Azure professional and security champion, I bring deep technical knowledge
-                combined with strong leadership skills to drive innovation and excellence in every
-                project.
+                I'm a Senior Software Engineer based in Novi Sad, Serbia. I work primarily in .NET
+                and Azure, building distributed systems for fintech and enterprise - backend mostly,
+                though I end up touching everything from infrastructure to frontend when needed.
+                I've spent the last 8 years working on systems where things actually have to work -
+                banking platforms, airline operations, cloud-native products built from scratch. I
+                tend to be the person who digs into the hard problems, figures out what's going on,
+                and documents it so the next person doesn't have to suffer through the same thing.
+                Outside of work I write occasionally about things I run into - undocumented bugs,
+                .NET patterns, DevOps workflows. Not on a schedule, just when something seems worth
+                sharing.
               </p>
             </CardContent>
           </Card>

@@ -97,30 +97,52 @@ export default function AboutFullComponent() {
         'Azure DevOps',
         'Azure Pipelines',
         'Azure Service Bus',
+        'Azure Functions',
+        'Azure App Services',
         'Docker',
         'Kubernetes',
       ],
     },
     'Tools & Others': {
       icon: <Server className="h-5 w-5" aria-hidden="true" />,
-      items: ['Linux', 'PowerShell', 'REST API', 'Git', 'Microservices'],
+      items: [
+        'Linux',
+        'PowerShell',
+        'REST API',
+        'Git',
+        'Microservices',
+        'Event-driven Architecture',
+        'System Design',
+      ],
     },
   }
 
   const experience = [
     {
       title: 'Senior Software Engineer',
-      company: 'Endava',
-      location: 'Novi Sad, Serbia',
-      period: 'Nov 2021 – Present',
+      company: 'Combined Ratio Solutions',
+      location: 'Novi Sad, Serbia · Remote',
+      period: 'April 2025 – Present',
       highlights: [
-        'Successfully completed multiple software projects in intralogistics, retail, and fintech using C#, .NET Core, React, TypeScript, and Azure technologies in cross-functional Agile teams',
-        'End-to-end involvement in software development lifecycle, including design, development, and testing using xUnit and Moq, improving scalability and enhancing CI/CD pipeline automation',
-        'Designed and implemented RESTful API microservices-based system for foreign currency transaction processing, achieving 0.75 FTE cost savings through optimization',
-        'Developed and maintained microservices architecture on Azure, leveraging event-driven development with Azure Service Bus, App Services, and Azure Functions',
-        "Recognized as team's internal security champion, driving cybersecurity best practices across all projects",
-        'Developed user permissions report that passed external auditing, ensuring regulatory compliance for a startup bank',
-        'Contributed to legacy system modernization by migrating from Azure Service Fabric to Azure Kubernetes Services, improving deployment speed and system resilience',
+        'Architecting and building a greenfield cloud-native platform on .NET and Azure from scratch, owning core backend services, API design, and data modelling.',
+        'Delivering features end-to-end in a small team — React UI, CI/CD pipelines in Azure DevOps, and production deployments.',
+        'Improving performance and reliability through refactoring, code reviews, and solid unit test coverage.',
+      ],
+    },
+    {
+      title: 'Senior Software Engineer',
+      company: 'Endava',
+      location: 'Novi Sad, Serbia · Hybrid',
+      period: 'Nov 2021 – April 2025',
+      highlights: [
+        'Worked as a backend-focused full-stack engineer on a fintech banking portal, delivering features across .NET, SQL, Vue.js, and React in a large cross-functional team.',
+        'Designed and built a distributed REST API for foreign-currency transaction processing, improving system throughput and stability — enabling ~€50k in annual operational savings.',
+        'Migrated legacy microservices from Azure Service Fabric to AKS, including a .NET Framework to .NET Core upgrade, improving scalability and reducing operational overhead.',
+        'Built and maintained CI/CD pipelines in Azure DevOps, automating build, test, and deployment workflows across multiple environments.',
+        "Upgraded Terraform infrastructure across multiple major versions (0.10 → 1.9), debugging and documenting an undocumented AzureRM provider bug that wasn't solvable through official docs or community resources.",
+        "Acted as the team's security champion — running code reviews, identifying vulnerable dependencies, and driving remediation across the codebase.",
+        'Developed event-driven microservices using Azure Service Bus, Functions, and App Services.',
+        'Delivered a user-permissions compliance report for an external banking audit that passed independent regulatory review.',
       ],
     },
     {
@@ -129,13 +151,11 @@ export default function AboutFullComponent() {
       location: 'Novi Sad, Serbia',
       period: 'Jun 2017 – Nov 2021',
       highlights: [
-        'Developed and maintained mission-critical applications for airline company, ensuring 99.9% uptime through reliable troubleshooting and testing strategies',
-        'Implemented secure and efficient payment processing system for airline operations',
-        'Maintained high system availability through timely Windows and Linux server maintenance using Shell and PowerShell scripting',
-        'Provided 24/7 on-call support, resolving critical issues within average of 2 hours',
-        'Participated in migration from legacy monolithic system to RESTful API microservices architecture',
-        'Reduced application memory consumption by over 70% (from 3GB to 800MB), enhancing scalability and lowering operational costs',
-        'Mentored junior developers, fostering collaborative environment that increased team productivity',
+        'Maintained and improved backend systems for a mission-critical airline platform, working across C#, .NET, Java, SQL, and CMS, with shared responsibility for 24/7 on-call support and high-availability operations (99.9% uptime).',
+        'Reduced memory consumption by over 70% through targeted performance optimization on payment-processing workflows and backend APIs.',
+        'Contributed to a migration from a monolithic architecture to a distributed REST-based system, implementing and deploying microservices to Linux servers.',
+        'Managed server-level operations across Windows and Linux environments, including troubleshooting, monitoring, and automated maintenance using PowerShell and Shell scripting.',
+        'Mentored junior developers through code reviews and knowledge sharing.',
       ],
     },
     {
@@ -144,9 +164,8 @@ export default function AboutFullComponent() {
       location: 'Novi Sad, Serbia',
       period: 'May 2017 – Jun 2017',
       highlights: [
-        'Developed vacation management web application using C# .NET Framework, Entity Framework, MVC, and MS SQL Server',
-        'Collaborated with team to ensure smooth integration with internal HR tools',
-        'Strengthened full-stack development skills in database design and UI implementation',
+        'Built a vacation-management web application using C#, .NET, Entity Framework, JavaScript, and MS SQL Server.',
+        'Collaborated with the team on database design, backend logic, and UI implementation using Git for version control.',
       ],
     },
     {
@@ -155,9 +174,8 @@ export default function AboutFullComponent() {
       location: 'Novi Sad, Serbia',
       period: 'Oct 2016 – Nov 2016',
       highlights: [
-        'Developed time-sheet web application using C# .NET, ADO.NET, MVC 4, and MS SQL Server',
-        'Implemented automated hour calculations and real-time reporting features',
-        'Gained practical experience in enterprise-level software development',
+        'Developed a time-sheet tracking application using C#, .NET, MVC, JavaScript, and MS SQL Server to support internal reporting workflows.',
+        'Implemented time-entry flows, automated hour calculations, and real-time project reporting features.',
       ],
     },
   ]
@@ -187,17 +205,19 @@ export default function AboutFullComponent() {
       ),
       title: 'Cost Optimization',
       description:
-        'Achieved 0.75 FTE cost savings through system optimization and process improvements',
+        '~€50k in annual operational savings through distributed system architecture improvements in a banking environment.',
     },
     {
       icon: <Zap className="h-6 w-6 text-blue-600 dark:text-blue-400" aria-hidden="true" />,
-      title: 'Performance Enhancement',
-      description: 'Reduced application memory consumption by 70% (from 3GB to 800MB)',
+      title: 'Performance',
+      description:
+        'Reduced application memory consumption by over 70% (from 3GB to 800MB) on mission-critical airline systems.',
     },
     {
       icon: <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" aria-hidden="true" />,
-      title: 'System Reliability',
-      description: 'Maintained 99.9% uptime for mission-critical airline applications',
+      title: 'Reliability',
+      description:
+        'Maintained 99.9% uptime on airline operations with shared 24/7 on-call responsibility.',
     },
   ]
 
@@ -210,7 +230,7 @@ export default function AboutFullComponent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-6 w-6" aria-hidden="true" />
-                Key Optimization Achievements
+                Key Achievements
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -268,7 +288,7 @@ export default function AboutFullComponent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building className="h-6 w-6" aria-hidden="true" />
-                Professional Experience
+                Experience
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -312,7 +332,7 @@ export default function AboutFullComponent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Award className="h-6 w-6" aria-hidden="true" />
-                Professional Certifications
+                Certifications
               </CardTitle>
             </CardHeader>
             <CardContent>
