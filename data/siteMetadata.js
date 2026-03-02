@@ -1,9 +1,10 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'Djordje.s Dev Blog',
+  title: 'Djordje Nedovic | Senior Software Engineer',
   author: 'Djordje Nedovic',
-  headerTitle: 'Dev Blog',
-  description: 'Step by step, but Steadily and Consistently 📝',
+  headerTitle: 'Djordje Nedovic',
+  description:
+    'Senior Software Engineer with 8+ years of experience in .NET, Azure cloud architecture, and performance optimization. Based in Novi Sad, Serbia.',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://djordjenedovic.netlify.app',

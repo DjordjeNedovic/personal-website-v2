@@ -151,8 +151,12 @@ export default makeSource({
   },
   onSuccess: async (importData) => {
     console.log('onSuccess')
-    const { allBlogs } = await importData()
-    createTagCount(allBlogs)
-    createSearchIndex(allBlogs)
+    try {
+      const { allBlogs } = await importData()
+      createTagCount(allBlogs)
+      createSearchIndex(allBlogs)
+    } catch (error) {
+      console.warn('onSuccess skipped (Windows ESM path issue):', error)
+    }
   },
 })

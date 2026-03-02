@@ -53,19 +53,9 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
-  children,
-  params: { lang },
-}: {
-  children: React.ReactNode
-  params: { lang: string }
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang={lang}
-      className={`${space_grotesk.variable} scroll-smooth`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${space_grotesk.variable} scroll-smooth`} suppressHydrationWarning>
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f1f1f1" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
