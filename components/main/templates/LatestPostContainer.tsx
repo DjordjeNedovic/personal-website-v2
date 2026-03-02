@@ -1,6 +1,6 @@
 'use client'
 
-import NavigationButton from '@/components/common/molecules/NavigationButton'
+import NavigationButton from '@/components/common/NavigationButton'
 import type { Authors, Blog } from 'contentlayer/generated'
 import type { CoreContent } from 'pliny/utils/contentlayer'
 import React, { Fragment } from 'react'

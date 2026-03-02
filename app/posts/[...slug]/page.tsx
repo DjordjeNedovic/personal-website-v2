@@ -2,7 +2,7 @@ import { allBlogs } from 'contentlayer/generated'
 import type { Metadata } from 'next'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import type { Blog } from 'contentlayer/generated'
-import { components } from '@/components/posts/atoms/MDXComponents'
+import { components } from '@/components/posts/MDXComponents'
 import PostSimple from '@/layouts/PostSimple'
 import { allCoreContent, coreContent, sortPosts } from 'pliny/utils/contentlayer'
 

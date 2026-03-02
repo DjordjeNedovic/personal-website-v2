@@ -1,6 +1,6 @@
 import { Authors } from 'contentlayer/generated'
-import PostAuthorContainer from '../molecules/PostAuthorContainer'
-import PostDateContainer from '../molecules/PostDateContainer'
+import PostAuthorContainer from './PostAuthorContainer'
+import PostDateContainer from './PostDateContainer'
 
 interface PostAuthorSectionProps {
   author: Authors

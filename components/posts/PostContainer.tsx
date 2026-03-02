@@ -1,9 +1,9 @@
 import Tag from '@/components/tags/Tag'
 import type { Authors, Blog } from 'contentlayer/generated'
 import type { CoreContent } from 'pliny/utils/contentlayer'
-import NavigationButton from '../../common/molecules/NavigationButton'
-import PostThumbnailWrapper from '../../common/molecules/PostThumbnailWrapper'
-import PostAuthorSection from '../../common/organisms/PostAuthorSection'
+import NavigationButton from '../common/NavigationButton'
+import PostThumbnailWrapper from '../common/PostThumbnailWrapper'
+import PostAuthorSection from '../common/PostAuthorSection'
 
 export default function PostContainer({
   post,

@@ -1,6 +1,6 @@
-import { ctm } from 'app/utils/style'
+import { ctm } from '../../app/utils/style'
 import Link from 'next/link'
-import Image from '../atoms/Image'
+import Image from './Image'
 
 interface PostThumbnailWrapper {
   slug: string
@@ -25,11 +25,11 @@ const PostThumbnailWrapper = ({
         aria-label={`Read "${title}"`}
       >
         <Image
-          className="absolute inset-0 w-full h-full object-cover"
-          sizes="auto"
+          className="absolute inset-0 w-full h-full"
+          sizes="100%"
           src={image}
-          alt={slug}
-          layout="fill"
+          alt={title}
+          fill
           style={{ objectFit: imageObjectFit }}
         />
       </Link>

@@ -1,4 +1,4 @@
-import { ctm } from 'app/utils/style'
+import { ctm } from '../../app/utils/style'
 
 const ArrowIcon = ({ color }: { color: string }) => {
   return (

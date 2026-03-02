@@ -1,6 +1,6 @@
-import { ctm } from 'app/utils/style'
+import { ctm } from '../../app/utils/style'
 import Link from 'next/link'
-import ArrowIcon from '../atoms/ArrowIcon'
+import ArrowIcon from './ArrowIcon'
 
 interface NavigationButtonProps {
   href: string

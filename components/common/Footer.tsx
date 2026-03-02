@@ -2,10 +2,8 @@
 import SocialIcon from '@/components/social-icons'
 import siteMetadata from '@/data/siteMetadata'
 import Link from 'next/link'
-import { Lit } from 'litlyx-js'
 
 export default function Footer() {
-  Lit.init('67ebe735b969824437708389')
   return (
     <footer>
       <div className="mt-16 flex flex-col items-center">
@@ -21,7 +19,7 @@ export default function Footer() {
           <div>{` • `}</div>
           <div>{`© ${new Date().getFullYear()}`}</div>
           <div>{` • `}</div>
-          <Link href="/">{siteMetadata.title}</Link>
+          <Link href="/public">{siteMetadata.title}</Link>
         </div>
       </div>
     </footer>

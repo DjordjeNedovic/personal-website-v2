@@ -1,11 +1,11 @@
 'use client'
 
 import { headerNavLinks } from '@/data/headerNavLinks'
-import { ctm } from 'app/utils/style'
+import { ctm } from '../../app/utils/style'
 import { useState } from 'react'
-import CloseIcon from '../atoms/CloseIcon'
-import ToggleIcon from '../atoms/ToggleIcon'
-import NavigationMenuButton from '../molecules/NavigationMenuButton'
+import CloseIcon from './CloseIcon'
+import ToggleIcon from './ToggleIcon'
+import NavigationMenuButton from './NavigationMenuButton'
 
 const MobileNav = () => {
   const [navShow, setNavShow] = useState(false)

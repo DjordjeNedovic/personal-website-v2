@@ -2,8 +2,8 @@
 
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
-import DarkThemeIcon from '../atoms/DarkThemeIcon'
-import LightThemeIcon from '../atoms/LightThemeIcon'
+import DarkThemeIcon from './DarkThemeIcon'
+import LightThemeIcon from './LightThemeIcon'
 
 const ThemeSwitchWrapper = () => {
   // const [mounted, setMounted] = useState(false)

@@ -2,17 +2,17 @@
 /* eslint-disable @next/next/no-img-element */
 import { headerNavLinks } from '@/data/headerNavLinks'
 import siteMetadata from '@/data/siteMetadata'
-import Link from '../../common/atoms/Link'
-import MobileNav from '../../navigation/organisms/MobileNav'
-import ThemeSwitchWrapper from '../molecules/ThemeSwitchWrapper'
-import NavigationButton from '../../common/molecules/NavigationButton'
-import LogoIcon from '../atoms/LogoIcon'
+import Link from '../common/Link'
+import MobileNav from '../navigation/MobileNav'
+import ThemeSwitchWrapper from './ThemeSwitchWrapper'
+import NavigationButton from '../common/NavigationButton'
+import LogoIcon from './LogoIcon'
 
 const Header = () => {
   return (
     <header className="flex items-center justify-between py-10">
       <div>
-        <Link href="/" aria-label={siteMetadata.headerTitle}>
+        <Link href="/public" aria-label={siteMetadata.headerTitle}>
           <div className="flex items-center justify-between">
             {/*<LogoIcon />*/}
             {typeof siteMetadata.headerTitle === 'string' ? (

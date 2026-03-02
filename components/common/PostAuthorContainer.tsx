@@ -1,6 +1,6 @@
 import { Authors } from 'contentlayer/generated'
 import Link from 'next/link'
-import Image from '../atoms/Image'
+import Image from './Image'
 
 const PostAuthorContainer = ({ author }: { author: Authors }) => {
   return (
