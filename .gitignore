@@ -51,4 +51,3 @@ yarn-error.log*
 /.vscode/*
 /.contentlayer/*
 /app/tag-data.json
-/.yarn/releases/yarn-3.6.1.cjs
