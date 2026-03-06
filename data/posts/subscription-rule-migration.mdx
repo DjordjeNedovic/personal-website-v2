@@ -60,7 +60,7 @@ terraform {
 
 Ovo znači da ako je verzija Terraforma u repou koji upgradeujete manja ili jednaka 0.11, da biste upgradovali na poslednju
 verziju (u mom slučaju, 1.9.5) morate odraditi 4 deploymenta. Razlog je što svaka verzija Terraforma zna da migrira 
-state samo iz prethodne — 0.14 ne razume 0.12 state, pa nema prečice.
+state samo iz prethodne — 0.14 ne razume 0.12 state, nema prečice.
 ```
 0.11 -> 0.12 -> 0.13 -> 0.14 -> 1.9.5
 ```
@@ -99,8 +99,8 @@ Guglanje i ChatGPT nisu pomogli, dakle ostalo je samo još try and error pristup
 ## Zašto se ovo dešava
 
 Prvo što sam pokušao je bilo da menjam atribute jedan po jedan. I prilikom promene naziva sa `$Default` na `test-name`,
-`terraform apply` se izvršio uspešno. Dakle, problem je ili u $ ili u Default (koji je možda i ključna reč). Sledeći pokusaj 
-je bio deploy bez $ I bingo — to je bio problem.
+`terraform apply` se izvršio uspešno. Dakle, problem je ili u `$` ili u `Default` (koji je možda i ključna reč). Sledeći pokusaj 
+je bio deploy bez `$`, I bingo — to je bio problem.
 
 Zašto? AzureRM za svaki Service Bus subscription automatski pravi `$Default` pravilo koje
 predstavlja catch-all kada se ne definiše nijedno drugo. `$` je rezervisan za sistemske
