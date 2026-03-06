@@ -8,6 +8,7 @@ import siteMetadata from '@/data/siteMetadata'
 import { Metadata } from 'next'
 import { ThemeProviders } from './theme-providers'
 import { GoogleAnalytics } from '@next/third-parties/google'
+import 'prismjs/themes/prism-tomorrow.css'
 
 const space_grotesk = Space_Grotesk({
   subsets: ['latin'],
