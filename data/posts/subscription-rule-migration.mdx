@@ -9,17 +9,23 @@ images: ['/static/images/thumbnail/terraform.png']
 canonicalUrl: 'https://djordjenedovic.tech/posts/subscription-rule-migration'
 ---
 
-> **TL;DR:** Ako dobijaš "Provider produces inconsistent result after apply" grešku pri migraciji sa 0.12 na 0.13, proveri da li naziv nekog resursa počinje sa `$`. Izbriši ga i nastavi.
+> **TL;DR:** Ako dobijaš "Provider produces inconsistent result after apply" grešku pri migraciji sa 0.12 na 0.13, proveri da li 
+naziv nekog resursa počinje sa `$`. Izbriši ga i nastavi.
 
 ---
 
-Kada vam neko kaže "samo upgradeuj verzije softvera", non-tech ljudima je to najčešće samo update aplikacije preko Google Playa ili App Storea, ako su uopšte svesni toga. Za nas u developmentu, svaki upgrade verzija donosi sa sobom obavezne glavobolje i niz misli gde se preispituješ da li si promašio struku i zašto ti je ovo trebalo u životu. U toku svoje karijere sam odradio dovoljan broj upgradeova, uglavnom u .NET svetu, ali me ništa nije spremilo za upgrade Terraforma.
+Za nas u developmentu, svaki upgrade verzija donosi sa sobom obavezne glavobolje i niz misli gde se preispituješ da li si 
+promašio struku i zašto ti je ovo trebalo u životu. U toku svoje karijere sam odradio dovoljan broj upgradeova, uglavnom u 
+.NET svetu, ali me ništa nije spremilo za upgrade Terraforma.
 
 ## Terraform kroz verzije
 
-Za neupućene, Terraform je jezik za manipulisanje infrastrukturom, i na zaista lep način možeš kreirati, brisati, ažurirati cloud resurse. To zna preko state-a koji u sebi sadrži sve trenutne resurse i njihove atribute, te preko njega može da prati da li je došlo do promene, dodavanja ili brisanja bilo kog resursa ili atributa — u suprotnom bi sve resurse brisao i rekreirao iz početka.
+Terraform je alat koji ti omogucava da infrastrukturu opises kao kod, umesto da klikces po Azure portalu. Svi resursi se 
+čuvaju u state koji prati promene resursa (dodavanje, brisanje, update atributa) i "i pri svakom terraform apply menja
+samo ono što se stvarno promenilo — u suprotnom bi sve resurse brisao i rekreirao iz početka.
 
-Terraform kao takav je prošao dugačak put u razvoju (state pogotovo, pročitaj malo dalje), ali se malo priča o tome koliko su veliki skokovi u minor verzijama, konkretno u verzijama od 0.11 do 0.14.
+Terraform kao takav je prošao dugačak put u razvoju (state pogotovo, pročitaj malo dalje),
+ali se malo priča o tome koliko su veliki skokovi u minor verzijama, konkretno u verzijama od 0.11 do 0.14.
 
 **0.12** — HashiCorp je doneo prelaz sa stringly typed na typed verzije. Sintaksa za reference je promenjena:
 
@@ -33,7 +39,8 @@ var.foo
 
 State je dobio eksplicitni tip metadata, uvedeni su `for_each` i `dynamic` blokovi.
 
-**0.13** — Najveća izmena je bila dodavanje adrese (laički rečeno, namespace-a) za svaki provider. Na primer, ako smo imali dva `azurerm` providera (originalni HashiCorp i nečiji drugi), pre 0.13 je bilo gotovo nemoguće jasno precizirati koji provider treba:
+**0.13** — Najveća izmena je bila dodavanje adrese (laički rečeno, namespace-a) za svaki provider. Na primer, ako smo imali
+dva `azurerm` providera (originalni HashiCorp i nečiji drugi), pre 0.13 je bilo gotovo nemoguće jasno precizirati koji provider treba:
 
 ```hcl
 # 0.13 — eksplicitni provider namespace
@@ -51,14 +58,16 @@ terraform {
 
 ## Problem
 
-Ovo znači da ako je verzija Terraforma u repou koji upgradeujete manja ili jednaka 0.11, da biste upgradovali na poslednju verziju (u mom slučaju, 1.9.5) morate odraditi 4 deploymenta. 
+Ovo znači da ako je verzija Terraforma u repou koji upgradeujete manja ili jednaka 0.11, da biste upgradovali na poslednju
+verziju (u mom slučaju, 1.9.5) morate odraditi 4 deploymenta. Razlog je što svaka verzija Terraforma zna da migrira 
+state samo iz prethodne — 0.14 ne razume 0.12 state, pa nema prečice.
 ```
 0.11 -> 0.12 -> 0.13 -> 0.14 -> 1.9.5
 ```
 
-Ako je procedura deploymenta spora, to može da traje zauvek — ili u realnosti, par sprinteva. I to je bio moj zadatak: upgradeuj Terraform sa 0.11 na 1.9.5.
+I to je bio moj zadatak: upgradeuj Terraform sa 0.11 na 1.9.5.
 
-Prvi upgrade sa 0.11 na 0.12 je prošao lagano, ali je sa 0.12 na 0.13 počelo da štuca. Jedan poseban bug je tema današnjeg posta.
+Prvi upgrade sa 0.11 na 0.12 je prošao lagano, ali je upgrade sa 0.12 na 0.13 sa sobom dobeo bug je tema današnjeg posta.
 
 Prilikom `terraform apply` koraka događao se exception sa sledećom sadržinom:
 
@@ -84,28 +93,33 @@ resource "azurerm_servicebus_subscription_rule" "example" {
 }
 ```
 
-Guglanje i ChatGPT nisu pomogli, dakle ostalo je samo još try and error pristup — a istini za volju, imao sam i prostora i vremena da se igram.
+Guglanje i ChatGPT nisu pomogli, dakle ostalo je samo još try and error pristup 
+— a istini za volju, imao sam i prostora i vremena da se igram.
 
 ## Zašto se ovo dešava
 
-Prvo što sam pokušao je bilo da vidim šta će `$` tu i da li on možda pravi problem. I bingo — to je bio problem.
+Prvo što sam pokušao je bilo da menjam atribute jedan po jedan. I prilikom promene naziva sa `$Default` na `test-name`,
+`terraform apply` se izvršio uspešno. Dakle, problem je ili u $ ili u Default (koji je možda i ključna reč). Sledeći pokusaj 
+je bio deploy bez $ I bingo — to je bio problem.
 
-Zašto? AzureRM za svaki Service Bus subscription automatski pravi `$Default` pravilo koje predstavlja catch-all kada se ne definiše nijedno drugo. `$` je rezervisan za sistemske entitete. Pošto ovo nije sistemski entitet već korisnički resurs, postoji u state-u ali AzureRM provider ne zna kako da ga konzistentno tretira nakon 0.13 promene provider namespace-a — i dolazi do greške, i to veoma nejasne poruke.
+Zašto? AzureRM za svaki Service Bus subscription automatski pravi `$Default` pravilo koje
+predstavlja catch-all kada se ne definiše nijedno drugo. `$` je rezervisan za sistemske
+entitete. Pošto ovo nije sistemski entitet već korisnički resurs, postoji u state-u ali 
+AzureRM provider ne zna kako da ga konzistentno tretira nakon 0.13 promene provider
+namespace-a — i dolazi do greške, i to veoma nejasne poruke.
 
 ## Rešenje
 
 ```hcl
-# Pre (puca pri migraciji na 0.13)
 resource "azurerm_servicebus_subscription_rule" "example" {
-  name            = "$Default"
+  name            = "$Default" # <--- Pre
   subscription_id = azurerm_servicebus_subscription.example.id
   filter_type     = "SqlFilter"
   sql_filter      = "colour = 'red'"
 }
 
-# Posle (radi)
 resource "azurerm_servicebus_subscription_rule" "example" {
-  name            = "default-rule"
+  name            = "default-rule" # <--- Posle
   subscription_id = azurerm_servicebus_subscription.example.id
   filter_type     = "SqlFilter"
   sql_filter      = "colour = 'red'"
