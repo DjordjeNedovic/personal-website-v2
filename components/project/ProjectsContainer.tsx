@@ -99,7 +99,7 @@ const EnhancedProjectCard = ({ project }: { project: any }) => {
 
 const ProjectsContainer = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12 px-4 transition-colors duration-300">
+    <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12 px-4 transition-colors duration-300">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="space-y-4 mb-12">

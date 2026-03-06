@@ -12,7 +12,7 @@ export default function MainPage({
 }) {
   return (
     <>
-      <div className="min-h-screen bg-white dark:bg-slate-900">
+      <div className="bg-white dark:bg-slate-900">
         <IntroduceContainer />
         <div className="max-w-6xl mx-auto px-4">
           <LatestPostContainer posts={posts} author={author} />

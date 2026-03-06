@@ -66,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-white text-black antialiased dark:bg-gray-800 dark:text-white">
         <ThemeProviders>
           <SectionContainer>
-            <div className="flex h-screen flex-col justify-between font-sans">
+            <div className="flex flex-col justify-between font-sans">
               <Header />
               <main className="mb-auto">{children}</main>
               <Footer />
