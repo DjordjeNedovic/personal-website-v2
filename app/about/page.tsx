@@ -31,7 +31,6 @@ export default function Page() {
       addressCountry: 'Serbia',
     },
     email: 'nedovic.djordje@gmail.com',
-    telephone: '+381611885802',
     alumniOf: {
       '@type': 'EducationalOrganization',
       name: 'University of Novi Sad',

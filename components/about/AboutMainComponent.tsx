@@ -88,15 +88,6 @@ export default function AboutMainComponent() {
                     </a>
                   </div>
                   <div className="flex items-center justify-center lg:justify-start gap-2">
-                    <Phone className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                    <a
-                      href="tel:+381611885802"
-                      className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    >
-                      (+381)61 188 58 02
-                    </a>
-                  </div>
-                  <div className="flex items-center justify-center lg:justify-start gap-2">
                     <Linkedin className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                     <a
                       href="https://linkedin.com/in/djordjenedovic"
