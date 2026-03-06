@@ -59,7 +59,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${space_grotesk.variable} scroll-smooth`} suppressHydrationWarning>
-      <meta name="google-site-verification" content="NexAAqcA4HTnd0HO2t4ZhWdqzXahMveX0dS6uaT74zo" />
+      <meta name="google-site-verification" content="5IdY5q-RbxRE09inEggJy9vRSyLj4yS8g0IWTrKEz_M" />
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f1f1f1" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
