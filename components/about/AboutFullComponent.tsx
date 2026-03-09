@@ -223,7 +223,7 @@ export default function AboutFullComponent() {
 
   return (
     <>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12 px-4 transition-colors duration-300">
+      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12 pb-8 px-4 transition-colors duration-300">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Optimization Achievements */}
           <Card>

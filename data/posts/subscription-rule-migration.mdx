@@ -1,49 +1,59 @@
 ---
-title: 'Terraform Upgrade sa 0.12 i Glavobolje sa $ u Nazivu'
+title: 'One Character That Broke My Terraform Migration'
 date: '2026-03-06'
 lastmod: '2026-03-06'
 tags: ['Terraform', 'Azure', 'Infrastructure as Code', 'Migration', 'Bug Fix', 'AzureRM', 'Azure Service Bus', 'Debugging']
 draft: false
-summary: 'Proveo sam sate debugujući nejasnu AzureRM provider grešku tokom Terraform 0.12 → 0.13 migracije. Krivac? Jedan jedini $ karakter u nazivu resursa — potpuno nedokumentovano.'
+summary: 'Getting "Provider produces inconsistent result after apply" during Terraform migration? A $ in your resource name might be why — and it is nowhere in the docs.'
 images: ['/static/images/thumbnail/terraform.png']
 canonicalUrl: 'https://djordjenedovic.tech/posts/subscription-rule-migration'
 ---
 
-> **TL;DR:** Ako dobijaš "Provider produces inconsistent result after apply" grešku pri migraciji sa 0.12 na 0.13, proveri da li 
-naziv nekog resursa počinje sa `$`. Izbriši ga i nastavi.
+> **TL;DR:** If you're getting "Provider produces inconsistent result after apply" while migrating from Terraform 0.12
+to 0.13, check if any of your AzureRM resource names start with `$`. Remove it and move on.
 
 ---
 
-Za nas u developmentu, svaki upgrade verzija donosi sa sobom obavezne glavobolje i niz misli gde se preispituješ da li si 
-promašio struku i zašto ti je ovo trebalo u životu. U toku svoje karijere sam odradio dovoljan broj upgradeova, uglavnom u 
-.NET svetu, ali me ništa nije spremilo za upgrade Terraforma.
+For those of us in development, every version upgrade comes with its share of headaches and the occasional existential
+crisis. Over the years I've done my share of upgrades, mostly in the .NET world - but nothing prepared me for a Terraform upgrade.
 
-## Terraform kroz verzije
+## A Brief History of Terraform Versions
 
-Terraform je alat koji ti omogucava da infrastrukturu opises kao kod, umesto da klikces po Azure portalu. Svi resursi se 
-čuvaju u state koji prati promene resursa (dodavanje, brisanje, update atributa) i "i pri svakom terraform apply menja
-samo ono što se stvarno promenilo — u suprotnom bi sve resurse brisao i rekreirao iz početka.
+Terraform is a tool that allows you to describe infrastructure as code instead of clicking through a Cloud portal. All
+resources are stored in state, which tracks every change (adding, deleting, or updating attributes), and during `terraform apply`
+it only touches what actually changed - otherwise it would delete and recreate everything from scratch.
 
-Terraform kao takav je prošao dugačak put u razvoju (state pogotovo, pročitaj malo dalje),
-ali se malo priča o tome koliko su veliki skokovi u minor verzijama, konkretno u verzijama od 0.11 do 0.14.
+Terraform has come a long way (state especially - more on that below), but not enough is said about how
+significant the version jumps can be, specifically between 0.11 and 0.14.
 
-**0.12** — HashiCorp je doneo prelaz sa stringly typed na typed verzije. Sintaksa za reference je promenjena:
-
+**0.12** - HashiCorp introduced a shift from stringly typed to properly typed configurations. Reference syntax changed:
 ```hcl
-# Pre (0.11)
+# Before (0.11)
 "${var.foo}"
 
-# Posle (0.12)
+# After (0.12)
 var.foo
 ```
 
-State je dobio eksplicitni tip metadata, uvedeni su `for_each` i `dynamic` blokovi.
+State gained explicit type metadata:
+```hcl
+# Before (0.11)
+"count": "3",
+"enabled": "true",
+"tags": "map[env:prod]"
 
-**0.13** — Najveća izmena je bila dodavanje adrese (laički rečeno, namespace-a) za svaki provider. Na primer, ako smo imali
-dva `azurerm` providera (originalni HashiCorp i nečiji drugi), pre 0.13 je bilo gotovo nemoguće jasno precizirati koji provider treba:
+# After (0.12)
+"count": 3,
+"enabled": true,
+"tags": { "env": "prod" }
+```
+and `for_each` and `dynamic` blocks were introduced.
+
+**0.13** - The biggest change was adding a source address (essentially a namespace) for each provider. Before this, if
+you had two providers with the same name, there was no clear way to specify which one to use:
 
 ```hcl
-# 0.13 — eksplicitni provider namespace
+# 0.13 — explicit provider namespace
 terraform {
   required_providers {
     azurerm = {
@@ -54,22 +64,24 @@ terraform {
 }
 ```
 
-**0.14** — Sensitive atribut se počeo pratiti u state-u, i dodat je dependency lock file za providere (`.terraform.lock.hcl`).
+**0.14** -  Sensitive attributes are now tracked in state, and a dependency lock file for providers (`.terraform.lock.hcl`)
+was introduced (similar to `package-lock.json` in Node.js world).
 
-## Problem
+## Why You Can't Skip Versions
 
-Ovo znači da ako je verzija Terraforma u repou koji upgradeujete manja ili jednaka 0.11, da biste upgradovali na poslednju
-verziju (u mom slučaju, 1.9.5) morate odraditi 4 deploymenta. Razlog je što svaka verzija Terraforma zna da migrira 
-state samo iz prethodne — 0.14 ne razume 0.12 state, nema prečice.
+This means that if your repo is running Terraform 0.11 or lower, upgrading to the latest version (1.9.5 in my case)
+requires four separate deployments - meaning you need to run `terraform apply` four times:
 ```
 0.11 -> 0.12 -> 0.13 -> 0.14 -> 1.9.5
 ```
+The reason is that each version only knows how to migrate state from the previous one - 0.14 simply does not understand
+a 0.12 state file. This is an intentional decision by HashiCorp, as supporting arbitrary version jumps would be far
+more complex to maintain and test.
 
-I to je bio moj zadatak: upgradeuj Terraform sa 0.11 na 1.9.5.
+And that was exactly my task - upgrade Terraform from 0.11 to 1.9.5. The first deployment from 0.11 to 0.12 went smoothly,
+but the upgrade from 0.12 to 0.13 introduced a bug that is the topic of this post.
 
-Prvi upgrade sa 0.11 na 0.12 je prošao lagano, ali je upgrade sa 0.12 na 0.13 sa sobom dobeo bug je tema današnjeg posta.
-
-Prilikom `terraform apply` koraka događao se exception sa sledećom sadržinom:
+During the `terraform apply` step, I got an exception with the following message:
 
 ```
 Error: Provider produces inconsistent result after apply
@@ -82,7 +94,7 @@ This is a bug in the provider, which should be reported in the provider's own
 issue tracker.
 ```
 
-Resurs sam po sebi nije ukazivao ni na kakav problem:
+The resource itself didn't show any obvious problems:
 
 ```hcl
 resource "azurerm_servicebus_subscription_rule" "example" {
@@ -92,38 +104,34 @@ resource "azurerm_servicebus_subscription_rule" "example" {
   sql_filter      = "colour = 'red'"
 }
 ```
+I went with a trial and error approach - and honestly, I had the time and freedom to experiment.
 
-Guglanje i ChatGPT nisu pomogli, dakle ostalo je samo još try and error pristup 
-— a istini za volju, imao sam i prostora i vremena da se igram.
+## Why This Is Happening
+The first thing I tried was changing attributes one by one. Renaming from `$Default` to `test-name` made `terraform apply`
+succeed - so the problem was either the `$` or `Default` itself, which might be a reserved keyword. Next try was deploying
+with just `Default` (no `$`), and bingo.
 
-## Zašto se ovo dešava
+Why? AzureRM automatically creates a `$Default` rule for every Service Bus subscription - it's a catch-all that matches
+all messages when no other rules are defined. The `$` prefix is reserved for system-level resources, meaning the Azure will
+refuse to create any user-defined resource with that prefix - and that conflict is what produces this very unhelpful error message.
 
-Prvo što sam pokušao je bilo da menjam atribute jedan po jedan. I prilikom promene naziva sa `$Default` na `test-name`,
-`terraform apply` se izvršio uspešno. Dakle, problem je ili u `$` ili u `Default` (koji je možda i ključna reč). Sledeći pokusaj 
-je bio deploy bez `$`, I bingo — to je bio problem.
-
-Zašto? AzureRM za svaki Service Bus subscription automatski pravi `$Default` pravilo koje
-predstavlja catch-all kada se ne definiše nijedno drugo. `$` je rezervisan za sistemske
-entitete. Pošto ovo nije sistemski entitet već korisnički resurs, postoji u state-u ali 
-AzureRM provider ne zna kako da ga konzistentno tretira nakon 0.13 promene provider
-namespace-a — i dolazi do greške, i to veoma nejasne poruke.
-
-## Rešenje
+## Solution
 
 ```hcl
 resource "azurerm_servicebus_subscription_rule" "example" {
-  name            = "$Default" # <--- Pre
+  name            = "$Default" # <--- Before
   subscription_id = azurerm_servicebus_subscription.example.id
   filter_type     = "SqlFilter"
   sql_filter      = "colour = 'red'"
 }
 
 resource "azurerm_servicebus_subscription_rule" "example" {
-  name            = "default-rule" # <--- Posle
+  name            = "default-rule" # <--- After
   subscription_id = azurerm_servicebus_subscription.example.id
   filter_type     = "SqlFilter"
   sql_filter      = "colour = 'red'"
 }
 ```
+The next two deployments went smoothly.
 
-Rešenje je prosto — izbriši `$` iz naziva i nastavi sa migracijom.
+Solution is simple, just delete `$` from resource name.

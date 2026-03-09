@@ -103,7 +103,7 @@ const LatestPostContainer = ({
       className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 px-4 transition-colors duration-300"
       style={{
         paddingTop: '48px',
-        paddingBottom: '16px', // Smanjen sa 24px na 16px
+        paddingBottom: '16px',
       }}
     >
       <div className="max-w-6xl mx-auto">
@@ -134,7 +134,7 @@ const LatestPostContainer = ({
           {/* Posts Grid */}
           <div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            style={{ marginBottom: '16px' }} // Smanjen sa 24px na 16px
+            style={{ marginBottom: '16px' }}
           >
             {!posts.length && (
               <div className="col-span-full text-center py-12">

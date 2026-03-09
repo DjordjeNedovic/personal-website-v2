@@ -14,7 +14,7 @@ export default function MainPage({
     <>
       <div className="bg-white dark:bg-slate-900">
         <IntroduceContainer />
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="flex p-0 md:p-4 w-auto items-center justify-between h-auto">
           <LatestPostContainer posts={posts} author={author} />
         </div>
       </div>

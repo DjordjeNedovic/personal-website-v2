@@ -2,15 +2,15 @@
 title: 'Terraform Upgrade sa 0.12 i Glavobolje sa $ u Nazivu'
 date: '2023-05-24'
 lastmod: '2025-03-04'
-tags: ['Terraform', 'Azure', 'Infrastructure as Code', 'Migration', 'Bug Fix', 'AzureRM', 'Azure Service Bus', 'Debugging']
+tags: []
 draft: false
 summary: 'Proveo sam sate debugujući nejasnu AzureRM provider grešku tokom Terraform 0.12 → 0.13 migracije. Krivac? Jedan jedini $ karakter u nazivu resursa — potpuno nedokumentovano.'
 images: ['/static/images/thumbnail/terraform.png']
 canonicalUrl: 'https://djordjenedovic.tech/posts/subscription-rule-migration'
 ---
 
-> **TL;DR:** Ako dobijaš "Provider produces inconsistent result after apply" grešku pri migraciji sa 0.12 na 0.13, proveri da li
-naziv nekog resursa počinje sa `$`. Izbriši ga i nastavi.
+> **TL;DR:** Ako dobijaš "Provider produces inconsistent result after apply" grešku pri migraciji AzureRM resursa iz
+Terraforma sa 0.12 na 0.13, proveri da li naziv nekog resursa počinje sa $. Izbriši ga i nastavi.
 
 ---
 
@@ -21,7 +21,7 @@ promašio struku i zašto ti je ovo trebalo u životu. U toku svoje karijere sam
 ## Terraform kroz verzije
 
 Terraform je alat koji ti omogucava da infrastrukturu opises kao kod, umesto da klikces po Azure portalu. Svi resursi se
-čuvaju u state koji prati promene resursa (dodavanje, brisanje, update atributa) i "i pri svakom terraform apply menja
+čuvaju u state koji prati promene resursa (dodavanje, brisanje, update atributa) i pri svakom `terraform apply` menja
 samo ono što se stvarno promenilo — u suprotnom bi sve resurse brisao i rekreirao iz početka.
 
 Terraform kao takav je prošao dugačak put u razvoju (state pogotovo, pročitaj malo dalje),
@@ -37,7 +37,19 @@ ali se malo priča o tome koliko su veliki skokovi u minor verzijama, konkretno 
 var.foo
 ```
 
-State je dobio eksplicitni tip metadata, uvedeni su `for_each` i `dynamic` blokovi.
+State je dobio eksplicitni tip metadata:
+```hcl
+# Before (0.11)
+"count": "3",
+"enabled": "true",
+"tags": "map[env:prod]"
+
+# After (0.12)
+"count": 3,
+"enabled": true,
+"tags": { "env": "prod" }
+```
+uvedeni su `for_each` i `dynamic` blokovi.
 
 **0.13** — Najveća izmena je bila dodavanje adrese (laički rečeno, namespace-a) za svaki provider. Na primer, ako smo imali
 dva `azurerm` providera (originalni HashiCorp i nečiji drugi), pre 0.13 je bilo gotovo nemoguće jasno precizirati koji provider treba:
@@ -54,20 +66,21 @@ terraform {
 }
 ```
 
-**0.14** — Sensitive atribut se počeo pratiti u state-u, i dodat je dependency lock file za providere (`.terraform.lock.hcl`).
+**0.14** — Sensitive atribut se počeo pratiti u state-u, i dodat je dependency lock file za providere (`.terraform.lock.hcl`),
+slično kao package-lock.json u Node.js svetu.
 
 ## Problem
 
 Ovo znači da ako je verzija Terraforma u repou koji upgradeujete manja ili jednaka 0.11, da biste upgradovali na poslednju
-verziju (u mom slučaju, 1.9.5) morate odraditi 4 deploymenta. Razlog je što svaka verzija Terraforma zna da migrira
-state samo iz prethodne — 0.14 ne razume 0.12 state, nema prečice.
+verziju (u mom slučaju, 1.9.5) morate odraditi 4 deploymenta. Odnosno, pokrenuti terraform apply četiri puta:
 ```
 0.11 -> 0.12 -> 0.13 -> 0.14 -> 1.9.5
 ```
+Razlog je što svaka verzija zna da migrira state samo iz prethodne - 0.14 jednostavno ne razume state fajl od 0.12. Ovo je
+svesna odluka HashiCorp-a.
 
-I to je bio moj zadatak: upgradeuj Terraform sa 0.11 na 1.9.5.
-
-Prvi upgrade sa 0.11 na 0.12 je prošao lagano, ali je upgrade sa 0.12 na 0.13 sa sobom dobeo bug je tema današnjeg posta.
+I to je bio moj zadatak: upgradeuj Terraform sa 0.11 na 1.9.5. Prvi deployment sa 0.11 na 0.12 je prošao bez problema,
+ali upgrade sa 0.12 na 0.13 doneo je bug koji je tema ovog posta.
 
 Prilikom `terraform apply` koraka događao se exception sa sledećom sadržinom:
 
@@ -97,16 +110,13 @@ Guglanje i ChatGPT nisu pomogli, dakle ostalo je samo još try and error pristup
 — a istini za volju, imao sam i prostora i vremena da se igram.
 
 ## Zašto se ovo dešava
+Počeo sam da menjam atribute jedan po jedan. Kad sam promenio naziv sa `$Default` na `test-name`, `terraform apply` je prošao.
+Dakle, problem je ili u `$` ili u `Default` - koji je rezervisana reč. Sledeći pokušaj je bio deploy sa nazivom `Default`
+(bez `$`), i bingo.
 
-Prvo što sam pokušao je bilo da menjam atribute jedan po jedan. I prilikom promene naziva sa `$Default` na `test-name`,
-`terraform apply` se izvršio uspešno. Dakle, problem je ili u `$` ili u `Default` (koji je možda i ključna reč). Sledeći pokusaj
-je bio deploy bez `$`, I bingo — to je bio problem.
-
-Zašto? AzureRM za svaki Service Bus subscription automatski pravi `$Default` pravilo koje
-predstavlja catch-all kada se ne definiše nijedno drugo. `$` je rezervisan za sistemske
-entitete. Pošto ovo nije sistemski entitet već korisnički resurs, postoji u state-u ali
-AzureRM provider ne zna kako da ga konzistentno tretira nakon 0.13 promene provider
-namespace-a — i dolazi do greške, i to veoma nejasne poruke.
+Zašto? AzureRM automatski pravi `$Default` pravilo za svaki Service Bus subscription - to je pravilo koje hvata sve poruke kad
+ne definišeš nijedno drugo pravilo. `$` prefiks je rezervisan za sistemske resurse,  što znači da Azure odbija da kreira bilo
+koji korisnički resurs sa tim prefiksom. I tu dolazi do konflikta.
 
 ## Rešenje
 
@@ -125,5 +135,6 @@ resource "azurerm_servicebus_subscription_rule" "example" {
   sql_filter      = "colour = 'red'"
 }
 ```
+Naredna dva deploymenta su, srećom, prošla bez problema.
 
-Rešenje je prosto — izbriši `$` iz naziva i nastavi sa migracijom.
+Rešenje je prosto - izbriši `$` iz naziva i nastavi sa migracijom.

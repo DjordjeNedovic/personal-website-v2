@@ -6,7 +6,6 @@ import { genPageMetadata } from 'app/seo'
 
 const POSTS_PER_PAGE = 5
 
-// DIFF: Poboljšan SEO metadata
 export const metadata = genPageMetadata({
   title: 'All Posts - Djordje Nedovic Dev Blog',
   description:
@@ -72,7 +71,6 @@ export default function BlogPage() {
 
   return (
     <>
-      {/* DIFF: Dodao structured data script */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogListingSchema) }}
