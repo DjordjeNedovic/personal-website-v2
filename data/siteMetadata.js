@@ -4,10 +4,10 @@ const siteMetadata = {
   author: 'Djordje Nedovic',
   headerTitle: 'Djordje Nedovic',
   description:
-    'Senior Software Engineer with 8+ years of experience in .NET, Azure cloud architecture, and performance optimization. Based in Novi Sad, Serbia.',
+    'Senior Software Engineer with 8+ years of experience in .NET, Azure cloud architecture, and performance optimisation. Based in Novi Sad, Serbia.'
   language: 'en-us',
-  theme: 'system', // system, dark or light
-  siteUrl: 'https://djordjenedovic.netlify.app',
+  theme: 'dark', // system, dark or light
+  siteUrl: 'https://djordjenedovic.tech',
   siteRepo: 'https://github.com/djordjeNedovic',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/banner.jpeg',
