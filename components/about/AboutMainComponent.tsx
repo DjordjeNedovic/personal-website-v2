@@ -1,7 +1,7 @@
 'use client'
 
 import type React from 'react'
-import { MapPin, Mail, Phone, Linkedin, Github, Users } from 'lucide-react'
+import { MapPin, Mail, Users } from 'lucide-react'
 import Image from 'next/image'
 
 // Custom Card Components with Dark Theme Support
@@ -88,7 +88,6 @@ export default function AboutMainComponent() {
                     </a>
                   </div>
                   <div className="flex items-center justify-center lg:justify-start gap-2">
-                    <Linkedin className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                     <a
                       href="https://linkedin.com/in/djordjenedovic"
                       target="_blank"
@@ -99,7 +98,6 @@ export default function AboutMainComponent() {
                     </a>
                   </div>
                   <div className="flex items-center justify-center lg:justify-start gap-2 sm:col-span-2 lg:col-span-1 xl:col-span-2">
-                    <Github className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                     <a
                       href="https://github.com/DjordjeNedovic"
                       target="_blank"

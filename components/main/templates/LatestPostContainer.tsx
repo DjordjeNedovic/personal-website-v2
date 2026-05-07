@@ -2,7 +2,7 @@
 
 import NavigationButton from '@/components/common/NavigationButton'
 import type { Authors, Blog } from 'contentlayer/generated'
-import type { CoreContent } from 'pliny/utils/contentlayer'
+import type { CoreContent } from 'pliny/utils/contentlayer.js'
 import React, { Fragment } from 'react'
 import { Calendar, ArrowRight, Tag } from 'lucide-react'
 import Image from 'next/image'

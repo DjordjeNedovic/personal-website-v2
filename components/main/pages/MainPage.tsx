@@ -1,5 +1,5 @@
 import { Authors, Blog } from 'contentlayer/generated'
-import { CoreContent } from 'pliny/utils/contentlayer'
+import { CoreContent } from 'pliny/utils/contentlayer.js'
 import IntroduceContainer from '../templates/IntroduceContainer'
 import LatestPostContainer from '../templates/LatestPostContainer'
 

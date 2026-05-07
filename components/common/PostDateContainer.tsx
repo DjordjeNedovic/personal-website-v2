@@ -1,5 +1,5 @@
 import siteMetadata from '@/data/siteMetadata'
-import { formatDate } from 'pliny/utils/formatDate'
+import { formatDate } from 'pliny/utils/formatDate.js'
 
 const PostDateContainer = ({ date }: { date: string }) => {
   return (
