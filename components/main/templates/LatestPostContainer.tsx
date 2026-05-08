@@ -1,7 +1,8 @@
 'use client'
 
 import NavigationButton from '@/components/common/NavigationButton'
-import type { Authors, Blog } from 'contentlayer/generated'
+import type { Blog } from 'contentlayer/generated'
+import type { Authors } from '@/libs/velite'
 import type { CoreContent } from 'pliny/utils/contentlayer.js'
 import React, { Fragment } from 'react'
 import { Calendar, ArrowRight, Tag } from 'lucide-react'

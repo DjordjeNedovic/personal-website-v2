@@ -1,5 +1,5 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
-import { type Authors, allAuthors } from 'contentlayer/generated'
+import { allAuthors, type Authors } from '@/libs/velite'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer.js'
 import { allBlogs } from 'contentlayer/generated'
 import { genPageMetadata } from 'app/seo'
@@ -44,17 +44,16 @@ export default function BlogPage() {
     totalPages: Math.ceil(posts.length / POSTS_PER_PAGE),
   }
 
-  // DIFF: Dodao structured data za SEO
   const blogListingSchema = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
     name: 'Djordje Nedovic Dev Blog',
     description: 'Technical blog about software development and performance optimization',
-    url: 'https://djordjenedovic.netlify.app/posts',
+    url: 'https://djordjenedovic.tech/posts',
     author: {
       '@type': 'Person',
       name: 'Djordje Nedovic',
-      url: 'https://djordjenedovic.netlify.app',
+      url: 'https://djordjenedovic.tech',
     },
     blogPost: posts.slice(0, 10).map((post) => ({
       '@type': 'BlogPosting',
@@ -64,7 +63,7 @@ export default function BlogPage() {
         '@type': 'Person',
         name: 'Djordje Nedovic',
       },
-      url: `https://djordjenedovic.netlify.app/posts/${post.slug}`,
+      url: `https://djordjenedovic.tech/posts/${post.slug}`,
       description: post.summary,
     })),
   }

@@ -1,4 +1,4 @@
-import { Authors } from 'contentlayer/generated'
+import { Authors } from '@/libs/velite'
 import Link from 'next/link'
 import Image from './Image'
 

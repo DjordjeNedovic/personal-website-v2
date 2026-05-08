@@ -35,10 +35,11 @@
         "css/*"
       ],
       "@/libs/*": [
-        "lib/*"
+        "libs/*"
       ],
       "contentlayer/generated": [
-        "./.contentlayer/generated"
+        "./.contentlayer/generated",
+        "./.velite"
       ]
     },
     "typeRoots": [
@@ -67,6 +68,6 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules", "contentlayer.config.ts"
+    "node_modules", "contentlayer.config.ts", "velite.config.ts"
   ]
 }
