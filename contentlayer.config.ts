@@ -42,6 +42,23 @@ const computedFields: ComputedFields = {
   toc: { type: 'string', resolve: (doc) => extractTocHeadings(doc.body.raw) },
 }
 
+const computedFieldsRs: ComputedFields = {
+  readingTime: { type: 'json', resolve: (doc) => readingTime(doc.body.raw) },
+  slug: {
+    type: 'string',
+    resolve: (doc) => doc._raw.flattenedPath.replace(/^posts\/rs\//, ''),
+  },
+  path: {
+    type: 'string',
+    resolve: (doc) => doc._raw.flattenedPath,
+  },
+  filePath: {
+    type: 'string',
+    resolve: (doc) => doc._raw.sourceFilePath,
+  },
+  toc: { type: 'string', resolve: (doc) => extractTocHeadings(doc.body.raw) },
+}
+
 /**
  * Count the occurrences of all tags across blog posts and write to json file
  */
@@ -78,7 +95,7 @@ function createSearchIndex(allBlogs) {
 
 export const Blog = defineDocumentType(() => ({
   name: 'Blog',
-  filePathPattern: 'posts/*.mdx',
+  filePathPattern: 'posts/[^/]*.mdx',
   contentType: 'mdx',
   fields: {
     title: { type: 'string', required: true },
@@ -111,27 +128,44 @@ export const Blog = defineDocumentType(() => ({
   },
 }))
 
-export const Authors = defineDocumentType(() => ({
-  name: 'Authors',
-  filePathPattern: 'authors/**/*.mdx',
+export const BlogRs = defineDocumentType(() => ({
+  name: 'BlogRs',
+  filePathPattern: 'posts/rs/*.mdx',
   contentType: 'mdx',
   fields: {
-    name: { type: 'string', required: true },
-    avatar: { type: 'string' },
-    occupation: { type: 'string' },
-    company: { type: 'string' },
-    email: { type: 'string' },
-    twitter: { type: 'string' },
-    linkedin: { type: 'string' },
-    github: { type: 'string' },
+    title: { type: 'string', required: true },
+    date: { type: 'date', required: true },
+    tags: { type: 'list', of: { type: 'string' }, default: [] },
+    lastmod: { type: 'date' },
+    draft: { type: 'boolean' },
+    summary: { type: 'string' },
+    images: { type: 'json' },
+    authors: { type: 'list', of: { type: 'string' } },
     layout: { type: 'string' },
+    bibliography: { type: 'string' },
+    canonicalUrl: { type: 'string' },
   },
-  computedFields,
+  computedFields: {
+    ...computedFieldsRs,
+    structuredData: {
+      type: 'json',
+      resolve: (doc) => ({
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: doc.title,
+        datePublished: doc.date,
+        dateModified: doc.lastmod || doc.date,
+        description: doc.summary,
+        image: doc.images ? doc.images[0] : siteMetadata.socialBanner,
+        url: `${siteMetadata.siteUrl}/posts/rs/${doc._raw.flattenedPath.replace('posts/rs/', '')}`,
+      }),
+    },
+  },
 }))
 
 export default makeSource({
   contentDirPath: 'data',
-  documentTypes: [Blog, Authors],
+  documentTypes: [Blog, BlogRs],
   mdx: {
     cwd: process.cwd(),
     remarkPlugins: [
