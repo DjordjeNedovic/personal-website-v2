@@ -1,0 +1,123 @@
+---
+title: 'Zbogom AutoMapper'
+date: '2026-05-05'
+lastmod: '2026-05-05'
+tags: ['.NET', 'Performance', 'Architecture', 'AutoMapper']
+draft: false
+summary: ''
+images: ['/static/images/thumbnail/dotnet.png']
+canonicalUrl:  >-
+    https://djordjenedovic.tech/posts/rs/migrate-from-automapper
+---
+Pošto je AutoMapper odlučio da pređe na [komercijalnu licencu počevši od verzije 15](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/), u timu smo odlučili da ga se rešimo.
+Umesto da posegnemo za još jednom bibliotekom, odlučili smo se za .NET extension metode. Već čujem — "Ali Đorđe, postoje biblioteke..."
+— na šta ću reći samo: šššš. Imamo 4 klase, zaista ne treba biblioteka. "Ali Đorđe, performanse..." — to ćemo testirati
+[na dnu posta](#performanse). Za sada, ajde da prođemo šta smo radili i kako.
+
+Kao što sam već pomenuo, imamo 4 para klasa (entity–DTO), kao i generičku baznu servis klasu kroz koju persistujemo i
+čitamo sve iz baze. Zbog generičnosti, bazna klasa sadrži samo osnovne operacije — `GetAll`, `GetOne` i `Save` — dok svaka servis
+klasa koja je nasleđuje može imati dodatne metode. Sve entity klase nasleđuju isti `BaseEntity`. Struktura projekta izgleda ovako:
+
+```csharp
+/YourProject
+├── Services
+│   ├── BaseService.cs
+│   ├── BookService.cs
+│   ├── ....
+│
+├── Dto
+│   ├── BookDto.cs
+│   ├── ....
+│
+├── Entities
+│   ├── BaseEntity.cs
+│   ├── BooklEntity.cs
+│   ├── ....
+```
+
+Za svaki par klasa dodajemo extension klasu koja sadrži bidirekciono mapiranje — iz entitija u DTO i obrnuto — kao i
+metodu za mapiranje kolekcije (`IEnumerable`) iz entitija u DTO. To izgleda ovako:
+```cs
+public static class BookMappingExtensions
+{
+    public static BookDto ToDto(this BookEntity entity)
+    {
+        if (entity == null) return null;
+        return new BookDto
+        {
+            Id = entity.Id,
+            Title = entity.Title,
+            Author = entity.Author,
+            CreatedBy = entity.CreatedBy,
+            CreateDate = entity.CreateDate,
+        };
+    }
+
+    public static BookEntity FromDto(this BookDto dto)
+    {
+        if (dto == null) return null;
+        return new BookEntity
+        {
+            Title = dto.Title,
+            Author = dto.Author,
+            CreatedBy = dto.CreatedBy,
+            CreateDate = dto.CreateDate
+        };
+    }
+
+    public static IEnumerable<BookDto> ToDtos(this IEnumerable<BookEntity> entities)
+    {
+        return entities?.Select(e => e.ToDto()) ?? Enumerable.Empty<BookDto>();
+    }
+}
+```
+I da ovo ne bi zvučalo kao najbesmisleniji blog na svetu — tu dolazi genericnost, odnosno kako ovo proslediti baznoj
+servis klasi i njenim 3 osnovnim metodama koje dele svi entiteti. Odgovor je u delegatima. I nije me sramota da priznam
+da sam ih, posle 8 godina, prvi put koristio.
+
+I jedno vrlo cesto pitanje na intervjueima, sta je delegat? Delegat je Type-safe pokazivač na metodu. Možeš da čuvaš referencu
+na metodu i pozoveš je kasnije. Omogućavaju da metodu prosleđuješ kao parametar – callback pattern, i to je poenta bloga,
+production code primer callback patterna:
+
+Prosirenje base klase:
+
+```csharp
+public class BaseFileService{
++    private readonly Func<TDto, TEntity> _fromDto;
++    private readonly Func<TEntity, TDto> _toEntity;
+
+    public BaseFileService(
+        ILogger<BaseFileService> _logger,
++        Func<TDto, TEntity> fromDto,
++        Func<TEntity, TDto> toEntity,
+        ...
+    )
+    {
++        _fromDto = fromDto;
++        _toEntity = toEntity;
+    }
+}
+```
+A zatim i u BookSerivsu
+
+```csharp
+public BookService(...)
+    : base(BookMappingExtensions.FromDto, BookMappingExtensions.ToDto, ...)
+{ }
+```
+
+A kako to izgleda u samim base service metodama:
+```csharp
+public async Task<TDto> SaveFile(TDto dto)
+{
+-    var dtoEntity = Mapper.Map<TEntity>(dto);
++    var dtoEntity = _fromDto(dto);
+....
+    var savedEntity = await _baseFileRepository.AddFile(fileEntity, _currentUserService.CurrentUserId());
+....
+-    return Mapper.Map<TDto>(savedEntity);
++    return _toModel(savedEntity);
+}
+```
+
+## Performanse
