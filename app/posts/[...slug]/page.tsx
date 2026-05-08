@@ -57,7 +57,7 @@ export async function generateMetadata({
 }
 
 export default async function Page({ params }: { params: { slug: string[] } }) {
-  const { slug : slugs } = await params
+  const { slug: slugs } = await params
   const slug = decodeURI(slugs.join('/'))
 
   const sortedCoreContents = allCoreContent(sortPosts(allBlogs))
