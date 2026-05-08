@@ -1,9 +1,9 @@
 import { allBlogs } from 'contentlayer/generated'
 import type { Metadata } from 'next'
-import { MDXLayoutRenderer } from 'pliny/mdx-components'
+import { MDXLayoutRenderer } from 'pliny/mdx-components.js'
 import type { Blog } from 'contentlayer/generated'
 import PostSimple from '@/layouts/PostSimple'
-import { allCoreContent, coreContent, sortPosts } from 'pliny/utils/contentlayer'
+import { allCoreContent, coreContent, sortPosts } from 'pliny/utils/contentlayer.js'
 import siteMetadata from '@/data/siteMetadata'
 import { components } from '@/components/posts/MDXComponents'
 
@@ -57,7 +57,8 @@ export async function generateMetadata({
 }
 
 export default async function Page({ params }: { params: { slug: string[] } }) {
-  const slug = decodeURI(params.slug.join('/'))
+  const { slug : slugs } = await params
+  const slug = decodeURI(slugs.join('/'))
 
   const sortedCoreContents = allCoreContent(sortPosts(allBlogs))
   const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)

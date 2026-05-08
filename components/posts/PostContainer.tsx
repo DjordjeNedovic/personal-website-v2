@@ -1,6 +1,6 @@
 import Tag from '@/components/tags/Tag'
 import type { Authors, Blog } from 'contentlayer/generated'
-import type { CoreContent } from 'pliny/utils/contentlayer'
+import type { CoreContent } from 'pliny/utils/contentlayer.js'
 import NavigationButton from '../common/NavigationButton'
 import PostThumbnailWrapper from '../common/PostThumbnailWrapper'
 import PostAuthorSection from '../common/PostAuthorSection'

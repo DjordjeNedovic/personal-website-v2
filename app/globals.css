@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -139,4 +142,22 @@ footer {
   .projects-grid {
     @apply grid-cols-3 gap-6;
   }
+}
+
+/* Brisanje (Deleted) - Prva zagrada {} */
+.code-highlight .deleted {
+  @apply block -mx-4 px-4 bg-red-500/20 border-l-4 border-red-500/70;
+  color: #f87171 !important; /* Da tekst ostane čitljiv */
+}
+
+/* Dodavanje (Inserted) - Druga zagrada {} */
+.code-highlight .inserted {
+  @apply block -mx-4 px-4 bg-green-500/20 border-l-4 border-green-500/70;
+  color: #4ade80 !important;
+}
+
+/* Opciono: Da sakriješ ili ulepšaš same simbole + i - */
+.token.prefix.deleted,
+.token.prefix.inserted {
+  @apply select-none opacity-50 mr-2;
 }

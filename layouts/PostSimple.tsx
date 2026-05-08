@@ -3,8 +3,8 @@ import PageTitle from '@/components/common/PageTitle'
 import SectionContainer from '@/components/common/SectionContainer'
 import siteMetadata from '@/data/siteMetadata'
 import type { Blog } from 'contentlayer/generated'
-import { CoreContent } from 'pliny/utils/contentlayer'
-import { formatDate } from 'pliny/utils/formatDate'
+import { CoreContent } from 'pliny/utils/contentlayer.js'
+import { formatDate } from 'pliny/utils/formatDate.js'
 import { ReactNode } from 'react'
 
 interface LayoutProps {

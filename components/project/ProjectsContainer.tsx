@@ -1,7 +1,7 @@
 'use client'
 
 import projectsData from '@/data/projectsData'
-import { ExternalLink, Github, Calendar, Code2 } from 'lucide-react'
+import { ExternalLink, Calendar, Code2 } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 
@@ -75,7 +75,7 @@ const EnhancedProjectCard = ({ project }: { project: any }) => {
                   className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   aria-label={`View ${project.title} on GitHub`}
                 >
-                  <Github className="w-4 h-4" />
+                  {`View ${project.title} on GitHub`}
                 </a>
               )}
               {project.href && (
