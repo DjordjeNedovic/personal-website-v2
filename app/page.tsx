@@ -1,5 +1,6 @@
 import MainPage from '@/components/main/pages/MainPage'
-import { Authors, allAuthors, allBlogs } from 'contentlayer/generated'
+import { allBlogs } from 'contentlayer/generated'
+import { allAuthors, type Authors } from '@/libs/velite'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer.js'
 
 export default async function Page() {

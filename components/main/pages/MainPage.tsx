@@ -1,4 +1,5 @@
-import { Authors, Blog } from 'contentlayer/generated'
+import { Blog } from 'contentlayer/generated'
+import { Authors } from '@/libs/velite'
 import { CoreContent } from 'pliny/utils/contentlayer.js'
 import IntroduceContainer from '../templates/IntroduceContainer'
 import LatestPostContainer from '../templates/LatestPostContainer'

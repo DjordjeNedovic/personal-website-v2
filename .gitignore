@@ -50,4 +50,5 @@ yarn-error.log*
 /.idea/*
 /.vscode/*
 /.contentlayer/*
+/.velite/*
 /app/tag-data.json

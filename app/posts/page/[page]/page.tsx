@@ -1,7 +1,7 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer.js'
 import { allBlogs } from 'contentlayer/generated'
-import { Authors, allAuthors } from 'contentlayer/generated'
+import { allAuthors, Authors } from '@/libs/velite'
 const POSTS_PER_PAGE = 5
 
 export const generateStaticParams = async () => {

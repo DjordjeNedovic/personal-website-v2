@@ -1,4 +1,4 @@
-import { Authors } from 'contentlayer/generated'
+import { Authors } from '@/libs/velite'
 import PostAuthorContainer from './PostAuthorContainer'
 import PostDateContainer from './PostDateContainer'
 
