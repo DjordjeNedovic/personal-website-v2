@@ -117,16 +117,10 @@ refuse to create any user-defined resource with that prefix - and that conflict 
 
 ## Solution
 
-```hcl
+```hcl {2} {3}
 resource "azurerm_servicebus_subscription_rule" "example" {
-  name            = "$Default" # <--- Before
-  subscription_id = azurerm_servicebus_subscription.example.id
-  filter_type     = "SqlFilter"
-  sql_filter      = "colour = 'red'"
-}
-
-resource "azurerm_servicebus_subscription_rule" "example" {
-  name            = "default-rule" # <--- After
+  - name            = "$Default" # <--- Before
+  + name            = "default-rule" # <--- After
   subscription_id = azurerm_servicebus_subscription.example.id
   filter_type     = "SqlFilter"
   sql_filter      = "colour = 'red'"
