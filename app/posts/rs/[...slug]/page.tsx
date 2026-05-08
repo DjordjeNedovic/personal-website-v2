@@ -53,10 +53,6 @@ export async function generateMetadata({
 export default async function Page({ params }: { params: { slug: string[] } }) {
   const { slug: slugs } = await params
   const slug = decodeURI(slugs.join('/'))
-
-  console.log('allBlogRs slugs:', allBlogRs.map(p => p.slug))
-  console.log('looking for slug:', slug)
-
   const sortedCoreContents = allCoreContent(sortPosts(allBlogRs))
   const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)
 
