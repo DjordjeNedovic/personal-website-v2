@@ -1,8 +1,8 @@
 // @ts-check
-const defaultTheme = require('tailwindcss/defaultTheme')
-const fontFamily = defaultTheme.default?.fontFamily
+const { fontFamily } = require('tailwindcss/defaultTheme')
 const colors = require('tailwindcss/colors')
 
+/** @type {import("tailwindcss/types").Config } */
 module.exports = {
   content: [
     './node_modules/pliny/**/*.js',
