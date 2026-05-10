@@ -10,11 +10,8 @@ canonicalUrl:  >-
     https://djordjenedovic.tech/posts/rs/migrate-from-automapper
 ---
 Pošto je AutoMapper odlučio da pređe na [komercijalnu licencu počevši od verzije 15](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/), u timu smo odlučili da ga se rešimo.
-Umesto da posegnemo za još jednom bibliotekom, odlučili smo se za .NET extension metode. Već čujem — "Ali Đorđe, postoje biblioteke..."
-— na šta ću reći samo: šššš. Imamo 4 klase, zaista ne treba biblioteka. "Ali Đorđe, performanse..." — to ćemo testirati
-[na dnu posta](#performanse). Za sada, ajde da prođemo šta smo radili i kako.
-
-Kao što sam već pomenuo, imamo 4 para klasa (entity–DTO), kao i generičku baznu servis klasu kroz koju persistujemo i
+Umesto da posegnemo za još jednom bibliotekom, odlučili smo se za .NET extension metode. Performanse to ćemo testirati
+[na dnu posta](#performanse). Imamo 4 para klasa (entity–DTO), kao i generičku baznu servis klasu kroz koju persistujemo i
 čitamo sve iz baze. Zbog generičnosti, bazna klasa sadrži samo osnovne operacije — `GetAll`, `GetOne` i `Save` — dok svaka servis
 klasa koja je nasleđuje može imati dodatne metode. Sve entity klase nasleđuju isti `BaseEntity`. Struktura projekta izgleda ovako:
 
@@ -31,7 +28,7 @@ klasa koja je nasleđuje može imati dodatne metode. Sve entity klase nasleđuju
 │
 ├── Entities
 │   ├── BaseEntity.cs
-│   ├── BooklEntity.cs
+│   ├── BookEntity.cs
 │   ├── ....
 ```
 
@@ -77,7 +74,7 @@ da sam ih, posle 8 godina, prvi put koristio.
 
 I jedno vrlo cesto pitanje na intervjueima, sta je delegat? Delegat je Type-safe pokazivač na metodu. Možeš da čuvaš referencu
 na metodu i pozoveš je kasnije. Omogućavaju da metodu prosleđuješ kao parametar – callback pattern, i to je poenta bloga,
-production code primer callback patterna:
+production code primer [callback patterna](https://en.wikipedia.org/wiki/Callback_\(computer_programming\)):
 
 Prosirenje base klase:
 
@@ -116,8 +113,30 @@ public async Task<TDto> SaveFile(TDto dto)
     var savedEntity = await _baseFileRepository.AddFile(fileEntity, _currentUserService.CurrentUserId());
 ....
 -    return Mapper.Map<TDto>(savedEntity);
-+    return _toModel(savedEntity);
++    return _toEntity(savedEntity);
 }
 ```
 
 ## Performanse
+
+Razlike u performansama sam testirao preko BenchmarkDotNet biblioteke, testirajuci brzinu mapiranja 100.000 objekata, pojedinačno,
+kao i za mapiranje lista. Zarad preciznijeg testa, svaka operacija je rađena 5 puta, i rezultate, možete vidite u tabeli ispod:
+
+```
+BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6456/22H2/2022Update)
+
+12th Gen Intel Core i7-1255U 1.70GHz, 1 CPU, 12 logical and 10 physical cores
+
+IterationCount=5  LaunchCount=1  WarmupCount=3
+
+| Method            | Mean             | Error             | StdDev           | Gen0      | Gen1      | Gen2     | Allocated  |
+|------------------ |-----------------:|------------------:|-----------------:|----------:|----------:|---------:|-----------:|
+| Single_Extension  |         15.39 ns |          3.073 ns |         0.476 ns |    0.0179 |         - |        - |      112 B |
+| Single_AutoMapper |         46.82 ns |          4.266 ns |         1.108 ns |    0.0178 |         - |        - |      112 B |
+| List_Extension    | 18,444,408.44 ns |  2,616,191.363 ns |   679,416.590 ns | 2093.7500 | 1250.0000 | 312.5000 | 12000608 B |
+| List_AutoMapper   | 25,195,265.94 ns | 13,222,867.236 ns | 3,433,936.638 ns | 2093.7500 | 1218.7500 | 312.5000 | 13298124 B |
+
+```
+
+Po benchamrku, ispada da su Extension metode brže 3 puta u odnosu na Autommaper kada je reč o pojedinačnom mapiranju i da zauzimaju
+istu količinu memorije, dok je mapiranje lista brže neki ~50% i zauzimaju malo manje memorije.

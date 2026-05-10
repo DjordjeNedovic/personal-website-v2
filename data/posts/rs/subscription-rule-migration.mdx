@@ -25,7 +25,7 @@ promašio struku i zašto ti je ovo trebalo u životu. U toku svoje karijere sam
 
 [Terraform](https://developer.hashicorp.com/terraform) je alat koji ti omogucava da infrastrukturu opises kao kod, umesto da klikces po Azure portalu. Svi resursi se
 čuvaju u state koji prati promene resursa (dodavanje, brisanje, update atributa) i pri svakom `terraform apply` menja
-samo ono što se stvarno promenilo — u suprotnom bi sve resurse brisao i rekreirao iz početka.
+samo ono što se stvarno promenilo — u suprotnom bi sve resurse brisao i rekreirao iz početka (odnosno Configuration drift [^1]).
 
 Terraform kao takav je prošao dugačak put u razvoju (state pogotovo, pročitaj malo dalje),
 ali se malo priča o tome koliko su veliki skokovi u minor verzijama, konkretno u verzijama od 0.11 do 0.14.
@@ -136,3 +136,6 @@ resource "azurerm_servicebus_subscription_rule" "example" {
 Naredna dva deploymenta su, srećom, prošla bez problema.
 
 Rešenje je prosto - izbriši `$` iz naziva i nastavi sa migracijom.
+
+
+[^1]: Test fus nota
