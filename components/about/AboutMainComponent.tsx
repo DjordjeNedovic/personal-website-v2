@@ -54,7 +54,7 @@ export default function AboutMainComponent() {
               {/* Profile Image */}
               <div className="flex-shrink-0">
                 <Image
-                  src="/static/images/profile.jpg"
+                  src="/images/profile.jpg"
                   alt="Djordje Nedovic - Senior Software Engineer"
                   width={140}
                   height={140}
