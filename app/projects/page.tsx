@@ -18,7 +18,7 @@ export const metadata = genPageMetadata({
     title: 'Projects - Djordje Nedovic',
     description: 'Software development projects and technical implementations',
     type: 'website',
-    url: 'https://djordjenedovic.netlify.app/projects',
+    url: 'https://djordjenedovic.tech/projects',
   },
 })
 
