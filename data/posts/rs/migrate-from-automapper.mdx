@@ -1,4 +1,5 @@
 ---
+
 title: 'Zbogom AutoMapper'
 date: '2026-05-05'
 lastmod: '2026-05-05'
@@ -10,7 +11,7 @@ canonicalUrl:  >-
     https://djordjenedovic.tech/posts/rs/migrate-from-automapper
 ---
 Pošto je AutoMapper odlučio da pređe na [komercijalnu licencu počevši od verzije 15](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/), u timu smo odlučili da ga se rešimo.
-Umesto da posegnemo za još jednom bibliotekom, odlučili smo se za .NET extension metode. Performanse to ćemo testirati
+Umesto da posegnemo za još jednom bibliotekom, odlučili smo se za .NET extension metode. Performanse ćemo testirati
 [na dnu posta](#performanse). Imamo 4 para klasa (entity–DTO), kao i generičku baznu servis klasu kroz koju persistujemo i
 čitamo sve iz baze. Zbog generičnosti, bazna klasa sadrži samo osnovne operacije — `GetAll`, `GetOne` i `Save` — dok svaka servis
 klasa koja je nasleđuje može imati dodatne metode. Sve entity klase nasleđuju isti `BaseEntity`. Struktura projekta izgleda ovako:
@@ -68,15 +69,15 @@ public static class BookMappingExtensions
     }
 }
 ```
-I da ovo ne bi zvučalo kao najbesmisleniji blog na svetu — tu dolazi genericnost, odnosno kako ovo proslediti baznoj
+I da ovo ne bi zvučalo kao najbesmisleniji blog na svetu — tu dolazi generičnost, odnosno kako ovo proslediti baznoj
 servis klasi i njenim 3 osnovnim metodama koje dele svi entiteti. Odgovor je u delegatima. I nije me sramota da priznam
 da sam ih, posle 8 godina, prvi put koristio.
 
-I jedno vrlo cesto pitanje na intervjueima, sta je delegat? Delegat je Type-safe pokazivač na metodu. Možeš da čuvaš referencu
+I jedno vrlo često pitanje na intervjuima, šta je delegat? Delegat je type-safe pokazivač na metodu. Možeš da čuvaš referencu
 na metodu i pozoveš je kasnije. Omogućavaju da metodu prosleđuješ kao parametar – callback pattern, i to je poenta bloga,
-production code primer [callback patterna](https://en.wikipedia.org/wiki/Callback_\(computer_programming\)):
+produkcijski primer [callback patterna](https://en.wikipedia.org/wiki/Callback_\(computer_programming\)):
 
-Prosirenje base klase:
+Proširenje base klase:
 
 ```csharp
 public class BaseFileService{
@@ -95,7 +96,7 @@ public class BaseFileService{
     }
 }
 ```
-A zatim i u BookSerivsu
+A zatim i u BookServiceu:
 
 ```csharp
 public BookService(...)
@@ -119,9 +120,9 @@ public async Task<TDto> SaveFile(TDto dto)
 
 ## Performanse
 
-Razlike u performansama sam testirao preko BenchmarkDotNet biblioteke, testirajuci brzinu mapiranja 100.000 objekata, pojedinačno,
-kao i za mapiranje lista. Zarad preciznijeg testa, svaka operacija je rađena 5 puta, i rezultate, možete vidite u tabeli ispod:
-
+Razlike u performansama sam testirao preko BenchmarkDotNet biblioteke, testirajući brzinu pojedinačnog mapiranja kao i
+mapiranja lista od 100.000 objekata. Zarad preciznijeg testa, svaka operacija je rađena 5 puta, i rezultate možete videti
+u tabeli ispod:
 ```
 BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6456/22H2/2022Update)
 
@@ -138,5 +139,5 @@ IterationCount=5  LaunchCount=1  WarmupCount=3
 
 ```
 
-Po benchamrku, ispada da su Extension metode brže 3 puta u odnosu na Autommaper kada je reč o pojedinačnom mapiranju i da zauzimaju
-istu količinu memorije, dok je mapiranje lista brže neki ~50% i zauzimaju malo manje memorije.
+Po benchmarku, ispada da su extension metode brže 3 puta u odnosu na AutoMapper kada je reč o pojedinačnom mapiranju i da zauzimaju
+istu količinu memorije, dok je mapiranje lista brže nekih ~50% i zauzimaju malo manje memorije.
