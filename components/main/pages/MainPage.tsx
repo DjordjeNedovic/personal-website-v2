@@ -1,8 +1,8 @@
-import { Authors, Posts } from '@/libs/velite'
+import { Authors, Post } from '@/libs/velite'
 import IntroduceContainer from '../templates/IntroduceContainer'
 import LatestPostContainer from '../templates/LatestPostContainer'
 
-export default function MainPage({ posts, author }: { posts: Posts[]; author: Authors }) {
+export default function MainPage({ posts, author }: { posts: Post[]; author: Authors }) {
   return (
     <>
       <div className="bg-white dark:bg-slate-900">

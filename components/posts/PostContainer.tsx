@@ -1,10 +1,10 @@
 import Tag from '@/components/tags/Tag'
-import type { Authors, Posts } from '@/libs/velite'
+import type { Authors, Post } from '@/libs/velite'
 import NavigationButton from '../common/NavigationButton'
 import PostThumbnailWrapper from '../common/PostThumbnailWrapper'
 import PostAuthorSection from '../common/PostAuthorSection'
 
-export default function PostContainer({ post, author }: { post: Posts; author: Authors }) {
+export default function PostContainer({ post, author }: { post: Post; author: Authors }) {
   const { slug, date, title, summary, tags, images } = post
 
   return (

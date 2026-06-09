@@ -1,7 +1,7 @@
 import siteMetadata from '@/data/siteMetadata'
-import { Posts } from '../../.velite'
+import { Post } from '../../.velite'
 
-export function getStructuredData(post: Posts) {
+export function getStructuredData(post: Post) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',

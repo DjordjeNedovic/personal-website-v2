@@ -8,8 +8,10 @@
     "build": "cross-env next build && cross-env NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
-    "lint": "next lint",
-    "prettier:fix": "prettier --write ."
+    "lint:fix": "next lint --fix",
+    "prettier:fix": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "check": "tsc --noEmit && next lint"
   },
   "dependencies": {
     "@next/bundle-analyzer": "14.2.30",
