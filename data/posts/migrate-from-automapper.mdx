@@ -2,17 +2,27 @@
 title: 'Goodbye AutoMapper: Simple Mapping with Extension Methods and Delegates in .NET'
 date: '2026-05-05'
 lastmod: '2026-05-05'
-tags: ['.NET', 'C#', 'Performance', 'Architecture', 'AutoMapper', 'Extension Methods', 'Delegates', 'Migration']
+tags:
+  [
+    '.NET',
+    'C#',
+    'Performance',
+    'Architecture',
+    'AutoMapper',
+    'Extension Methods',
+    'Delegates',
+    'Migration',
+  ]
 draft: false
 summary: 'Dropping AutoMapper for .NET extension methods and delegates — how we did it, why it works, and what the benchmarks say.'
 images: ['/images/thumbnail/dotnet.png']
 canonicalUrl: >-
-    https://djordjenedovic.tech/posts/migrate-from-automapper
+  https://djordjenedovic.tech/posts/migrate-from-automapper
 ---
 
-Since AutoMapper decided to move to a [commercial license starting with version 15](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/), 
+Since AutoMapper decided to move to a [commercial license starting with version 15](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/),
 our team decided to drop it. Instead of reaching for another library, we went with .NET extension
-methods. We will test the performance [at the bottom of this post](#performance). We have 4 class 
+methods. We will test the performance [at the bottom of this post](#performance). We have 4 class
 pairs (entity–DTO), and a generic base service class that we use to save and read everything from the
 database. Because of its generic nature, the base class has only basic operations — `GetAll`, `GetOne` and
 `Save` — while each service class that inherits it can have additional methods. All entity classes inherit the
@@ -81,7 +91,7 @@ actually used them.
 A very common interview question — what is a delegate? A delegate is a type-safe pointer to a method.
 You can store a reference to a method and call it later. They allow you to pass a method as a parameter
 — the callback pattern — and that is the point of this post, a real production example of the
-[callback pattern](https://en.wikipedia.org/wiki/Callback_\(computer_programming\)):
+[callback pattern](https://en.wikipedia.org/wiki/Callback_%28computer_programming%29):
 
 Extending the base class:
 
@@ -148,7 +158,7 @@ IterationCount=5  LaunchCount=1  WarmupCount=3
 
 ```
 
-According to the benchmark, extension methods are 3 times faster than AutoMapper for single-object mapping 
+According to the benchmark, extension methods are 3 times faster than AutoMapper for single-object mapping
 and use the same amount of memory, while list mapping is about ~50% faster and uses slightly less memory.
 The difference comes from reflection — AutoMapper dynamically finds and maps properties at runtime, while
 extension methods do it statically, through direct assignment that the compiler optimizes in advance.

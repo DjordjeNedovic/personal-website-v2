@@ -2,21 +2,45 @@ import Link from '@/components/common/Link'
 import PageTitle from '@/components/common/PageTitle'
 import SectionContainer from '@/components/common/SectionContainer'
 import siteMetadata from '@/data/siteMetadata'
-import type { Blog } from 'contentlayer/generated'
-import type { BlogRs } from 'contentlayer/generated'
-import { CoreContent } from 'pliny/utils/contentlayer.js'
-import { formatDate } from 'pliny/utils/formatDate.js'
 import { ReactNode } from 'react'
+import { ReadTimeResults } from 'reading-time'
+import { formatDate } from '@/libs/utils/utils'
+
+interface PostContent {
+  title: string
+  date: string
+  summary?: string
+  tags?: string[]
+  slug: string
+}
 
 interface LayoutProps {
-  content: CoreContent<Blog | BlogRs>
+  content: PostContent
   children: ReactNode
   next?: { path: string; title: string }
   prev?: { path: string; title: string }
+  readingTime?: ReadTimeResults
+  structuredData?: {
+    '@context': string
+    '@type': string
+    headline: string
+    datePublished: string
+    dateModified: string
+    description: string
+    image: string
+    url: string
+  }
 }
 
-export default function PostLayout({ content, next, prev, children }: LayoutProps) {
-  const { date, title, structuredData, readingTime } = content
+export default function PostLayout({
+  content,
+  next,
+  prev,
+  children,
+  readingTime,
+  structuredData,
+}: LayoutProps) {
+  const { date, title } = content
 
   return (
     <SectionContainer>
@@ -34,7 +58,7 @@ export default function PostLayout({ content, next, prev, children }: LayoutProp
                   <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
                     <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
                     <span className="mx-2">·</span>
-                    <span>{readingTime.text}</span>
+                    <span>{readingTime?.text}</span>
                   </dd>
                 </div>
               </dl>

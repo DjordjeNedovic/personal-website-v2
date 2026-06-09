@@ -1,8 +1,7 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allAuthors, type Authors } from '@/libs/velite'
-import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer.js'
-import { allBlogs } from 'contentlayer/generated'
 import { genPageMetadata } from 'app/seo'
+import { sortedPosts } from '@/libs/query/posts'
 
 const POSTS_PER_PAGE = 5
 
@@ -33,7 +32,7 @@ export const metadata = genPageMetadata({
 
 export default function BlogPage() {
   const author = allAuthors.find((p) => p.slug === 'default') as Authors
-  const posts = allCoreContent(sortPosts(allBlogs))
+  const posts = sortedPosts
   const pageNumber = 1
   const initialDisplayPosts = posts.slice(
     POSTS_PER_PAGE * (pageNumber - 1),

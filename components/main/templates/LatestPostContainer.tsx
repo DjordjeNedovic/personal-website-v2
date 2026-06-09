@@ -1,9 +1,7 @@
 'use client'
 
 import NavigationButton from '@/components/common/NavigationButton'
-import type { Blog } from 'contentlayer/generated'
-import type { Authors } from '@/libs/velite'
-import type { CoreContent } from 'pliny/utils/contentlayer.js'
+import type { Authors, Posts } from '@/libs/velite'
 import React, { Fragment } from 'react'
 import { Calendar, ArrowRight, Tag } from 'lucide-react'
 import Image from 'next/image'
@@ -11,7 +9,7 @@ import Image from 'next/image'
 const MAX_DISPLAY = 6
 
 // Enhanced Post Card Component with consistent height
-const EnhancedPostCard = ({ post, author }: { post: CoreContent<Blog>; author: Authors }) => {
+const EnhancedPostCard = ({ post, author }: { post: Posts; author: Authors }) => {
   return (
     <article className="group h-full bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
       <div className="flex flex-col h-full">
@@ -92,13 +90,7 @@ const EnhancedPostCard = ({ post, author }: { post: CoreContent<Blog>; author: A
   )
 }
 
-const LatestPostContainer = ({
-  posts,
-  author,
-}: {
-  posts: CoreContent<Blog>[]
-  author: Authors
-}) => {
+const LatestPostContainer = ({ posts, author }: { posts: Posts[]; author: Authors }) => {
   return (
     <div
       className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 px-4 transition-colors duration-300"

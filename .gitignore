@@ -47,8 +47,6 @@ yarn-error.log*
 .contentlayer
 
 .env
-/.idea/*
-/.vscode/*
-/.contentlayer/*
-/.velite/*
-/app/tag-data.json
+/.idea/
+/.vscode/
+/.velite/
