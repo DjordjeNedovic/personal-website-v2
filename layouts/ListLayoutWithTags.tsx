@@ -4,7 +4,7 @@
 import Link from '@/components/common/Link'
 import PostContainer from '@/components/posts/PostContainer'
 import siteMetadata from '@/data/siteMetadata'
-import { allAuthors, type Authors, type Posts } from '@/libs/velite'
+import { allAuthors, type Authors, type Post } from '@/libs/velite'
 import { usePathname } from 'next/navigation'
 import { generateTagData } from '@/libs/query/posts'
 
@@ -13,9 +13,9 @@ interface PaginationProps {
   currentPage: number
 }
 interface ListLayoutProps {
-  posts: Posts[]
+  posts: Post[]
   title: string
-  initialDisplayPosts?: Posts[]
+  initialDisplayPosts?: Post[]
   pagination?: PaginationProps
   author?: Authors
 }
