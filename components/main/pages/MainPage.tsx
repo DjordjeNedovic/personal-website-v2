@@ -1,16 +1,8 @@
-import { Blog } from 'contentlayer/generated'
-import { Authors } from '@/libs/velite'
-import { CoreContent } from 'pliny/utils/contentlayer.js'
+import { Authors, Posts } from '@/libs/velite'
 import IntroduceContainer from '../templates/IntroduceContainer'
 import LatestPostContainer from '../templates/LatestPostContainer'
 
-export default function MainPage({
-  posts,
-  author,
-}: {
-  posts: CoreContent<Blog>[]
-  author: Authors
-}) {
+export default function MainPage({ posts, author }: { posts: Posts[]; author: Authors }) {
   return (
     <>
       <div className="bg-white dark:bg-slate-900">

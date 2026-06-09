@@ -1,16 +1,26 @@
 ---
-title: "One Character That Broke My Terraform Migration"
-date: "2026-03-06"
-lastmod: "2026-05-05"
-tags: ['Terraform', 'Azure', 'Infrastructure as Code', 'Migration', 'Bug Fix', 'AzureRM', 'Azure Service Bus', 'Debugging']
+title: 'One Character That Broke My Terraform Migration'
+date: '2026-03-06'
+lastmod: '2026-05-05'
+tags:
+  [
+    'Terraform',
+    'Azure',
+    'Infrastructure as Code',
+    'Migration',
+    'Bug Fix',
+    'AzureRM',
+    'Azure Service Bus',
+    'Debugging',
+  ]
 draft: false
 summary: 'Getting "Provider produces inconsistent result after apply" during Terraform migration? A $ in your resource name might be why — and it is nowhere in the docs.'
 images: ['/images/thumbnail/terraform.png']
-canonicalUrl: "https://djordjenedovic.tech/posts/subscription-rule-migration"
+canonicalUrl: 'https://djordjenedovic.tech/posts/subscription-rule-migration'
 ---
 
 > **TL;DR:** If you're getting "Provider produces inconsistent result after apply" while migrating from Terraform 0.12
-to 0.13, check if any of your AzureRM resource names start with `$`. Remove it and move on.
+> to 0.13, check if any of your AzureRM resource names start with `$`. Remove it and move on.
 
 ---
 
@@ -27,6 +37,7 @@ Terraform has come a long way (state especially - more on that below), but not e
 significant the version jumps can be, specifically between 0.11 and 0.14.
 
 **0.12** - HashiCorp introduced a shift from stringly typed to properly typed configurations. Reference syntax changed:
+
 ```hcl
 # Before (0.11)
 "${var.foo}"
@@ -36,6 +47,7 @@ var.foo
 ```
 
 State gained explicit type metadata:
+
 ```hcl
 # Before (0.11)
 "count": "3",
@@ -47,6 +59,7 @@ State gained explicit type metadata:
 "enabled": true,
 "tags": { "env": "prod" }
 ```
+
 and `for_each` and `dynamic` blocks were introduced.
 
 **0.13** - The biggest change was adding a source address (essentially a namespace) for each provider. Before this, if
@@ -64,16 +77,18 @@ terraform {
 }
 ```
 
-**0.14** -  Sensitive attributes are now tracked in state, and a dependency lock file for providers (`.terraform.lock.hcl`)
+**0.14** - Sensitive attributes are now tracked in state, and a dependency lock file for providers (`.terraform.lock.hcl`)
 was introduced (similar to `package-lock.json` in Node.js world).
 
 ## Why You Can't Skip Versions
 
 This means that if your repo is running Terraform 0.11 or lower, upgrading to the latest version (1.9.5 in my case)
 requires four separate deployments - meaning you need to run `terraform apply` four times:
+
 ```
 0.11 -> 0.12 -> 0.13 -> 0.14 -> 1.9.5
 ```
+
 The reason is that each version only knows how to migrate state from the previous one - 0.14 simply does not understand
 a 0.12 state file. This is an intentional decision by HashiCorp, as supporting arbitrary version jumps would be far
 more complex to maintain and test.
@@ -104,9 +119,11 @@ resource "azurerm_servicebus_subscription_rule" "example" {
   sql_filter      = "colour = 'red'"
 }
 ```
+
 I went with a trial and error approach - and honestly, I had the time and freedom to experiment.
 
 ## Why This Is Happening
+
 The first thing I tried was changing attributes one by one. Renaming from `$Default` to `test-name` made `terraform apply`
 succeed - so the problem was either the `$` or `Default` itself, which might be a reserved keyword. Next try was deploying
 with just `Default` (no `$`), and bingo.
@@ -126,6 +143,7 @@ resource "azurerm_servicebus_subscription_rule" "example" {
   sql_filter      = "colour = 'red'"
 }
 ```
+
 The next two deployments went smoothly.
 
 Solution is simple, just delete `$` from resource name.

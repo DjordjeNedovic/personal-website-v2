@@ -1,5 +1,4 @@
 ---
-
 title: 'Zbogom AutoMapper'
 date: '2026-05-05'
 lastmod: '2026-05-05'
@@ -7,9 +6,10 @@ tags: ['.NET', 'Performance', 'Architecture', 'AutoMapper']
 draft: false
 summary: ''
 images: ['/images/thumbnail/dotnet.png']
-canonicalUrl:  >-
-    https://djordjenedovic.tech/posts/rs/migrate-from-automapper
+canonicalUrl: >-
+  https://djordjenedovic.tech/posts/rs/migrate-from-automapper
 ---
+
 Pošto je AutoMapper odlučio da pređe na [komercijalnu licencu počevši od verzije 15](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/), u timu smo odlučili da ga se rešimo.
 Umesto da posegnemo za još jednom bibliotekom, odlučili smo se za .NET extension metode. Performanse ćemo testirati
 [na dnu posta](#performanse). Imamo 4 para klasa (entity–DTO), kao i generičku baznu servis klasu kroz koju persistujemo i
@@ -35,6 +35,7 @@ klasa koja je nasleđuje može imati dodatne metode. Sve entity klase nasleđuju
 
 Za svaki par klasa dodajemo extension klasu koja sadrži bidirekciono mapiranje — iz entitija u DTO i obrnuto — kao i
 metodu za mapiranje kolekcije (`IEnumerable`) iz entitija u DTO. To izgleda ovako:
+
 ```cs
 public static class BookMappingExtensions
 {
@@ -69,13 +70,14 @@ public static class BookMappingExtensions
     }
 }
 ```
+
 I da ovo ne bi zvučalo kao najbesmisleniji blog na svetu — tu dolazi generičnost, odnosno kako ovo proslediti baznoj
 servis klasi i njenim 3 osnovnim metodama koje dele svi entiteti. Odgovor je u delegatima. I nije me sramota da priznam
 da sam ih, posle 8 godina, prvi put koristio.
 
 I jedno vrlo često pitanje na intervjuima, šta je delegat? Delegat je type-safe pokazivač na metodu. Možeš da čuvaš referencu
 na metodu i pozoveš je kasnije. Omogućavaju da metodu prosleđuješ kao parametar – callback pattern, i to je poenta bloga,
-produkcijski primer [callback patterna](https://en.wikipedia.org/wiki/Callback_\(computer_programming\)):
+produkcijski primer [callback patterna](<https://en.wikipedia.org/wiki/Callback_(computer_programming)>):
 
 Proširenje base klase:
 
@@ -96,6 +98,7 @@ public class BaseFileService{
     }
 }
 ```
+
 A zatim i u BookServiceu:
 
 ```csharp
@@ -105,6 +108,7 @@ public BookService(...)
 ```
 
 A kako to izgleda u samim base service metodama:
+
 ```csharp
 public async Task<TDto> SaveFile(TDto dto)
 {
@@ -123,6 +127,7 @@ public async Task<TDto> SaveFile(TDto dto)
 Razlike u performansama sam testirao preko BenchmarkDotNet biblioteke, testirajući brzinu pojedinačnog mapiranja kao i
 mapiranja lista od 100.000 objekata. Zarad preciznijeg testa, svaka operacija je rađena 5 puta, i rezultate možete videti
 u tabeli ispod:
+
 ```
 BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6456/22H2/2022Update)
 

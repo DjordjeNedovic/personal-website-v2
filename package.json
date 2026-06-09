@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "start": "next dev  --webpack",
-    "dev": "cross-env INIT_CWD=$PWD next dev",
-    "build": "cross-env INIT_CWD=$PWD next build && cross-env NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
+    "dev": "cross-env next dev",
+    "build": "cross-env next build && cross-env NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prettier:fix": "prettier --write ."
   },
   "dependencies": {
     "@next/bundle-analyzer": "14.2.30",
@@ -19,7 +20,6 @@
     "autoprefixer": "^10.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "contentlayer": "^0.3.4",
     "esbuild": "^0.28.0",
     "eslint-config-next": "14.2.30",
     "github-slugger": "^2.0.0",
@@ -28,9 +28,8 @@
     "litlyx-js": "^1.4.0",
     "lucide-react": "^1.14.0",
     "next": "14.2.30",
-    "next-contentlayer": "^0.3.4",
+    "next-mdx-remote": "^6.0.0",
     "next-themes": "^0.4.6",
-    "pliny": "^0.4.1",
     "prismjs": "^1.30.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -53,6 +52,7 @@
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
     "@types/mdx": "^2.0.13",
+    "@types/node": "25.9.2",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^8.59.1",

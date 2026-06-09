@@ -1,8 +1,6 @@
 import bundleAnalyzer from '@next/bundle-analyzer'
 import { build } from 'velite'
 
-import { withContentlayer } from 'next-contentlayer'
-
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 })
@@ -46,7 +44,7 @@ class VeliteWebpackPlugin {
  * @type {import('next/dist/next-server/server/config').NextConfig}
  **/
 export default () => {
-  const plugins = [withContentlayer, withBundleAnalyzer]
+  const plugins = [withBundleAnalyzer]
   return plugins.reduce((acc, next) => next(acc), {
     reactStrictMode: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],

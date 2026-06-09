@@ -1,11 +1,11 @@
 import Tag from '@/components/tags/Tag'
 import { genPageMetadata } from 'app/seo'
-import tagData from 'app/tag-data.json'
+import { generateTagData } from '@/libs/query/posts'
 
 export const metadata = genPageMetadata({ title: 'Tags', description: 'Things I blog about' })
 
 export default async function Page() {
-  const tagCounts = tagData as Record<string, number>
+  const tagCounts = generateTagData()
   const tagKeys = Object.keys(tagCounts)
   const sortedTags = tagKeys.sort((a, b) => tagCounts[b] - tagCounts[a])
   return (

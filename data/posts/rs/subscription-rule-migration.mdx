@@ -7,13 +7,13 @@ draft: false
 summary: 'Proveo sam sate debugujući nejasnu AzureRM provider grešku tokom Terraform 0.12 → 0.13 migracije. Krivac? Jedan jedini $ karakter u nazivu resursa — potpuno nedokumentovano.'
 images: ['/images/thumbnail/terraform.png']
 canonicalUrl: >-
-    https://djordjenedovic.tech/posts/rs/subscription-rule-migration
+  https://djordjenedovic.tech/posts/rs/subscription-rule-migration
 ---
 
 <LanguageSwitch slug="subscription-rule-migration" lang="en" />
 
 > **TL;DR:** Ako dobijaš "Provider produces inconsistent result after apply" grešku pri migraciji AzureRM resursa iz
-Terraforma sa 0.12 na 0.13, proveri da li naziv nekog resursa počinje sa $. Izbriši ga i nastavi.
+> Terraforma sa 0.12 na 0.13, proveri da li naziv nekog resursa počinje sa $. Izbriši ga i nastavi.
 
 ---
 
@@ -41,6 +41,7 @@ var.foo
 ```
 
 State je dobio eksplicitni tip metadata:
+
 ```hcl
 # Before (0.11)
 "count": "3",
@@ -52,6 +53,7 @@ State je dobio eksplicitni tip metadata:
 "enabled": true,
 "tags": { "env": "prod" }
 ```
+
 uvedeni su `for_each` i `dynamic` blokovi.
 
 **0.13** — Najveća izmena je bila dodavanje adrese (laički rečeno, namespace-a) za svaki provider. Na primer, ako smo imali
@@ -76,9 +78,11 @@ slično kao package-lock.json u Node.js svetu.
 
 Ovo znači da ako je verzija Terraforma u repou koji upgradeujete manja ili jednaka 0.11, da biste upgradovali na poslednju
 verziju (u mom slučaju, 1.9.5) morate odraditi 4 deploymenta. Odnosno, pokrenuti terraform apply četiri puta:
+
 ```
 0.11 -> 0.12 -> 0.13 -> 0.14 -> 1.9.5
 ```
+
 Razlog je što svaka verzija zna da migrira state samo iz prethodne - 0.14 jednostavno ne razume state fajl od 0.12. Ovo je
 svesna odluka HashiCorp-a.
 
@@ -113,12 +117,13 @@ Guglanje i ChatGPT nisu pomogli, dakle ostalo je samo još try and error pristup
 — a istini za volju, imao sam i prostora i vremena da se igram.
 
 ## Zašto se ovo dešava
+
 Počeo sam da menjam atribute jedan po jedan. Kad sam promenio naziv sa `$Default` na `test-name`, `terraform apply` je prošao.
 Dakle, problem je ili u `$` ili u `Default` - koji je rezervisana reč. Sledeći pokušaj je bio deploy sa nazivom `Default`
 (bez `$`), i bingo.
 
 Zašto? AzureRM automatski pravi `$Default` pravilo za svaki Service Bus subscription - to je pravilo koje hvata sve poruke kad
-ne definišeš nijedno drugo pravilo. `$` prefiks je rezervisan za sistemske resurse,  što znači da Azure odbija da kreira bilo
+ne definišeš nijedno drugo pravilo. `$` prefiks je rezervisan za sistemske resurse, što znači da Azure odbija da kreira bilo
 koji korisnički resurs sa tim prefiksom. I tu dolazi do konflikta.
 
 ## Rešenje
@@ -136,6 +141,5 @@ resource "azurerm_servicebus_subscription_rule" "example" {
 Naredna dva deploymenta su, srećom, prošla bez problema.
 
 Rešenje je prosto - izbriši `$` iz naziva i nastavi sa migracijom.
-
 
 [^1]: Test fus nota

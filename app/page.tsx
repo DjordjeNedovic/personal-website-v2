@@ -1,11 +1,9 @@
 import MainPage from '@/components/main/pages/MainPage'
-import { allBlogs } from 'contentlayer/generated'
 import { allAuthors, type Authors } from '@/libs/velite'
-import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer.js'
+import { sortedPosts } from '@/libs/query/posts'
 
 export default async function Page() {
-  const sortedPosts = sortPosts(allBlogs)
-  const posts = allCoreContent(sortedPosts)
+  const posts = sortedPosts
   const author = allAuthors.find((p) => p.slug === 'default') as Authors
 
   return <MainPage posts={posts} author={author} />

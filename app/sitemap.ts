@@ -1,11 +1,11 @@
 import siteMetadata from '@/data/siteMetadata'
-import { allBlogs } from 'contentlayer/generated'
+import { allPosts } from '@/libs/velite'
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = siteMetadata.siteUrl
-  const blogRoutes = allBlogs.map((post) => ({
-    url: `${siteUrl}/${post.path}`,
+  const blogRoutes = allPosts.map((post) => ({
+    url: `${siteUrl}/posts/${post.slug}`,
     lastModified: post.lastmod || post.date,
   }))
 

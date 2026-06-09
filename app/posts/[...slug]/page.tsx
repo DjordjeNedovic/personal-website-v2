@@ -1,85 +1,45 @@
-import { allBlogs } from 'contentlayer/generated'
-import type { Metadata } from 'next'
-import { MDXLayoutRenderer } from 'pliny/mdx-components.js'
-import type { Blog } from 'contentlayer/generated'
+import { allPosts } from '@/libs/velite'
 import PostSimple from '@/layouts/PostSimple'
-import { allCoreContent, coreContent, sortPosts } from 'pliny/utils/contentlayer.js'
-import siteMetadata from '@/data/siteMetadata'
 import { components } from '@/components/posts/MDXComponents'
-
-export const generateStaticParams = async () => {
-  return allBlogs.map((post) => ({
-    slug: post.slug.split('/'),
-  }))
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string[] }
-}): Promise<Metadata> {
-  const slug = decodeURI(params.slug.join('/'))
-  const post = allBlogs.find((p) => p.slug === slug)
-
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-    }
-  }
-
-  const publishedAt = new Date(post.date).toISOString()
-  const imageList =
-    post.images && post.images.length > 0 ? post.images : [siteMetadata.socialBanner]
-
-  return {
-    title: post.title,
-    description: post.summary,
-    openGraph: {
-      title: post.title,
-      description: post.summary,
-      siteName: siteMetadata.title,
-      locale: 'en_US',
-      type: 'article',
-      publishedTime: publishedAt,
-      url: `${siteMetadata.siteUrl}/posts/${slug}`,
-      images: imageList,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.summary,
-      images: imageList,
-    },
-    alternates: {
-      canonical: `${siteMetadata.siteUrl}/posts/${slug}`,
-    },
-  }
-}
+import { MDXRemote } from 'next-mdx-remote/rsc'
+import { getStructuredData } from '@/libs/seo/structuredData'
+import { getReadingTime } from '@/libs/utils/utils'
 
 export default async function Page({ params }: { params: { slug: string[] } }) {
-  const { slug: slugs } = await params
-  const slug = decodeURI(slugs.join('/'))
+  const slug = params.slug.join('/')
 
-  const sortedCoreContents = allCoreContent(sortPosts(allBlogs))
-  const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)
-  if (postIndex === -1) {
-    return (
-      <div className="mt-24 text-center">
-        <span role="img" aria-label="roadwork sign">
-          🚧
-        </span>
-      </div>
-    )
+  const post = allPosts.find((p) => p.slug === slug)
+
+  if (!post) return <div>Not found</div>
+
+  const sorted = [...allPosts]
+    .filter((p) => !p.draft)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+  const index = sorted.findIndex((p) => p.slug === slug)
+
+  const prev = sorted[index + 1] ?? null
+  const next = sorted[index - 1] ?? null
+
+  const mainContent = {
+    title: post.title,
+    date: post.date,
+    summary: post.summary,
+    tags: post.tags,
+    slug: post.slug,
   }
+  const structuredData = getStructuredData(post)
 
-  const prev = sortedCoreContents[postIndex + 1]
-  const next = sortedCoreContents[postIndex - 1]
-  const post = allBlogs.find((p) => p.slug === slug) as Blog
-  const mainContent = coreContent(post)
-
+  const readingTime = getReadingTime(post.content)
   return (
-    <PostSimple content={mainContent} next={next} prev={prev}>
-      <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
+    <PostSimple
+      content={mainContent}
+      next={next}
+      prev={prev}
+      readingTime={readingTime}
+      structuredData={structuredData}
+    >
+      <MDXRemote source={post.content} components={components} />
     </PostSimple>
   )
 }

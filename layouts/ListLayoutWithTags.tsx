@@ -4,20 +4,18 @@
 import Link from '@/components/common/Link'
 import PostContainer from '@/components/posts/PostContainer'
 import siteMetadata from '@/data/siteMetadata'
-import tagData from 'app/tag-data.json'
-import { type Blog } from 'contentlayer/generated'
-import { allAuthors, type Authors } from '@/libs/velite'
+import { allAuthors, type Authors, type Posts } from '@/libs/velite'
 import { usePathname } from 'next/navigation'
-import { CoreContent } from 'pliny/utils/contentlayer.js'
+import { generateTagData } from '@/libs/query/posts'
 
 interface PaginationProps {
   totalPages: number
   currentPage: number
 }
 interface ListLayoutProps {
-  posts: CoreContent<Blog>[]
+  posts: Posts[]
   title: string
-  initialDisplayPosts?: CoreContent<Blog>[]
+  initialDisplayPosts?: Posts[]
   pagination?: PaginationProps
   author?: Authors
 }
@@ -27,7 +25,6 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
   const basePath = pathname.split('/')[1]
   const prevPage = currentPage - 1 > 0
   const nextPage = currentPage + 1 <= totalPages
-  const author = allAuthors.find((p) => p.slug === 'default') as Authors
   return (
     <div className="space-y-2 pb-8 pt-6 md:space-y-5">
       <nav className="flex justify-between">
@@ -68,10 +65,6 @@ export default function ListLayoutWithTags({
   initialDisplayPosts = [],
   pagination,
 }: ListLayoutProps) {
-  const pathname = usePathname()
-  const tagCounts = tagData as Record<string, number>
-  const tagKeys = Object.keys(tagCounts)
-  // const sortedTags = tagKeys.sort((a, b) => tagCounts[b] - tagCounts[a])
   const author = allAuthors.find((p) => p.slug === 'default') as Authors
   const displayPosts = initialDisplayPosts.length > 0 ? initialDisplayPosts : posts
 
@@ -90,9 +83,8 @@ export default function ListLayoutWithTags({
         <div>
           <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {displayPosts.map((post) => {
-              const { path, date, title, summary, tags } = post
               return (
-                <li key={path} className="py-6 xl:pr-8">
+                <li key={post.path} className="py-6 xl:pr-8">
                   <PostContainer post={post} author={author as Authors} />
                 </li>
               )

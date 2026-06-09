@@ -18,6 +18,25 @@ const authors = defineCollection({
     slug: s.path().transform((p) => p.replace(/^authors\//, '')),
   }),
 })
+
+// @ts-nocheck
+const posts = defineCollection({
+  name: 'Posts',
+  pattern: 'posts/**/*.mdx',
+  schema: s.object({
+    title: s.string(),
+    date: s.string().optional(),
+    lastmod: s.string().optional(),
+    tags: s.array(s.string()).optional(),
+    draft: s.boolean().optional(),
+    summary: s.string().optional(),
+    images: s.array(s.string()).optional(),
+    canonicalUrl: s.string().optional(),
+    slug: s.path().transform((p) => p.replace(/^posts\//, '')),
+    content: s.raw(),
+  }),
+})
+
 // @ts-nocheck
 const config: Config = defineConfig({
   root: 'data',
@@ -28,7 +47,7 @@ const config: Config = defineConfig({
     name: '[name]-[hash:6].[ext]',
     clean: true,
   },
-  collections: { authors },
+  collections: { authors, posts },
 })
 
 export default config
