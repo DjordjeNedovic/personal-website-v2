@@ -1,0 +1,154 @@
+---
+title: 'Goodbye AutoMapper: Simple Mapping with Extension Methods and Delegates in .NET'
+date: '2026-05-05'
+lastmod: '2026-05-05'
+tags: ['.NET', 'C#', 'Performance', 'Architecture', 'AutoMapper', 'Extension Methods', 'Delegates', 'Migration']
+draft: false
+summary: 'Dropping AutoMapper for .NET extension methods and delegates — how we did it, why it works, and what the benchmarks say.'
+images: ['/images/thumbnail/dotnet.png']
+canonicalUrl: >-
+    https://djordjenedovic.tech/posts/migrate-from-automapper
+---
+
+Since AutoMapper decided to move to a [commercial license starting with version 15](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/), 
+our team decided to drop it. Instead of reaching for another library, we went with .NET extension
+methods. We will test the performance [at the bottom of this post](#performance). We have 4 class 
+pairs (entity–DTO), and a generic base service class that we use to save and read everything from the
+database. Because of its generic nature, the base class has only basic operations — `GetAll`, `GetOne` and
+`Save` — while each service class that inherits it can have additional methods. All entity classes inherit the
+same `BaseEntity`. The project structure looks like this:
+
+```csharp
+/YourProject
+├── Services
+│   ├── BaseService.cs
+│   ├── BookService.cs
+│   ├── ....
+│
+├── Dto
+│   ├── BookDto.cs
+│   ├── ....
+│
+├── Entities
+│   ├── BaseEntity.cs
+│   ├── BookEntity.cs
+│   ├── ....
+```
+
+For each class pair we add an extension class that has two-way mapping — from entity to DTO and back —
+and a method for mapping a collection (`IEnumerable`) from entities to DTOs. It looks like this:
+
+```cs
+public static class BookMappingExtensions
+{
+    public static BookDto ToDto(this BookEntity entity)
+    {
+        if (entity == null) return null;
+        return new BookDto
+        {
+            Id = entity.Id,
+            Title = entity.Title,
+            Author = entity.Author,
+            CreatedBy = entity.CreatedBy,
+            CreateDate = entity.CreateDate,
+        };
+    }
+
+    public static BookEntity FromDto(this BookDto dto)
+    {
+        if (dto == null) return null;
+        return new BookEntity
+        {
+            Title = dto.Title,
+            Author = dto.Author,
+            CreatedBy = dto.CreatedBy,
+            CreateDate = dto.CreateDate
+        };
+    }
+
+    public static IEnumerable<BookDto> ToDtos(this IEnumerable<BookEntity> entities)
+    {
+        return entities?.Select(e => e.ToDto()) ?? Enumerable.Empty<BookDto>();
+    }
+}
+```
+
+And so this does not sound like the most pointless blog in the world — here comes the generic part,
+meaning how to pass this to the base service class and its 3 basic methods that all entities share.
+The answer is delegates. And I am not ashamed to say that after 8 years, this is the first time I
+actually used them.
+
+A very common interview question — what is a delegate? A delegate is a type-safe pointer to a method.
+You can store a reference to a method and call it later. They allow you to pass a method as a parameter
+— the callback pattern — and that is the point of this post, a real production example of the
+[callback pattern](https://en.wikipedia.org/wiki/Callback_\(computer_programming\)):
+
+Extending the base class:
+
+```csharp
+public class BaseFileService{
++    private readonly Func<TDto, TEntity> _fromDto;
++    private readonly Func<TEntity, TDto> _toEntity;
+
+    public BaseFileService(
+        ILogger<BaseFileService> _logger,
++        Func<TDto, TEntity> fromDto,
++        Func<TEntity, TDto> toEntity,
+        ...
+    )
+    {
++        _fromDto = fromDto;
++        _toEntity = toEntity;
+    }
+}
+```
+
+And then in BookService:
+
+```csharp
+public BookService(...)
+    : base(BookMappingExtensions.FromDto, BookMappingExtensions.ToDto, ...)
+{ }
+```
+
+And how it looks inside the base service methods:
+
+```csharp
+public async Task<TDto> SaveFile(TDto dto)
+{
+-    var dtoEntity = Mapper.Map<TEntity>(dto);
++    var dtoEntity = _fromDto(dto);
+....
+    var savedEntity = await _baseFileRepository.AddFile(fileEntity, _currentUserService.CurrentUserId());
+....
+-    return Mapper.Map<TDto>(savedEntity);
++    return _toEntity(savedEntity);
+}
+```
+
+## Performance
+
+I tested the performance differences using the BenchmarkDotNet library, testing the speed of single-object
+mapping and list mapping of 100,000 objects. For a more accurate test, each operation was run 5 times.
+You can see the results in the table below:
+
+```
+BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6456/22H2/2022Update)
+
+12th Gen Intel Core i7-1255U 1.70GHz, 1 CPU, 12 logical and 10 physical cores
+
+IterationCount=5  LaunchCount=1  WarmupCount=3
+
+| Method            | Mean             | Error             | StdDev           | Gen0      | Gen1      | Gen2     | Allocated  |
+|------------------ |-----------------:|------------------:|-----------------:|----------:|----------:|---------:|-----------:|
+| Single_Extension  |         15.39 ns |          3.073 ns |         0.476 ns |    0.0179 |         - |        - |      112 B |
+| Single_AutoMapper |         46.82 ns |          4.266 ns |         1.108 ns |    0.0178 |         - |        - |      112 B |
+| List_Extension    | 18,444,408.44 ns |  2,616,191.363 ns |   679,416.590 ns | 2093.7500 | 1250.0000 | 312.5000 | 12000608 B |
+| List_AutoMapper   | 25,195,265.94 ns | 13,222,867.236 ns | 3,433,936.638 ns | 2093.7500 | 1218.7500 | 312.5000 | 13298124 B |
+
+```
+
+According to the benchmark, extension methods are 3 times faster than AutoMapper for single-object mapping 
+and use the same amount of memory, while list mapping is about ~50% faster and uses slightly less memory.
+The difference comes from reflection — AutoMapper dynamically finds and maps properties at runtime, while
+extension methods do it statically, through direct assignment that the compiler optimizes in advance.
