@@ -1,9 +1,10 @@
-import { allPosts } from '@/libs/velite'
+import { allPosts, Post } from '@/libs/velite'
 import PostSimple from '@/layouts/PostSimple'
 import { components } from '@/components/posts/MDXComponents'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getStructuredData } from '@/libs/seo/structuredData'
 import { getReadingTime } from '@/libs/utils/utils'
+import { sortedPosts } from '@/libs/query/posts'
 
 export default async function Page({ params }: { params: { slug: string[] } }) {
   const slug = params.slug.join('/')
@@ -12,14 +13,24 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
 
   if (!post) return <div>Not found</div>
 
-  const sorted = [...allPosts]
-    .filter((p) => !p.draft)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  const sorted: Post[] = sortedPosts
 
   const index = sorted.findIndex((p) => p.slug === slug)
+  const prev =
+    index < sortedPosts.length - 1
+      ? {
+          path: `posts/${sortedPosts[index + 1].slug}`,
+          title: sortedPosts[index + 1].title,
+        }
+      : undefined
 
-  const prev = sorted[index + 1] ?? null
-  const next = sorted[index - 1] ?? null
+  const next =
+    index > 0
+      ? {
+          path: `posts/${sortedPosts[index - 1].slug}`,
+          title: sortedPosts[index - 1].title,
+        }
+      : undefined
 
   const mainContent = {
     title: post.title,

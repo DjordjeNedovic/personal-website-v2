@@ -21,7 +21,7 @@ const authors = defineCollection({
 
 // @ts-nocheck
 const posts = defineCollection({
-  name: 'Posts',
+  name: 'Post',
   pattern: 'posts/**/*.mdx',
   schema: s.object({
     title: s.string(),
