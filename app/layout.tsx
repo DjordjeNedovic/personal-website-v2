@@ -54,6 +54,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: [siteMetadata.socialBanner],
   },
+  authors: [{ name: 'Djordje Nedovic' }],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
