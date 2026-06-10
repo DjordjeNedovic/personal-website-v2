@@ -1,0 +1,137 @@
+---
+title: 'Kako podesiti YAML pipeline za objavljivanje preview NuGet paketa u Azure DevOps-u'
+date: '2026-06-10'
+lastmod: '2026-06-10'
+tags: []
+draft: false
+summary: 'Korak po korak vodič za podešavanje Azure DevOps YAML pipeline-a za pakovanje i objavljivanje preview NuGet paketa sa automatskim verzionisanjem i objavljivanjem na feed.'
+images: ['/static/images/thumbnail/nuget.jpg']
+canonicalUrl: >-
+  https://djordjenedovic.tech/posts/rs/publish-preview-nuget-package
+---
+
+U ovom postu ćemo proći kroz korake za podešavanje Azure DevOps pipeline-a koji omogućava pakovanje i objavljivanje
+preview verzija NuGet paketa. Proces uključuje definisanje verzije paketa, pakovanje projekta i objavljivanje na željeni NuGet feed.
+
+## 1. Definisanje verzije paketa
+
+Prvo treba da definišemo verziju paketa koja će se koristiti tokom procesa pakovanja. Za preview verzije paketa,
+koristimo Azure DevOps Build Number kao baznu verziju. Ako trenutna grana nije master, dodajemo `beta` labelu i
+trenutni datum, što pomaže da se preview verzije jasno identifikuju.
+
+```yaml
+variables:
+pkgVer: ''
+
+stages:
+  - stage: build
+    jobs:
+      - pwsh: |
+        $pv = '$(Build.BuildNumber)'
+        if("$(Build.SourceBranch)" -ne "refs/heads/master")
+        {
+        $pv = @($pv, "beta", (Get-Date -Format "yyyyMMdd")) -Join "-"
+        }
+        Write-Host "##vso[task.setvariable variable=pkgVer;]$pv"
+        Write-Host "Package Version = ${pv}"
+    displayName: Set Package version
+```
+
+U ovom primeru Azure DevOps Build Number je podešen na 1.0.$(Rev:r), pa će verzije paketa izgledati kao `1.0.42` za
+produkciju ili `1.0.42-beta-20230526` za preview verzije.
+
+## 2. Pakovanje projekta
+
+Kada je verzija paketa definisana, sledeći korak je pakovanje `.csproj` fajla u NuGet paket. To se radi pomoću
+`DotNetCoreCLI` taska. Pakujemo projekat sa opcijom `--no-build` pošto pretpostavljamo da je projekat već buildovan,
+a verziju paketa postavljamo pomoću prethodno definisane `$(pkgVer)` varijable.
+
+```yaml
+- task: DotNetCoreCLI@2
+  displayName: Pack Projects
+  inputs:
+    command: custom
+    custom: pack
+    projects: '<PATH_TO_PROJECT>/<PROJECT_NAME>.csproj' # zameni sa putanjom do tvog projekta
+    arguments: '--no-build -c Release /p:PackageVersion=$(pkgVer) -o $(Build.ArtifactStagingDirectory)/nupkgs'
+```
+
+Paket se smešta u direktorijum `$(Build.ArtifactStagingDirectory)/nupkgs`, koji će se koristiti u koraku objavljivanja.
+
+## 3. Objavljivanje paketa na NuGet feed
+
+Kada je projekat zapakovan, sledeći korak je objavljivanje paketa na NuGet feed. To se postiže pomoću `DotNetCoreCLI`
+taska sa `push` komandom. Paket koji smo prethodno generisali se šalje na željeni feed.
+
+```yaml
+- task: DotNetCoreCLI@2
+  displayName: Publish to nuget Feed
+  inputs:
+    command: push
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/nupkgs/*.nupkg'
+    feedPublish: '<PUBLISH_FEED_NAME>' # zameni sa nazivom tvog feed-a
+```
+
+`<PUBLISH_FEED_NAME>` treba zameniti nazivom NuGet feed-a na koji želiš da objaviš paket. To može biti tvoj
+privatni feed na Azure Artifacts ili bilo koji drugi feed po izboru.
+
+## 4. Objavljivanje paketa kao pipeline artefakta
+
+Pored objavljivanja na NuGet feed, korisno je sačuvati generisane .nupkg fajlove kao pipeline artefakte. Na
+taj način paket ostaje dostupan čak i ako ne želiš odmah da ga objaviš na feed, a može poslužiti i za kasnije
+preuzimanje, testiranje ili distribuciju kroz druge release pipeline-ove.
+
+```yaml
+- publish: $(Build.ArtifactStagingDirectory)/nupkgs/
+  displayName: Publish Nuget packages as pipeline artefact
+  artifact: nupkgs
+```
+Nakon završetka pipeline-a, paket će biti dostupan u sekciji Artifacts na Azure DevOps build-u i može se
+preuzeti direktno iz korisničkog interfejsa.
+
+## 5. Kompletan YAML primer
+
+```yaml
+variables:
+  pkgVer: ''
+
+stages:
+- stage: Build
+  displayName: Build and Publish Package
+
+  jobs:
+  - job: Package
+    displayName: Package and Publish NuGet
+
+    steps:
+    - pwsh: |
+        $pv = '$(Build.BuildNumber)'
+
+        if ("$(Build.SourceBranch)" -ne "refs/heads/master")
+        {
+          $pv = @($pv, "beta", (Get-Date -Format "yyyyMMdd")) -join "-"
+        }
+
+        Write-Host "##vso[task.setvariable variable=pkgVer]$pv"
+        Write-Host "Package Version = $pv"
+      displayName: Set Package Version
+
+    - task: DotNetCoreCLI@2
+      displayName: Pack Project
+      inputs:
+        command: custom
+        custom: pack
+        projects: '<PATH_TO_PROJECT>/<PROJECT_NAME>.csproj'
+        arguments: '--no-build -c Release /p:PackageVersion=$(pkgVer) -o $(Build.ArtifactStagingDirectory)/nupkgs'
+
+    - task: DotNetCoreCLI@2
+      displayName: Publish to NuGet Feed
+      inputs:
+        command: push
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/nupkgs/*.nupkg'
+        feedPublish: '<PUBLISH_FEED_NAME>'
+
+    - publish: $(Build.ArtifactStagingDirectory)/nupkgs
+      displayName: Publish NuGet Packages as Pipeline Artifact
+      artifact: nupkgs
+```
