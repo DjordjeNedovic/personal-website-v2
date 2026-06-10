@@ -21,7 +21,7 @@ export const metadata = genPageMetadata({
     title: 'All Posts - Djordje Nedovic',
     description: 'Technical blog posts about software engineering and cloud architecture',
     type: 'website',
-    url: 'https://djordjenedovic.netlify.app/posts',
+    url: 'https://djordjenedovic.tech/posts',
   },
   twitter: {
     card: 'summary_large_image',

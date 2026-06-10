@@ -2,6 +2,7 @@ import { genPageMetadata } from 'app/seo'
 import AboutMainComponent from '@/components/about/AboutMainComponent'
 import AboutFullComponent from '@/components/about/AboutFullComponent'
 import type React from 'react'
+
 export const metadata = genPageMetadata({
   title: 'About Djordje Nedovic',
   description:
@@ -10,7 +11,7 @@ export const metadata = genPageMetadata({
     title: 'About Djordje Nedovic | Senior Software Engineer',
     description:
       'Senior Software Engineer specializing in .NET, Azure cloud architecture, and performance optimization.',
-    url: 'https://djordjenedovic.netlify.app/about',
+    url: 'https://djordjenedovic.tech/about',
     type: 'profile',
   },
 })
@@ -23,7 +24,7 @@ export default function Page() {
     jobTitle: 'Senior Software Engineer',
     description:
       'Senior Software Engineer specializing in performance optimization, Azure cloud solutions, and full-stack development',
-    url: 'https://djordjenedovic.netlify.app',
+    url: 'https://djordjenedovic.tech',
     sameAs: ['https://linkedin.com/in/djordjenedovic', 'https://github.com/DjordjeNedovic'],
     address: {
       '@type': 'PostalAddress',
