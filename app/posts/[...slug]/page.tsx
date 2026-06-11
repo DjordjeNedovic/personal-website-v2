@@ -11,9 +11,10 @@ import siteMetadata from '@/data/siteMetadata'
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string[] }
+  params: Promise<{ slug: string[] }>
 }): Promise<Metadata> {
-  const slug = params.slug.join('/')
+  const { slug: slugParts } = await params
+  const slug = slugParts.join('/')
   const post = allPosts.find((p) => p.slug === slug)
 
   if (!post) return { title: 'Post Not Found' }
@@ -52,8 +53,9 @@ export const generateStaticParams = async () => {
   }))
 }
 
-export default async function Page({ params }: { params: { slug: string[] } }) {
-  const slug = params.slug.join('/')
+export default async function Page({ params }: { params: Promise<{ slug: string[] }> }) {
+  const { slug: slugParts } = await params
+  const slug = slugParts.join('/')
 
   const post = allPosts.find((p) => p.slug === slug)
 
