@@ -1,7 +1,7 @@
 ---
 title: 'Kako podesiti YAML pipeline za objavljivanje preview NuGet paketa u Azure DevOps-u'
-date: '2026-06-10'
-lastmod: '2026-06-10'
+date: '2026-06-17'
+lastmod: '2026-06-17'
 tags: []
 draft: false
 summary: 'Korak po korak vodič za podešavanje Azure DevOps YAML pipeline-a za pakovanje i objavljivanje preview NuGet paketa sa automatskim verzionisanjem i objavljivanjem na feed.'
@@ -13,7 +13,7 @@ canonicalUrl: >-
 U ovom postu ćemo proći kroz korake za podešavanje Azure DevOps pipeline-a koji omogućava pakovanje i objavljivanje
 preview verzija NuGet paketa. Proces uključuje definisanje verzije paketa, pakovanje projekta i objavljivanje na željeni NuGet feed.
 
-# 0. Zašto bi iko koristio preview NuGet pakete?
+## 0. Šta su preview NuGet paketi?
 
 Suštinska razlika između stabilne verzije paketa (npr. `1.0.2`) i preview verzije (npr. `1.0.2-preview.20260919`) nije u
 samom sadržaju paketa, već u semantici i načinu na koji NuGet tretira verzije prilikom dependency resolution-a. Iako su
@@ -22,7 +22,7 @@ tehnički oba paketa identičnog formata, preview verzije nose dodatno značenje
 Stabilne verzije imaju predvidljivo ponašanje u dependency resolving-u i podrazumevano se koriste prilikom restore-a.
 Preview verzije se po default-u ne uzimaju u obzir osim ako se eksplicitno ne omoguće.
 
-## Zašto bi ih koristili?
+### Zašto bi ih koristili?
 
 Preview verzije se koriste u fazama razvoja kada API ili ponašanje još može da se menja. Zamislimo situaciju gde jedan
 NuGet paket sadrži shared modele koji se koriste u više mikroservisa. Tokom razvoja, potrebno je često menjati te modele.
@@ -40,7 +40,7 @@ koja predstavlja finalizovan API.
 ## 1. Definisanje verzije paketa
 
 Prvo treba da definišemo verziju paketa koja će se koristiti tokom procesa pakovanja. Za preview verzije paketa,
-koristimo Azure DevOps Build Number kao baznu verziju. Ako trenutna grana nije master, dodajemo `beta` labelu i
+koristimo Azure DevOps Build Number kao baznu verziju. Ako trenutna grana nije master, dodajemo `beta`\`preview`\`štagod` labelu i
 trenutni datum, što pomaže da se preview verzije jasno identifikuju.
 
 ```yaml
