@@ -18,7 +18,7 @@ const PostThumbnailWrapper = ({
   imageObjectFit,
 }: PostThumbnailWrapper) => {
   return (
-    <div className={ctm('relative overflow-hidden bg-clip-border w-full ', className)}>
+    <div className={ctm('relative overflow-hidden bg-clip-border ', className)}>
       <Link
         className="block relative overflow-hidden bg-clip-border w-auto rounded-xl h-72 bg-white"
         href={`/posts/${slug}`}
