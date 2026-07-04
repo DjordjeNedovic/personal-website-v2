@@ -1,7 +1,7 @@
 ---
 title: 'How to Set Up a YAML Pipeline for Publishing Preview NuGet Packages in Azure DevOps'
 date: '2026-06-17'
-lastmod: '2026-06-17'
+lastmod: '2026-07-04'
 tags: ['.NET', 'NuGet', 'Azure DevOps', 'Pipeline', 'CI/CD', 'YAML']
 draft: false
 summary: 'A step-by-step guide to setting up an Azure DevOps YAML pipeline for packaging and publishing preview NuGet packages, with automatic versioning and feed publishing.'
@@ -12,35 +12,39 @@ canonicalUrl: >-
 
 In this post, we will walk through the steps for set up an Azure DevOps pipeline that
 allows packaging and publishing preview versions of NuGet packages. The process
-incldes defining the package version, packing the project and publishing it to the
+includes defining the package version, packing the project and publishing it to the
 desired NuGet feed.
 
 ## 0. What Are Preview NuGet Packages?
-The main difference between a stable version (e.g. `1.0.2`) and a preview version 
+
+The main difference between a stable version (e.g. `1.0.2`) and a preview version
 (`e.g. 1.0.2-preview.20260919`) is not in the package content itself, but in semantics -
-how NuGet treats versions during dependency resolution. Although both packages are 
+how NuGet treats versions during dependency resolution. Although both packages are
 technically identical in format, preview versions carry an extra meaning: they are not
-final, and they don't guarantee stability. Stable versions behave predictably during 
+final, and they don't guarantee stability. Stable versions behave predictably during
 dependency resolution and are used by default during restore. Preview versions are
 skipped by default unless explicitly enabled.
 
 ### Why would you use it?
+
 Preview versions are used during development phases when the API or behaviour can still
 change. Let's imagine a situation where one NuGet package contains shared models used
-across several microservices. During development, these models need to change often. 
+across several microservices. During development, these models need to change often.
 
 Preview versions allow us to:
+
 - publish changes before final stabilization
 - test them across multiple microservices in real-world conditions
 - get feedback and discover problems before release
 
 This way, teams can gradually integrate changes without the risk of prematurely locking
-in a stable version. When development and testing are done, the preview package isn't 
-"converted" into a stable one — instead, a new stable version is published that represents 
+in a stable version. When development and testing are done, the preview package isn't
+"converted" into a stable one — instead, a new stable version is published that represents
 the finalized API.
 
 ## 1. Defining the Package Version
-First things first, we need to define the version of the package that will be used during the 
+
+First things first, we need to define the version of the package that will be used during the
 packaging process. For preview package versions, we use the Azure DevOps Build Number as the
 base version. We check the branch, and if it's not master, we add a label - `beta`/`preview`/
 `whatever you prefer` - along with the current date, which helps clearly identify preview versions.
@@ -67,9 +71,10 @@ In this example, the Build Number is set to `1.0.$(Rev:r)`, so the package versi
 for production or `1.0.42-preview-20260617` for preview versions.
 
 ## 2. Packing the Project
-Once the package version is defined, the next step is packing the .csproj file into a NuGet package. 
+
+Once the package version is defined, the next step is packing the .csproj file into a NuGet package.
 This is done using the DotNetCoreCLI task. We pack the project with the `--no-build` option since we
-assume the project has already been built, and we set the package version using the previously 
+assume the project has already been built, and we set the package version using the previously
 defined $(pkgVer) variable.
 
 ```yaml
@@ -78,13 +83,14 @@ defined $(pkgVer) variable.
   inputs:
     command: custom
     custom: pack
-    projects: '<PATH_TO_PROJECT>/<PROJECT_NAME>.csproj' # zameni sa putanjom do tvog projekta
+    projects: '<PATH_TO_PROJECT>/<PROJECT_NAME>.csproj' # change this to your project path
     arguments: '--no-build -c Release /p:PackageVersion=$(pkgVer) -o $(Build.ArtifactStagingDirectory)/nupkgs'
 ```
 
 The package is placed in the $(Build.ArtifactStagingDirectory)/nupkgs directory, which will be used in the publishing step.
 
 ## 3. Publishing the Package to a NuGet Feed
+
 Once the project is packed, the next step is publishing the package to a NuGet feed. This is
 done using the DotNetCoreCLI task with the push command. The package we previously generated
 is pushed to the desired feed.
@@ -98,11 +104,12 @@ is pushed to the desired feed.
     feedPublish: '<PUBLISH_FEED_NAME>' # replace with the name of your feed
 ```
 
-`<PUBLISH_FEED_NAME>` should be replaced with the name of the NuGet feed you want to publish to. 
+`<PUBLISH_FEED_NAME>` should be replaced with the name of the NuGet feed you want to publish to.
 This can be your private feed on Azure Artifacts or any other feed of your choice.
 
 ## 4. Publishing the Package as a Pipeline Artifact
-In addition to publishing to a NuGet feed, it's useful to keep the generated .nupkg files as 
+
+In addition to publishing to a NuGet feed, it's useful to keep the generated .nupkg files as
 pipeline artifacts. This way, the package stays available even if you don't want to publish
 it to a feed right away, and it can also be used later for downloading, testing, or
 distributing it through other release pipelines.
@@ -112,6 +119,7 @@ distributing it through other release pipelines.
   displayName: Publish Nuget packages as pipeline artefact
   artifact: nupkgs
 ```
+
 Once the pipeline finishes, the package will be available in the Artifacts section
 of the Azure DevOps build and can be downloaded directly from the UI.
 
@@ -122,42 +130,42 @@ variables:
   pkgVer: ''
 
 stages:
-- stage: Build
-  displayName: Build and Publish Package
+  - stage: Build
+    displayName: Build and Publish Package
 
-  jobs:
-  - job: Package
-    displayName: Package and Publish NuGet
+    jobs:
+      - job: Package
+        displayName: Package and Publish NuGet
 
-    steps:
-    - pwsh: |
-        $pv = '$(Build.BuildNumber)'
+        steps:
+          - pwsh: |
+              $pv = '$(Build.BuildNumber)'
 
-        if ("$(Build.SourceBranch)" -ne "refs/heads/master")
-        {
-          $pv = @($pv, "beta", (Get-Date -Format "yyyyMMdd")) -join "-"
-        }
+              if ("$(Build.SourceBranch)" -ne "refs/heads/master")
+              {
+                $pv = @($pv, "beta", (Get-Date -Format "yyyyMMdd")) -join "-"
+              }
 
-        Write-Host "##vso[task.setvariable variable=pkgVer]$pv"
-        Write-Host "Package Version = $pv"
-      displayName: Set Package Version
+              Write-Host "##vso[task.setvariable variable=pkgVer]$pv"
+              Write-Host "Package Version = $pv"
+            displayName: Set Package Version
 
-    - task: DotNetCoreCLI@2
-      displayName: Pack Project
-      inputs:
-        command: custom
-        custom: pack
-        projects: '<PATH_TO_PROJECT>/<PROJECT_NAME>.csproj'
-        arguments: '--no-build -c Release /p:PackageVersion=$(pkgVer) -o $(Build.ArtifactStagingDirectory)/nupkgs'
+          - task: DotNetCoreCLI@2
+            displayName: Pack Project
+            inputs:
+              command: custom
+              custom: pack
+              projects: '<PATH_TO_PROJECT>/<PROJECT_NAME>.csproj'
+              arguments: '--no-build -c Release /p:PackageVersion=$(pkgVer) -o $(Build.ArtifactStagingDirectory)/nupkgs'
 
-    - task: DotNetCoreCLI@2
-      displayName: Publish to NuGet Feed
-      inputs:
-        command: push
-        packagesToPush: '$(Build.ArtifactStagingDirectory)/nupkgs/*.nupkg'
-        feedPublish: '<PUBLISH_FEED_NAME>'
+          - task: DotNetCoreCLI@2
+            displayName: Publish to NuGet Feed
+            inputs:
+              command: push
+              packagesToPush: '$(Build.ArtifactStagingDirectory)/nupkgs/*.nupkg'
+              feedPublish: '<PUBLISH_FEED_NAME>'
 
-    - publish: $(Build.ArtifactStagingDirectory)/nupkgs
-      displayName: Publish NuGet Packages as Pipeline Artifact
-      artifact: nupkgs
+          - publish: $(Build.ArtifactStagingDirectory)/nupkgs
+            displayName: Publish NuGet Packages as Pipeline Artifact
+            artifact: nupkgs
 ```

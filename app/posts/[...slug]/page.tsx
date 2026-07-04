@@ -7,6 +7,7 @@ import { getReadingTime } from '@/libs/utils/utils'
 import { sortedPosts } from '@/libs/query/posts'
 import { Metadata } from 'next'
 import siteMetadata from '@/data/siteMetadata'
+import rehypePrismPlus from 'rehype-prism-plus'
 
 export async function generateMetadata({
   params,
@@ -98,7 +99,15 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       readingTime={readingTime}
       structuredData={structuredData}
     >
-      <MDXRemote source={post.content} components={components} />
+      <MDXRemote
+        source={post.content}
+        components={components}
+        options={{
+          mdxOptions: {
+            rehypePlugins: [[rehypePrismPlus, { defaultLanguage: 'js', ignoreMissing: true }]],
+          },
+        }}
+      />
     </PostSimple>
   )
 }

@@ -17,6 +17,7 @@ const ThemeSwitchWrapper = () => {
     <button
       aria-label="Toggle Dark Mode"
       onClick={() => setTheme(theme === 'dark' || resolvedTheme === 'dark' ? 'light' : 'dark')}
+      className="flex items-center justify-center min-w-[48px] min-h-[48px]"
     >
       <DarkThemeIcon />
       <LightThemeIcon />

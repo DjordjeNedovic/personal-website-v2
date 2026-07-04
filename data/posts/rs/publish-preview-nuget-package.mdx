@@ -28,6 +28,7 @@ Preview verzije se koriste u fazama razvoja kada API ili ponašanje još može d
 NuGet paket sadrži shared modele koji se koriste u više mikroservisa. Tokom razvoja, potrebno je često menjati te modele.
 
 Preview verzije omogućavaju da:
+
 - objavimo promene u paketu pre finalne stabilizacije
 - testiramo ih kroz više mikroservisa u realnim uslovima
 - dobijemo feedback i otkrijemo probleme pre release-a
@@ -110,6 +111,7 @@ preuzimanje, testiranje ili distribuciju kroz druge release pipeline-ove.
   displayName: Publish Nuget packages as pipeline artefact
   artifact: nupkgs
 ```
+
 Nakon završetka pipeline-a, paket će biti dostupan u sekciji Artifacts na Azure DevOps build-u i može se
 preuzeti direktno iz korisničkog interfejsa.
 
@@ -120,42 +122,42 @@ variables:
   pkgVer: ''
 
 stages:
-- stage: Build
-  displayName: Build and Publish Package
+  - stage: Build
+    displayName: Build and Publish Package
 
-  jobs:
-  - job: Package
-    displayName: Package and Publish NuGet
+    jobs:
+      - job: Package
+        displayName: Package and Publish NuGet
 
-    steps:
-    - pwsh: |
-        $pv = '$(Build.BuildNumber)'
+        steps:
+          - pwsh: |
+              $pv = '$(Build.BuildNumber)'
 
-        if ("$(Build.SourceBranch)" -ne "refs/heads/master")
-        {
-          $pv = @($pv, "beta", (Get-Date -Format "yyyyMMdd")) -join "-"
-        }
+              if ("$(Build.SourceBranch)" -ne "refs/heads/master")
+              {
+                $pv = @($pv, "beta", (Get-Date -Format "yyyyMMdd")) -join "-"
+              }
 
-        Write-Host "##vso[task.setvariable variable=pkgVer]$pv"
-        Write-Host "Package Version = $pv"
-      displayName: Set Package Version
+              Write-Host "##vso[task.setvariable variable=pkgVer]$pv"
+              Write-Host "Package Version = $pv"
+            displayName: Set Package Version
 
-    - task: DotNetCoreCLI@2
-      displayName: Pack Project
-      inputs:
-        command: custom
-        custom: pack
-        projects: '<PATH_TO_PROJECT>/<PROJECT_NAME>.csproj'
-        arguments: '--no-build -c Release /p:PackageVersion=$(pkgVer) -o $(Build.ArtifactStagingDirectory)/nupkgs'
+          - task: DotNetCoreCLI@2
+            displayName: Pack Project
+            inputs:
+              command: custom
+              custom: pack
+              projects: '<PATH_TO_PROJECT>/<PROJECT_NAME>.csproj'
+              arguments: '--no-build -c Release /p:PackageVersion=$(pkgVer) -o $(Build.ArtifactStagingDirectory)/nupkgs'
 
-    - task: DotNetCoreCLI@2
-      displayName: Publish to NuGet Feed
-      inputs:
-        command: push
-        packagesToPush: '$(Build.ArtifactStagingDirectory)/nupkgs/*.nupkg'
-        feedPublish: '<PUBLISH_FEED_NAME>'
+          - task: DotNetCoreCLI@2
+            displayName: Publish to NuGet Feed
+            inputs:
+              command: push
+              packagesToPush: '$(Build.ArtifactStagingDirectory)/nupkgs/*.nupkg'
+              feedPublish: '<PUBLISH_FEED_NAME>'
 
-    - publish: $(Build.ArtifactStagingDirectory)/nupkgs
-      displayName: Publish NuGet Packages as Pipeline Artifact
-      artifact: nupkgs
+          - publish: $(Build.ArtifactStagingDirectory)/nupkgs
+            displayName: Publish NuGet Packages as Pipeline Artifact
+            artifact: nupkgs
 ```
