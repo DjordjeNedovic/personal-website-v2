@@ -15,7 +15,7 @@ export default function PostContainer({ post, author }: { post: Post; author: Au
           slug={slug}
           image={Array.isArray(images) ? images[0] : '/static/images/banner.jpeg'}
           className="post-thumbnail-small"
-          imageObjectFit="contain"
+          imageObjectFit="cover"
         />
 
         <div className="post-content-large">

@@ -3,6 +3,7 @@
 import type React from 'react'
 import { MapPin, Mail, Users } from 'lucide-react'
 import Image from 'next/image'
+import siteMetadata from '@/data/siteMetadata'
 
 // Custom Card Components with Dark Theme Support
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
@@ -58,6 +59,7 @@ export default function AboutMainComponent() {
                   alt="Djordje Nedovic - Senior Software Engineer"
                   width={140}
                   height={140}
+                  priority
                   className="w-40 h-40 lg:w-48 lg:h-48 rounded-full object-cover border-4 border-white dark:border-slate-700 shadow-lg"
                 />
               </div>
@@ -73,7 +75,7 @@ export default function AboutMainComponent() {
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3 text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto lg:mx-0">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto lg:mx-0">
                   <div className="flex items-center justify-center lg:justify-start gap-2">
                     <MapPin className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                     <span>Novi Sad, Serbia</span>
@@ -89,7 +91,7 @@ export default function AboutMainComponent() {
                   </div>
                   <div className="flex items-center justify-center lg:justify-start gap-2">
                     <a
-                      href="https://linkedin.com/in/djordjenedovic"
+                      href={siteMetadata.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -97,9 +99,9 @@ export default function AboutMainComponent() {
                       LinkedIn Profile
                     </a>
                   </div>
-                  <div className="flex items-center justify-center lg:justify-start gap-2 sm:col-span-2 lg:col-span-1 xl:col-span-2">
+                  <div className="flex items-center justify-center lg:justify-start gap-2">
                     <a
-                      href="https://github.com/DjordjeNedovic"
+                      href={siteMetadata.github}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"

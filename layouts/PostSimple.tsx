@@ -5,6 +5,7 @@ import siteMetadata from '@/data/siteMetadata'
 import { ReactNode } from 'react'
 import { ReadTimeResults } from 'reading-time'
 import { formatDate } from '@/libs/utils/utils'
+import Image from 'next/image'
 
 interface PostContent {
   title: string
@@ -51,20 +52,31 @@ export default function PostLayout({
       <article>
         <div>
           <header>
-            <div className="space-y-1 border-b border-gray-200 pb-10 text-center dark:border-gray-700">
+            <div className="border-b border-gray-200 pb-8 pt-6 text-center dark:border-gray-700">
+              <div className="mb-4">
+                <PageTitle>{title}</PageTitle>
+              </div>
               <dl>
                 <div>
                   <dt className="sr-only">Published on</dt>
                   <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-                    <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
-                    <span className="mx-2">·</span>
-                    <span>{readingTime?.text}</span>
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
+                      <Image
+                        src="/images/profile.jpg"
+                        alt="Djordje Nedovic"
+                        width={20}
+                        height={20}
+                        className="rounded-full"
+                      />
+                      <span className="text-slate-700 dark:text-slate-300">Djordje Nedovic</span>
+                      <span>·</span>
+                      <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
+                      <span>·</span>
+                      <span>{readingTime?.text}</span>
+                    </div>
                   </dd>
                 </div>
               </dl>
-              <div>
-                <PageTitle>{title}</PageTitle>
-              </div>
             </div>
           </header>
           <div className="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:divide-y-0">

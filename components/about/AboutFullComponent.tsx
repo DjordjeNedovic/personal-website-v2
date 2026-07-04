@@ -238,9 +238,9 @@ export default function AboutFullComponent() {
                 {optimizationAchievements.map((achievement, index) => (
                   <div key={index} className="text-center space-y-3">
                     <div className="flex justify-center">{achievement.icon}</div>
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                    <h4 className="font-semibold text-slate-900 dark:text-slate-100">
                       {achievement.title}
-                    </h3>
+                    </h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
                       {achievement.description}
                     </p>
@@ -262,10 +262,10 @@ export default function AboutFullComponent() {
               <div className="grid md:grid-cols-2 gap-6">
                 {Object.entries(skills).map(([category, { icon, items }]) => (
                   <div key={category} className="space-y-3">
-                    <h3 className="flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-200">
+                    <h4 className="flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-200">
                       {icon}
                       {category}
-                    </h3>
+                    </h4>
                     <div className="flex flex-wrap gap-2">
                       {items.map((skill) => (
                         <Badge
@@ -298,22 +298,20 @@ export default function AboutFullComponent() {
                   className="border-l-4 border-blue-500 dark:border-blue-400 pl-6 space-y-2"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                      {job.title}
-                    </h3>
+                    <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      {job.title} • {job.company}
+                    </h4>
                     <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
                       <Calendar className="h-4 w-4" aria-hidden="true" />
                       <time>{job.period}</time>
                     </div>
                   </div>
-                  <p className="text-slate-700 dark:text-slate-300 font-medium">
-                    {job.company} • {job.location}
-                  </p>
+                  <p className="text-slate-700 dark:text-slate-300 font-medium">{job.location}</p>
                   <ul className="space-y-1 text-slate-600 dark:text-slate-400">
                     {job.highlights.map((highlight, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
+                      <li key={idx} className="flex items-baseline gap-2">
                         <span
-                          className="text-blue-500 dark:text-blue-400 mt-1.5"
+                          className="text-blue-500 dark:text-blue-400 flex-shrink-0"
                           aria-hidden="true"
                         >
                           •

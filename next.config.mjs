@@ -49,6 +49,7 @@ export default () => {
     reactStrictMode: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
     images: {
+      minimumCacheTTL: 60 * 60 * 24 * 365,
       remotePatterns: [
         { protocol: 'https', hostname: '**', port: '', pathname: '/**' },
         { protocol: 'http', hostname: '**', port: '', pathname: '/**' },

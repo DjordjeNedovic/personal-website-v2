@@ -24,7 +24,11 @@ const MobileNav = () => {
 
   return (
     <>
-      <button aria-label="Toggle Menu" onClick={onToggleNav} className="sm:hidden">
+      <button
+        aria-label="Toggle Menu"
+        onClick={onToggleNav}
+        className="sm:hidden flex items-center justify-center min-w-[48px] min-h-[48px]"
+      >
         <ToggleIcon />
       </button>
       <div
@@ -34,7 +38,11 @@ const MobileNav = () => {
         )}
       >
         <div className="flex justify-end">
-          <button className="mr-8 mt-11 h-8 w-8" aria-label="Toggle Menu" onClick={onToggleNav}>
+          <button
+            className="mr-8 mt-11 flex items-center justify-center min-w-[48px] min-h-[48px]"
+            aria-label="Toggle Menu"
+            onClick={onToggleNav}
+          >
             <CloseIcon />
           </button>
         </div>

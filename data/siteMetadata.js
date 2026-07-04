@@ -1,4 +1,3 @@
-/** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
   title: 'Djordje Nedovic | Senior Software Engineer',
   author: 'Djordje Nedovic',
@@ -10,10 +9,10 @@ const siteMetadata = {
   siteUrl: 'https://djordjenedovic.tech',
   siteRepo: 'https://github.com/DjordjeNedovic',
   siteLogo: '/static/images/logo.png',
-  socialBanner: '/static/images/banner.jpeg',
+  socialBanner: '/images/logo/social_banner.jpeg',
   email: 'nedovic.djordje@gmail.com',
-  linkedin: 'https://www.linkedin.com/in/djordjenedovic',
-  github: 'https://github.com/djordjeNedovic',
+  linkedin: 'https://linkedin.com/in/djordjenedovic',
+  github: 'https://github.com/DjordjeNedovic',
   //twitter: 'https://twitter.com/djordjeNedovic',
 }
 

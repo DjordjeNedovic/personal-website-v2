@@ -1,7 +1,7 @@
 ---
 title: 'Goodbye AutoMapper: Simple Mapping with Extension Methods and Delegates in .NET'
 date: '2026-05-05'
-lastmod: '2026-05-05'
+lastmod: '2026-07-04'
 tags:
   [
     '.NET',
@@ -19,6 +19,8 @@ images: ['/images/thumbnail/dotnet.png']
 canonicalUrl: >-
   https://djordjenedovic.tech/posts/migrate-from-automapper
 ---
+
+## Why we dropped AutoMapper
 
 Since AutoMapper decided to move to a [commercial license starting with version 15](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/),
 our team decided to drop it. Instead of reaching for another library, we went with .NET extension
@@ -44,6 +46,8 @@ same `BaseEntity`. The project structure looks like this:
 │   ├── BookEntity.cs
 │   ├── ....
 ```
+
+## The extension method approach
 
 For each class pair we add an extension class that has two-way mapping — from entity to DTO and back —
 and a method for mapping a collection (`IEnumerable`) from entities to DTOs. It looks like this:
@@ -82,6 +86,8 @@ public static class BookMappingExtensions
     }
 }
 ```
+
+## Passing mappers to the base service with delegates
 
 And so this does not sound like the most pointless blog in the world — here comes the generic part,
 meaning how to pass this to the base service class and its 3 basic methods that all entities share.

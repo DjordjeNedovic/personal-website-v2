@@ -1,0 +1,12 @@
+AI Training Policy for djordjenedovic.tech
+
+The content on this website (blog posts, code examples, and written text) is
+licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+
+AI training: Permitted with attribution.
+AI indexing and retrieval (RAG): Permitted.
+Scraping for model training: Permitted with attribution.
+
+Author: Djordje Nedovic
+Contact: nedovic.djordje@gmail.com
+Site: https://djordjenedovic.tech

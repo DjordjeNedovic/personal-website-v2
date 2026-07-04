@@ -1,0 +1,19 @@
+# Djordje Nedovic
+
+> Senior Software Engineer specializing in .NET, Azure cloud architecture, and distributed systems. Based in Novi Sad, Serbia.
+
+## Blog
+
+- [One Character That Broke My Terraform Migration](https://djordjenedovic.tech/posts/subscription-rule-migration): Debugging a cryptic AzureRM provider error during Terraform 0.12 → 0.13 migration caused by a $ character in a resource name.
+- [Goodbye AutoMapper: Simple Mapping with Extension Methods and Delegates in .NET](https://djordjenedovic.tech/posts/migrate-from-automapper): Replacing AutoMapper with lightweight extension methods and delegates in .NET.
+- [How to Set Up a YAML Pipeline for Publishing a NuGet Package](https://djordjenedovic.tech/posts/publish-preview-nuget-package): Step-by-step guide for Azure DevOps YAML pipeline for NuGet packaging.
+
+## About
+
+Senior Software Engineer with 8+ years of experience in .NET, Azure, and distributed systems. Previously at Endava (fintech banking portal) and EXLRT (airline systems). Currently at Combined Ratio Solutions building a greenfield cloud-native platform.
+
+## Links
+
+- Blog: https://djordjenedovic.tech
+- GitHub: https://github.com/DjordjeNedovic
+- LinkedIn: https://linkedin.com/in/djordjenedovic

@@ -1,12 +1,13 @@
-// @ts-check
-const defaultTheme = require('tailwindcss/defaultTheme')
-const colors = require('tailwindcss/colors')
+import colors from 'tailwindcss/colors'
+import defaultTheme from 'tailwindcss/defaultTheme'
+
+import generated from '@tailwindcss/forms'
+
+import generated0 from '@tailwindcss/typography'
 
 module.exports = {
   content: [
-    './node_modules/pliny/**/*.js',
     './app/**/*.{js,ts,jsx,tsx}',
-    './pages/**/*.{js,ts,tsx}',
     './components/**/*.{js,ts,tsx}',
     './layouts/**/*.{js,ts,tsx}',
     './data/**/*.mdx',
@@ -67,5 +68,5 @@ module.exports = {
       }),
     },
   },
-  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
+  plugins: [generated, generated0],
 }

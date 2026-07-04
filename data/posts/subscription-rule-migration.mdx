@@ -134,7 +134,7 @@ refuse to create any user-defined resource with that prefix - and that conflict 
 
 ## Solution
 
-```hcl {2} {3}
+```hcl
 resource "azurerm_servicebus_subscription_rule" "example" {
   - name            = "$Default" # <--- Before
   + name            = "default-rule" # <--- After

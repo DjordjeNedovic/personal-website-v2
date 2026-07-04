@@ -2,11 +2,12 @@ import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allAuthors, type Authors } from '@/libs/velite'
 import { genPageMetadata } from 'app/seo'
 import { sortedPosts } from '@/libs/query/posts'
+import siteMetadata from '@/data/siteMetadata'
 
 const POSTS_PER_PAGE = 5
 
 export const metadata = genPageMetadata({
-  title: 'All Posts - Djordje Nedovic Dev Blog',
+  title: 'All Posts',
   description:
     'Browse all blog posts about software development, performance optimization, Azure, and .NET by Djordje Nedovic',
   keywords: [
@@ -18,14 +19,14 @@ export const metadata = genPageMetadata({
     'cloud architecture',
   ],
   openGraph: {
-    title: 'All Posts - Djordje Nedovic',
+    title: 'All Posts',
     description: 'Technical blog posts about software engineering and cloud architecture',
     type: 'website',
     url: 'https://djordjenedovic.tech/posts',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'All Posts - Djordje Nedovic',
+    title: 'All Posts',
     description: 'Technical blog posts about software engineering and cloud architecture',
   },
 })
@@ -64,6 +65,12 @@ export default function BlogPage() {
       },
       url: `https://djordjenedovic.tech/posts/${post.slug}`,
       description: post.summary,
+      dateModified: post.lastmod || post.date,
+      image: post.images?.[0]
+        ? post.images[0].startsWith('http')
+          ? post.images[0]
+          : `${siteMetadata.siteUrl}${post.images[0]}`
+        : `${siteMetadata.siteUrl}${siteMetadata.socialBanner}`,
     })),
   }
 

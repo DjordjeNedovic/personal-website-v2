@@ -1,7 +1,7 @@
 import siteMetadata from '@/data/siteMetadata'
-import { Post } from '../../.velite'
+import { PostRs } from '../../.velite'
 
-export function getStructuredData(post: Post) {
+export function getStructuredDataRs(post: PostRs) {
   const image = post.images?.[0] || siteMetadata.socialBanner
   const absoluteImage = image.startsWith('http') ? image : `${siteMetadata.siteUrl}${image}`
 
@@ -13,7 +13,8 @@ export function getStructuredData(post: Post) {
     dateModified: new Date(post.lastmod || post.date).toISOString(),
     description: post.summary,
     image: absoluteImage,
-    url: `${siteMetadata.siteUrl}/posts/${post.slug}`,
+    url: `${siteMetadata.siteUrl}/posts/rs/${post.slug}`,
+    inLanguage: 'sr',
     author: {
       '@type': 'Person',
       name: 'Djordje Nedovic',
