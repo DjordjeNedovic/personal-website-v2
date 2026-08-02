@@ -14,6 +14,13 @@ const projectsData = [
     imgSrc: '/images/thumbnail/github.jpg',
     href: 'https://github.com/DjordjeNedovic/personal-website-v2',
   },
+  {
+    title: 'DotNet Scanner',
+    description: `A Roslyn-based static analyzer that scans a C# solution to flag unused usings and unused methods
+    across projects, built to help me clean up and get oriented in a large legacy codebase I inherited`,
+    imgSrc: '/images/thumbnail/github.jpg',
+    href: 'https://github.com/DjordjeNedovic/DotNetScanner',
+  },
 ]
 
 export default projectsData
