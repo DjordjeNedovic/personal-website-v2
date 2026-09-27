@@ -11,13 +11,7 @@ type Project = (typeof projectsData)[number] & { technologies?: string[] }
 
 const ProjectCard = ({ project }: { project: Project }) => {
   return (
-    <a
-      href={project.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`${project.title} on GitHub`}
-      className="block h-full"
-    >
+    <a href={project.href} target="_blank" rel="noopener noreferrer" className="block h-full">
       <Card as="article" interactive className="flex flex-col">
         <CardMedia
           src={project.imgSrc}

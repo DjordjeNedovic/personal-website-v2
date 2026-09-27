@@ -1,6 +1,7 @@
 import { genPageMetadata } from 'app/seo'
 import AboutMainComponent from '@/components/about/AboutMainComponent'
 import AboutFullComponent from '@/components/about/AboutFullComponent'
+import { PERSON_ID } from '@/libs/seo/person'
 
 export const metadata = genPageMetadata({
   title: 'About',
@@ -23,6 +24,7 @@ export default function Page() {
     url: 'https://djordjenedovic.tech/about',
     mainEntity: {
       '@type': 'Person',
+      '@id': PERSON_ID,
       name: 'Djordje Nedovic',
       jobTitle: 'Senior Software Engineer',
       description:

@@ -4,7 +4,15 @@ import NavigationButton from '../common/NavigationButton'
 import PostThumbnailWrapper from '../common/PostThumbnailWrapper'
 import PostAuthorSection from '../common/PostAuthorSection'
 
-export default function PostContainer({ post, author }: { post: Post; author: Authors }) {
+export default function PostContainer({
+  post,
+  author,
+  priority = false,
+}: {
+  post: Post
+  author: Authors
+  priority?: boolean
+}) {
   const { slug, date, title, summary, tags, images } = post
 
   return (
@@ -15,6 +23,7 @@ export default function PostContainer({ post, author }: { post: Post; author: Au
         image={Array.isArray(images) ? images[0] : '/static/images/banner.jpeg'}
         className="h-72 rounded-xl border border-slate-300/40 lg:w-1/3"
         imageObjectFit="cover"
+        priority={priority}
       />
 
       <div className="flex flex-col justify-between lg:w-2/3">
@@ -31,12 +40,9 @@ export default function PostContainer({ post, author }: { post: Post; author: Au
           <p className="mt-3 leading-relaxed text-slate-600 dark:text-slate-300">{summary ?? ''}</p>
 
           <div className="mt-3">
-            <NavigationButton
-              color="primary"
-              href={`/posts/${slug}`}
-              title={'Read more'}
-              isArrow={true}
-            />
+            <NavigationButton color="primary" href={`/posts/${slug}`} isArrow={true}>
+              Read more<span className="sr-only">: {title}</span>
+            </NavigationButton>
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">

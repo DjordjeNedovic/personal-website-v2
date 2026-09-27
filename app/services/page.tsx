@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import {
   Briefcase,
   CircleCheck,
@@ -15,13 +14,35 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import PageHeader from '@/components/ui/PageHeader'
+import Link from '@/components/common/Link'
 import siteMetadata from '@/data/siteMetadata'
+import { genPageMetadata } from 'app/seo'
+import { personRef } from '@/libs/seo/person'
 
-export const metadata: Metadata = {
-  title: 'Services — Azure Cost Optimisation for .NET Teams',
-  description:
-    'I help .NET teams cut Azure spend — not with a dashboard and a list of recommendations, but by changing the infrastructure and the code that produce the cost.',
-}
+const PAGE_TITLE = 'Azure Cost Optimisation for .NET Teams'
+const PAGE_DESCRIPTION =
+  'I help .NET teams cut Azure spend — not with a dashboard and a list of recommendations, but by changing the infrastructure and the code that produce the cost.'
+
+export const metadata = genPageMetadata({
+  title: PAGE_TITLE,
+  description: PAGE_DESCRIPTION,
+  keywords: [
+    'Azure cost optimisation',
+    'Azure cost optimization',
+    'FinOps',
+    '.NET',
+    'Azure cost assessment',
+    'cloud cost engineering',
+  ],
+  alternates: { canonical: './' },
+  openGraph: {
+    title: `${PAGE_TITLE} | Djordje Nedovic`,
+    url: `${siteMetadata.siteUrl}/services`,
+  },
+  twitter: {
+    title: `${PAGE_TITLE} | Djordje Nedovic`,
+  },
+})
 
 const credentials = [
   '8+ years in .NET',
@@ -89,7 +110,7 @@ const results = [
   },
   {
     icon: <Zap className="h-6 w-6" aria-hidden="true" />,
-    headline: '3 GB → 600 MB',
+    headline: '3 GB → 800 MB',
     body: "Cut an airline application's memory footprint by over 70%, which made a smaller, cheaper instance class viable in production.",
   },
   {
@@ -132,6 +153,37 @@ const fit = {
   ],
 }
 
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: `${PAGE_TITLE} — Djordje Nedovic`,
+  url: `${siteMetadata.siteUrl}/services`,
+  description: PAGE_DESCRIPTION,
+  areaServed: 'Worldwide',
+  provider: {
+    ...personRef,
+    jobTitle: 'Senior Software Engineer',
+    sameAs: [siteMetadata.linkedin, siteMetadata.github],
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Novi Sad',
+      addressCountry: 'RS',
+    },
+  },
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Azure cost optimisation services',
+    itemListElement: services.map((service) => ({
+      '@type': 'Offer',
+      itemOffered: {
+        '@type': 'Service',
+        name: service.title,
+        description: service.intro,
+      },
+    })),
+  },
+}
+
 function BulletList({ items }: { items: string[] }) {
   return (
     <ul className="space-y-1.5 text-slate-600 dark:text-slate-400">
@@ -150,9 +202,13 @@ function BulletList({ items }: { items: string[] }) {
 export default function ServicesPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
       <PageHeader
-        title="Services"
-        description="I help .NET teams cut their Azure spend. Most cost work stops at a report full of recommendations someone else has to implement — I find where the money goes, then change the infrastructure and the code that produce it."
+        title="Azure cost optimisation for .NET teams"
+        description="I help .NET teams cut their Azure spend through hands-on cost optimisation. Most cost work stops at a report full of recommendations someone else has to implement — I find where the money goes, then change the infrastructure and the code that produce it."
       >
         {credentials.map((c) => (
           <Badge key={c} variant="neutral">
@@ -166,7 +222,7 @@ export default function ServicesPage() {
           <CardHeader>
             <CardTitle>
               <Scale className="h-6 w-6" aria-hidden="true" />
-              The approach
+              How I approach Azure cost optimisation
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -190,6 +246,12 @@ export default function ServicesPage() {
                   and fix the workload that needs a bigger VM because it leaks memory. The saving is
                   implemented, not recommended.
                 </p>
+                <Link
+                  href="/posts/subscription-rule-migration"
+                  className="inline-block text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                >
+                  Example: debugging an undocumented AzureRM bug in a Terraform migration &rarr;
+                </Link>
               </div>
             </div>
           </CardContent>
@@ -249,6 +311,14 @@ export default function ServicesPage() {
                 </div>
               ))}
             </div>
+            <p className="mt-6 text-center">
+              <Link
+                href="/about"
+                className="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              >
+                Full experience and certifications on the About page &rarr;
+              </Link>
+            </p>
           </CardContent>
         </Card>
 

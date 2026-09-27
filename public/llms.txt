@@ -1,0 +1,34 @@
+# Djordje Nedovic
+
+> Senior Software Engineer specializing in .NET, Azure cloud architecture, distributed systems and Azure cost optimisation. Based in Novi Sad, Serbia.
+
+## Services
+
+- [Azure Cost Optimisation for .NET Teams](https://djordjenedovic.tech/services): Azure cost assessment, optimisation and governance as code, and application-level cost engineering for .NET workloads.
+
+## Blog
+
+- [One Character That Broke My Terraform Migration](https://djordjenedovic.tech/posts/subscription-rule-migration): Debugging a cryptic AzureRM provider error during Terraform 0.12 → 0.13 migration caused by a $ character in a resource name.
+- [Goodbye AutoMapper: Simple Mapping with Extension Methods and Delegates in .NET](https://djordjenedovic.tech/posts/migrate-from-automapper): Replacing AutoMapper with lightweight extension methods and delegates in .NET.
+- [How to Set Up a YAML Pipeline for Publishing a NuGet Package](https://djordjenedovic.tech/posts/publish-preview-nuget-package): Step-by-step guide for Azure DevOps YAML pipeline for NuGet packaging.
+
+## Blog (Serbian)
+
+- [Terraform Upgrade sa 0.12 i Glavobolje sa $ u Nazivu](https://djordjenedovic.tech/posts/rs/subscription-rule-migration): Serbian version of the Terraform migration post.
+- [Zbogom AutoMapper](https://djordjenedovic.tech/posts/rs/migrate-from-automapper): Serbian version of the AutoMapper post.
+- [Kako podesiti YAML pipeline za objavljivanje preview NuGet paketa u Azure DevOps-u](https://djordjenedovic.tech/posts/rs/publish-preview-nuget-package): Serbian version of the NuGet pipeline post.
+
+## About
+
+Senior Software Engineer with 8+ years of experience in .NET, Azure, and distributed systems. Previously at Endava (fintech banking portal) and EXLRT (airline systems). Currently at Combined Ratio Solutions building a greenfield cloud-native platform. Certified AZ-204, AZ-500 and FinOps Certified Practitioner.
+
+- About: https://djordjenedovic.tech/about
+- Projects: https://djordjenedovic.tech/projects
+
+## Links
+
+- Blog: https://djordjenedovic.tech/posts
+- RSS: https://djordjenedovic.tech/feed.xml
+- GitHub: https://github.com/DjordjeNedovic
+- LinkedIn: https://linkedin.com/in/djordjenedovic
+- AI usage policy: https://djordjenedovic.tech/ai-license.txt

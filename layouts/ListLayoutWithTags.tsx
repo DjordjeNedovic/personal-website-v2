@@ -77,9 +77,9 @@ export default function ListLayoutWithTags({
     <>
       <PageHeader title={title} description="Things I figured out so you don't have to." />
       <ul className="divide-y divide-slate-200 dark:divide-slate-700">
-        {displayPosts.map((post) => (
+        {displayPosts.map((post, index) => (
           <li key={post.path} className="py-8 first:pt-0">
-            <PostContainer post={post} author={author as Authors} />
+            <PostContainer post={post} author={author as Authors} priority={index === 0} />
           </li>
         ))}
       </ul>

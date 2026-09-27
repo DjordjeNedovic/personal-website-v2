@@ -3,7 +3,11 @@ import PageHeader from '@/components/ui/PageHeader'
 import { genPageMetadata } from 'app/seo'
 import { generateTagData } from '@/libs/query/posts'
 
-export const metadata = genPageMetadata({ title: 'Tags', description: 'Things I blog about' })
+export const metadata = genPageMetadata({
+  title: 'Tags',
+  description:
+    'Browse posts by topic: .NET, Azure, Azure DevOps, Terraform, CI/CD and performance — practical notes from real production work.',
+})
 
 export default async function Page() {
   const tagCounts = generateTagData()

@@ -61,10 +61,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${space_grotesk.variable} scroll-smooth`} suppressHydrationWarning>
       <meta name="google-site-verification" content="NexAAqcA4HTnd0HO2t4ZhWdqzXahMveX0dS6uaT74zo" />
       <meta name="google-site-verification" content="5IdY5q-RbxRE09inEggJy9vRSyLj4yS8g0IWTrKEz_M" />
-      <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+      <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8fafc" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a" />
-      <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
-      <body className="bg-white text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100">
+      <body className="bg-slate-50 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100">
         <ThemeProviders>
           <SectionContainer>
             <div className="flex flex-col justify-between font-sans">

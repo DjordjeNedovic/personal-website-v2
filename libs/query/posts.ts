@@ -20,3 +20,8 @@ export function generateTagData() {
 
   return tagCounts
 }
+
+/** Original tag name (e.g. ".NET", "C#") for a tag slug, or undefined if no post uses it. */
+export function getTagName(tagSlug: string) {
+  return Object.keys(generateTagData()).find((t) => slug(t) === tagSlug)
+}

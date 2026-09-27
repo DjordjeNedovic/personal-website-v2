@@ -14,8 +14,10 @@ interface NavigationButtonProps {
 
 // Full class names so Tailwind can detect them at build time.
 const linkColors = {
-  primary: 'text-primary-500 hover:text-primary-600 dark:hover:text-primary-400',
-  slate: 'text-slate-500 hover:text-slate-600 dark:hover:text-slate-400',
+  primary:
+    'inline-block text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300',
+  slate:
+    'inline-block text-slate-900 hover:text-primary-600 dark:text-slate-100 dark:hover:text-primary-400',
 }
 
 const NavigationButton = ({

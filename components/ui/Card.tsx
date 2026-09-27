@@ -7,7 +7,7 @@ const cardVariants = cva('rounded-xl', {
     variant: {
       default:
         'border border-slate-200 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100',
-      muted: 'bg-slate-50 text-slate-900 dark:bg-slate-800 dark:text-slate-100',
+      muted: 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100',
       featured: 'bg-primary-600 text-white',
     },
     interactive: {

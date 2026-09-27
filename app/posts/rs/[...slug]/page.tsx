@@ -1,4 +1,5 @@
-import { allPostsRs, PostRs } from '@/libs/velite'
+import { allPosts, allPostsRs } from '@/libs/velite'
+import { notFound } from 'next/navigation'
 import PostSimple from '@/layouts/PostSimple'
 import { components } from '@/components/posts/MDXComponents'
 import { MDXRemote } from 'next-mdx-remote/rsc'
@@ -6,6 +7,7 @@ import { getStructuredData } from '@/libs/seo/structuredData'
 import { getReadingTime } from '@/libs/utils/utils'
 import { Metadata } from 'next'
 import siteMetadata from '@/data/siteMetadata'
+import rehypePrismPlus from 'rehype-prism-plus'
 
 export async function generateMetadata({
   params,
@@ -45,10 +47,14 @@ export async function generateMetadata({
       languages: {
         en: `${siteMetadata.siteUrl}/posts/${slug}`,
         sr: `${siteMetadata.siteUrl}/posts/rs/${slug}`,
+        'x-default': `${siteMetadata.siteUrl}/posts/${slug}`,
       },
     },
   }
 }
+
+// Only the generated posts exist; anything else is a real 404.
+export const dynamicParams = false
 
 export const generateStaticParams = async () => {
   return allPostsRs.map((post) => ({
@@ -62,7 +68,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
 
   const post = allPostsRs.find((p) => p.slug === slug)
 
-  if (!post) return <div>Not found</div>
+  if (!post) notFound()
 
   const sortedRs = [...allPostsRs].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -88,7 +94,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
     slug: post.slug,
   }
 
-  const structuredData = getStructuredData(post)
+  const structuredData = getStructuredData(post, 'sr')
   const readingTime = getReadingTime(post.content)
 
   return (
@@ -98,8 +104,22 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       prev={prev}
       readingTime={readingTime}
       structuredData={structuredData}
+      lang="sr"
+      translation={
+        allPosts.some((p) => p.slug === slug)
+          ? { href: `/posts/${slug}`, label: 'Read in English', lang: 'en' }
+          : undefined
+      }
     >
-      <MDXRemote source={post.content} components={components} />
+      <MDXRemote
+        source={post.content}
+        components={components}
+        options={{
+          mdxOptions: {
+            rehypePlugins: [[rehypePrismPlus, { defaultLanguage: 'js', ignoreMissing: true }]],
+          },
+        }}
+      />
     </PostSimple>
   )
 }

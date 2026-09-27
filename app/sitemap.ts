@@ -17,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     { route: '', file: 'app/page.tsx' },
     { route: 'posts', file: 'app/posts/page.tsx' },
-    { route: 'posts/rs', file: 'app/posts/rs/page.tsx' },
+    { route: 'services', file: 'app/services/page.tsx' },
     { route: 'projects', file: 'app/projects/page.tsx' },
     { route: 'tags', file: 'app/tags/page.tsx' },
     { route: 'about', file: 'app/about/page.tsx' },
@@ -26,7 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: getLastModified(file),
   }))
 
-  return [...routes, ...blogRoutes]
+  return [...routes, ...blogRoutes, ...blogRoutesRs]
 }
 
 import { execSync } from 'child_process'

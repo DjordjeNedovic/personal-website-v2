@@ -20,16 +20,10 @@ interface LayoutProps {
   next?: { path: string; title: string }
   prev?: { path: string; title: string }
   readingTime?: ReadTimeResults
-  structuredData?: {
-    '@context': string
-    '@type': string
-    headline: string
-    datePublished: string
-    dateModified: string
-    description: string
-    image: string
-    url: string
-  }
+  structuredData?: Record<string, unknown>
+  /** Content language; the root layout is English, so Serbian posts mark their article. */
+  lang?: 'en' | 'sr'
+  translation?: { href: string; label: string; lang: 'en' | 'sr' }
 }
 
 export default function PostLayout({
@@ -39,6 +33,8 @@ export default function PostLayout({
   children,
   readingTime,
   structuredData,
+  lang = 'en',
+  translation,
 }: LayoutProps) {
   const { date, title } = content
 
@@ -48,7 +44,7 @@ export default function PostLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <article>
+      <article lang={lang}>
         <div>
           <header>
             <div className="border-b border-slate-200 pb-8 pt-4 text-center dark:border-slate-700 sm:pt-6">
@@ -76,6 +72,16 @@ export default function PostLayout({
                   </dd>
                 </div>
               </dl>
+              {translation && (
+                <Link
+                  href={translation.href}
+                  hrefLang={translation.lang}
+                  lang={translation.lang}
+                  className="mt-4 inline-block text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                >
+                  {translation.label} &rarr;
+                </Link>
+              )}
             </div>
           </header>
           <div className="grid-rows-[auto_1fr] divide-y divide-slate-200 pb-8 dark:divide-slate-700 xl:divide-y-0">
