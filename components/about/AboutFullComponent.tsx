@@ -1,6 +1,4 @@
-'use client'
-
-import type React from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import {
   Code2,
   Globe,
@@ -15,70 +13,7 @@ import {
   Users,
   TrendingUp,
 } from 'lucide-react'
-
-// Custom Card Components with Dark Theme Support
-const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-  <div
-    className={`rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm border-slate-200 dark:border-slate-700 ${className}`}
-  >
-    {children}
-  </div>
-)
-
-const CardHeader = ({
-  children,
-  className = '',
-}: {
-  children: React.ReactNode
-  className?: string
-}) => <div className={`flex flex-col space-y-1.5 p-6 ${className}`}>{children}</div>
-
-const CardTitle = ({
-  children,
-  className = '',
-}: {
-  children: React.ReactNode
-  className?: string
-}) => (
-  <h3
-    className={`text-2xl font-semibold leading-none tracking-tight text-slate-900 dark:text-slate-100 ${className}`}
-  >
-    {children}
-  </h3>
-)
-
-const CardContent = ({
-  children,
-  className = '',
-}: {
-  children: React.ReactNode
-  className?: string
-}) => <div className={`p-6 pt-0 ${className}`}>{children}</div>
-
-const Badge = ({
-  children,
-  variant = 'default',
-  className = '',
-}: {
-  children: React.ReactNode
-  variant?: 'default' | 'secondary' | 'outline'
-  className?: string
-}) => {
-  const baseClasses =
-    'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors'
-  const variantClasses = {
-    default:
-      'bg-slate-900 dark:bg-slate-100 text-slate-50 dark:text-slate-900 hover:bg-slate-900/80 dark:hover:bg-slate-100/80',
-    secondary:
-      'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-slate-700/80',
-    outline:
-      'border border-slate-200 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800',
-  }
-
-  return (
-    <span className={`${baseClasses} ${variantClasses[variant]} ${className}`}>{children}</span>
-  )
-}
+import Badge from '@/components/ui/Badge'
 
 export default function AboutFullComponent() {
   const skills = {
@@ -201,20 +136,20 @@ export default function AboutFullComponent() {
   const optimizationAchievements = [
     {
       icon: (
-        <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" aria-hidden="true" />
+        <TrendingUp className="h-6 w-6 text-primary-600 dark:text-primary-400" aria-hidden="true" />
       ),
       title: 'Cost Optimization',
       description:
         '~€50k in annual operational savings through distributed system architecture improvements in a banking environment.',
     },
     {
-      icon: <Zap className="h-6 w-6 text-blue-600 dark:text-blue-400" aria-hidden="true" />,
+      icon: <Zap className="h-6 w-6 text-primary-600 dark:text-primary-400" aria-hidden="true" />,
       title: 'Performance',
       description:
         'Reduced application memory consumption by over 70% (from 3GB to 800MB) on mission-critical airline systems.',
     },
     {
-      icon: <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" aria-hidden="true" />,
+      icon: <Users className="h-6 w-6 text-primary-600 dark:text-primary-400" aria-hidden="true" />,
       title: 'Reliability',
       description:
         'Maintained 99.9% uptime on airline operations with shared 24/7 on-call responsibility.',
@@ -223,12 +158,12 @@ export default function AboutFullComponent() {
 
   return (
     <>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12 pb-8 px-4 transition-colors duration-300">
-        <div className="max-w-6xl mx-auto space-y-8">
+      <section className="pb-12">
+        <div className="space-y-8">
           {/* Optimization Achievements */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle>
                 <TrendingUp className="h-6 w-6" aria-hidden="true" />
                 Key Achievements
               </CardTitle>
@@ -238,9 +173,9 @@ export default function AboutFullComponent() {
                 {optimizationAchievements.map((achievement, index) => (
                   <div key={index} className="text-center space-y-3">
                     <div className="flex justify-center">{achievement.icon}</div>
-                    <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">
                       {achievement.title}
-                    </h4>
+                    </h3>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
                       {achievement.description}
                     </p>
@@ -253,7 +188,7 @@ export default function AboutFullComponent() {
           {/* Skills Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle>
                 <Code2 className="h-6 w-6" aria-hidden="true" />
                 Technical Skills
               </CardTitle>
@@ -262,17 +197,13 @@ export default function AboutFullComponent() {
               <div className="grid md:grid-cols-2 gap-6">
                 {Object.entries(skills).map(([category, { icon, items }]) => (
                   <div key={category} className="space-y-3">
-                    <h4 className="flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-200">
+                    <h3 className="flex items-center gap-2 font-semibold text-slate-900 dark:text-slate-100">
                       {icon}
                       {category}
-                    </h4>
+                    </h3>
                     <div className="flex flex-wrap gap-2">
                       {items.map((skill) => (
-                        <Badge
-                          key={skill}
-                          variant="secondary"
-                          className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
-                        >
+                        <Badge key={skill} variant="neutral">
                           {skill}
                         </Badge>
                       ))}
@@ -286,32 +217,31 @@ export default function AboutFullComponent() {
           {/* Experience Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle>
                 <Building className="h-6 w-6" aria-hidden="true" />
                 Experience
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="divide-y divide-slate-200 dark:divide-slate-700">
               {experience.map((job, index) => (
-                <article
-                  key={index}
-                  className="border-l-4 border-blue-500 dark:border-blue-400 pl-6 space-y-2"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                      {job.title} • {job.company}
-                    </h4>
-                    <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
+                <article key={index} className="space-y-3 py-6 first:pt-0 last:pb-0">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                    <div>
+                      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                        {job.title} · {job.company}
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">{job.location}</p>
+                    </div>
+                    <div className="flex flex-shrink-0 items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
                       <Calendar className="h-4 w-4" aria-hidden="true" />
                       <time>{job.period}</time>
                     </div>
                   </div>
-                  <p className="text-slate-700 dark:text-slate-300 font-medium">{job.location}</p>
                   <ul className="space-y-1 text-slate-600 dark:text-slate-400">
                     {job.highlights.map((highlight, idx) => (
                       <li key={idx} className="flex items-baseline gap-2">
                         <span
-                          className="text-blue-500 dark:text-blue-400 flex-shrink-0"
+                          className="flex-shrink-0 text-primary-500 dark:text-primary-400"
                           aria-hidden="true"
                         >
                           •
@@ -328,7 +258,7 @@ export default function AboutFullComponent() {
           {/* Certifications Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle>
                 <Award className="h-6 w-6" aria-hidden="true" />
                 Certifications
               </CardTitle>
@@ -338,14 +268,16 @@ export default function AboutFullComponent() {
                 {certifications.map((cert, index) => (
                   <div
                     key={index}
-                    className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800"
+                    className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="bg-blue-100 dark:bg-blue-800 p-2 rounded-lg">{cert.icon}</div>
+                      <div className="rounded-lg bg-primary-100 p-2 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300">
+                        {cert.icon}
+                      </div>
                       <div className="space-y-1">
-                        <h4 className="font-medium text-slate-900 dark:text-slate-100 text-sm leading-tight">
+                        <h3 className="font-medium text-slate-900 dark:text-slate-100 text-sm leading-tight">
                           {cert.name}
-                        </h4>
+                        </h3>
                         <time className="text-xs text-slate-600 dark:text-slate-400">
                           {cert.date}
                         </time>
@@ -360,22 +292,22 @@ export default function AboutFullComponent() {
           {/* Education Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle>
                 <GraduationCap className="h-6 w-6" aria-hidden="true" />
                 Education
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                <h3 className="font-semibold text-slate-900 dark:text-slate-100">
                   University of Novi Sad
                 </h3>
-                <p className="text-slate-700 dark:text-slate-300">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   Bachelor of Science in Electrical and Computer Engineering
                 </p>
-                <p className="text-slate-600 dark:text-slate-400">GPA: 9.3/10</p>
-                <div className="mt-3">
-                  <p className="text-sm font-medium text-slate-800 dark:text-slate-200 mb-2">
+                <p className="text-sm text-slate-600 dark:text-slate-400">GPA: 9.3/10</p>
+                <div className="pt-2">
+                  <p className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
                     Relevant Coursework:
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -384,7 +316,7 @@ export default function AboutFullComponent() {
                       'Comparison of Learning Algorithms',
                       'Computational Theory',
                     ].map((course) => (
-                      <Badge key={course} variant="outline" className="text-xs">
+                      <Badge key={course} variant="outline">
                         {course}
                       </Badge>
                     ))}
@@ -394,7 +326,7 @@ export default function AboutFullComponent() {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </section>
     </>
   )
 }

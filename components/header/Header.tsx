@@ -6,11 +6,10 @@ import Link from '../common/Link'
 import MobileNav from '../navigation/MobileNav'
 import ThemeSwitchWrapper from './ThemeSwitchWrapper'
 import NavigationButton from '../common/NavigationButton'
-import LogoIcon from './LogoIcon'
 
 const Header = () => {
   return (
-    <header className="flex items-center justify-between py-10">
+    <header className="flex items-center justify-between py-8">
       <div>
         <Link href="/" aria-label={siteMetadata.headerTitle}>
           <div className="flex items-center justify-between">
@@ -33,7 +32,7 @@ const Header = () => {
           .map((link) => (
             <div key={link.title} className="hidden sm:flex font-medium items-start">
               <NavigationButton href={link.href} title={link.title} color="slate">
-                <p className="font-medium text-gray-900 dark:text-gray-100">{link.title}</p>
+                <p className="font-medium text-slate-900 dark:text-slate-100">{link.title}</p>
               </NavigationButton>
             </div>
           ))}

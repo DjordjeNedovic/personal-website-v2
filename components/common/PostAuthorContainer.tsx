@@ -17,7 +17,7 @@ const PostAuthorContainer = ({ author }: { author: Authors }) => {
       </div>
       <dl className="ml-2 whitespace-nowrap text-sm font-medium leading-5">
         <dt className="sr-only">Name</dt>
-        <dd className="text-gray-900 dark:text-gray-100">{author.name}</dd>
+        <dd className="text-slate-900 dark:text-slate-100">{author.name}</dd>
         <dt className="sr-only">Github</dt>
         <dd>
           {author.github && (
