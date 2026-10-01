@@ -22,6 +22,7 @@ export const metadata = genPageMetadata({
   },
 })
 import siteMetadata from '@/data/siteMetadata'
+import { personRef } from '@/libs/seo/person'
 
 export default function Projects() {
   const projectsSchema = {
@@ -30,11 +31,7 @@ export default function Projects() {
     name: 'Projects — Djordje Nedovic',
     description: 'Software development projects and technical implementations',
     url: `${siteMetadata.siteUrl}/projects`,
-    author: {
-      '@type': 'Person',
-      name: 'Djordje Nedovic',
-      url: siteMetadata.siteUrl,
-    },
+    author: personRef,
   }
 
   return (

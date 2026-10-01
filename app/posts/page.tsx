@@ -3,6 +3,7 @@ import { allAuthors, type Authors } from '@/libs/velite'
 import { genPageMetadata } from 'app/seo'
 import { sortedPosts } from '@/libs/query/posts'
 import siteMetadata from '@/data/siteMetadata'
+import { personRef } from '@/libs/seo/person'
 
 const POSTS_PER_PAGE = 5
 
@@ -50,19 +51,12 @@ export default function BlogPage() {
     name: 'Djordje Nedovic Dev Blog',
     description: 'Technical blog about software development and performance optimization',
     url: 'https://djordjenedovic.tech/posts',
-    author: {
-      '@type': 'Person',
-      name: 'Djordje Nedovic',
-      url: 'https://djordjenedovic.tech',
-    },
+    author: personRef,
     blogPost: posts.slice(0, 10).map((post) => ({
       '@type': 'BlogPosting',
       headline: post.title,
       datePublished: post.date,
-      author: {
-        '@type': 'Person',
-        name: 'Djordje Nedovic',
-      },
+      author: personRef,
       url: `https://djordjenedovic.tech/posts/${post.slug}`,
       description: post.summary,
       dateModified: post.lastmod || post.date,

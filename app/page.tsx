@@ -2,6 +2,7 @@ import MainPage from '@/components/main/pages/MainPage'
 import { allAuthors, type Authors } from '@/libs/velite'
 import { sortedPosts } from '@/libs/query/posts'
 import siteMetadata from '@/data/siteMetadata'
+import { PERSON_ID } from '@/libs/seo/person'
 
 export default async function Page() {
   const posts = sortedPosts
@@ -12,11 +13,13 @@ export default async function Page() {
     '@type': 'WebSite',
     name: 'Djordje Nedovic',
     url: siteMetadata.siteUrl,
+    publisher: { '@id': PERSON_ID },
   }
 
   const personSchema = {
     '@context': 'https://schema.org',
     '@type': 'Person',
+    '@id': PERSON_ID,
     name: 'Djordje Nedovic',
     url: siteMetadata.siteUrl,
     jobTitle: 'Senior Software Engineer',

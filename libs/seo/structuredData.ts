@@ -1,9 +1,19 @@
 import siteMetadata from '@/data/siteMetadata'
-import { Post } from '../../.velite'
+import { personRef } from './person'
 
-export function getStructuredData(post: Post) {
+interface PostLike {
+  title: string
+  date: string
+  lastmod?: string
+  summary?: string
+  images?: string[]
+  slug: string
+}
+
+export function getStructuredData(post: PostLike, lang: 'en' | 'sr' = 'en') {
   const image = post.images?.[0] || siteMetadata.socialBanner
   const absoluteImage = image.startsWith('http') ? image : `${siteMetadata.siteUrl}${image}`
+  const path = lang === 'sr' ? `/posts/rs/${post.slug}` : `/posts/${post.slug}`
 
   return {
     '@context': 'https://schema.org',
@@ -13,16 +23,9 @@ export function getStructuredData(post: Post) {
     dateModified: new Date(post.lastmod || post.date).toISOString(),
     description: post.summary,
     image: absoluteImage,
-    url: `${siteMetadata.siteUrl}/posts/${post.slug}`,
-    author: {
-      '@type': 'Person',
-      name: 'Djordje Nedovic',
-      url: siteMetadata.siteUrl,
-    },
-    publisher: {
-      '@type': 'Person',
-      name: 'Djordje Nedovic',
-      url: siteMetadata.siteUrl,
-    },
+    url: `${siteMetadata.siteUrl}${path}`,
+    inLanguage: lang,
+    author: personRef,
+    publisher: personRef,
   }
 }

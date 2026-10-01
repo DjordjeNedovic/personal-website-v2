@@ -1,7 +1,10 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allAuthors, Authors, allPosts } from '@/libs/velite'
 import { sortedPosts } from '@/libs/query/posts'
+import { notFound } from 'next/navigation'
 const POSTS_PER_PAGE = 5
+
+export const dynamicParams = false
 
 export const generateStaticParams = async () => {
   const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE)
@@ -19,6 +22,8 @@ export default async function Page({ params }: { params: Promise<{ page: string 
     POSTS_PER_PAGE * (pageNumber - 1),
     POSTS_PER_PAGE * pageNumber
   )
+  if (!initialDisplayPosts.length) notFound()
+
   const pagination = {
     currentPage: pageNumber,
     totalPages: Math.ceil(posts.length / POSTS_PER_PAGE),

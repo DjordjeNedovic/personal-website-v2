@@ -1,6 +1,5 @@
 import Link from '@/components/common/Link'
 import PageTitle from '@/components/common/PageTitle'
-import SectionContainer from '@/components/common/SectionContainer'
 import siteMetadata from '@/data/siteMetadata'
 import { ReactNode } from 'react'
 import { ReadTimeResults } from 'reading-time'
@@ -21,16 +20,10 @@ interface LayoutProps {
   next?: { path: string; title: string }
   prev?: { path: string; title: string }
   readingTime?: ReadTimeResults
-  structuredData?: {
-    '@context': string
-    '@type': string
-    headline: string
-    datePublished: string
-    dateModified: string
-    description: string
-    image: string
-    url: string
-  }
+  structuredData?: Record<string, unknown>
+  /** Content language; the root layout is English, so Serbian posts mark their article. */
+  lang?: 'en' | 'sr'
+  translation?: { href: string; label: string; lang: 'en' | 'sr' }
 }
 
 export default function PostLayout({
@@ -40,26 +33,28 @@ export default function PostLayout({
   children,
   readingTime,
   structuredData,
+  lang = 'en',
+  translation,
 }: LayoutProps) {
   const { date, title } = content
 
   return (
-    <SectionContainer>
+    <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <article>
+      <article lang={lang}>
         <div>
           <header>
-            <div className="border-b border-gray-200 pb-8 pt-6 text-center dark:border-gray-700">
+            <div className="border-b border-slate-200 pb-8 pt-4 text-center dark:border-slate-700 sm:pt-6">
               <div className="mb-4">
                 <PageTitle>{title}</PageTitle>
               </div>
               <dl>
                 <div>
                   <dt className="sr-only">Published on</dt>
-                  <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
+                  <dd className="text-base font-medium leading-6 text-slate-500 dark:text-slate-400">
                     <div className="flex items-center justify-center gap-2 flex-wrap">
                       <Image
                         src="/images/profile.jpg"
@@ -77,11 +72,23 @@ export default function PostLayout({
                   </dd>
                 </div>
               </dl>
+              {translation && (
+                <Link
+                  href={translation.href}
+                  hrefLang={translation.lang}
+                  lang={translation.lang}
+                  className="mt-4 inline-block text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                >
+                  {translation.label} &rarr;
+                </Link>
+              )}
             </div>
           </header>
-          <div className="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:divide-y-0">
-            <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0">
-              <div className="prose max-w-none pb-8 pt-10 dark:prose-invert">{children}</div>
+          <div className="grid-rows-[auto_1fr] divide-y divide-slate-200 pb-8 dark:divide-slate-700 xl:divide-y-0">
+            <div className="divide-y divide-slate-200 dark:divide-slate-700 xl:col-span-3 xl:row-span-2 xl:pb-0">
+              <div className="prose prose-slate max-w-none pb-8 pt-10 dark:prose-invert">
+                {children}
+              </div>
             </div>
             <footer>
               <div className="flex flex-col text-sm font-medium sm:flex-row sm:justify-between sm:text-base">
@@ -112,6 +119,6 @@ export default function PostLayout({
           </div>
         </div>
       </article>
-    </SectionContainer>
+    </div>
   )
 }

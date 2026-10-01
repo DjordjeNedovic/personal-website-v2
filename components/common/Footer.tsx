@@ -5,16 +5,16 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer>
+    <footer className="border-t border-slate-200 py-8 dark:border-slate-800">
       <div className="flex flex-col items-center">
-        <div className="my-3 flex space-x-4">
+        <div className="mb-3 flex space-x-4">
           <SocialIcon kind="mail" href={`mailto:${siteMetadata.email}`} size={6} />
           <SocialIcon kind="github" href={siteMetadata.github} size={6} />
           <SocialIcon kind="linkedin" href={siteMetadata.linkedin} size={6} />
           <SocialIcon kind="twitter" href={siteMetadata.twitter} size={6} />
         </div>
 
-        <div className="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex space-x-2 text-sm text-slate-500 dark:text-slate-400">
           <div>{siteMetadata.author}</div>
           <div>{` • `}</div>
           <div>{`© ${new Date().getFullYear()}`}</div>

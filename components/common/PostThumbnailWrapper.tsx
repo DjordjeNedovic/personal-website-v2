@@ -8,6 +8,8 @@ interface PostThumbnailWrapper {
   image: string
   className?: string
   imageObjectFit: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down'
+  /** Set for the first, above-the-fold thumbnail so it is not lazy-loaded (LCP). */
+  priority?: boolean
 }
 
 const PostThumbnailWrapper = ({
@@ -16,6 +18,7 @@ const PostThumbnailWrapper = ({
   image,
   className,
   imageObjectFit,
+  priority = false,
 }: PostThumbnailWrapper) => {
   return (
     <div className={ctm('relative overflow-hidden bg-clip-border ', className)}>
@@ -30,6 +33,7 @@ const PostThumbnailWrapper = ({
           src={image}
           alt={title}
           fill
+          priority={priority}
           style={{ objectFit: imageObjectFit }}
         />
       </Link>

@@ -1,7 +1,7 @@
 import { genPageMetadata } from 'app/seo'
 import AboutMainComponent from '@/components/about/AboutMainComponent'
 import AboutFullComponent from '@/components/about/AboutFullComponent'
-import type React from 'react'
+import { PERSON_ID } from '@/libs/seo/person'
 
 export const metadata = genPageMetadata({
   title: 'About',
@@ -24,6 +24,7 @@ export default function Page() {
     url: 'https://djordjenedovic.tech/about',
     mainEntity: {
       '@type': 'Person',
+      '@id': PERSON_ID,
       name: 'Djordje Nedovic',
       jobTitle: 'Senior Software Engineer',
       description:
@@ -55,18 +56,12 @@ export default function Page() {
 
   return (
     <>
-      <div className="bg-white dark:bg-slate-900">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <div className="flex p-0 md:p-4 w-auto items-center justify-between h-auto">
-          <div className="flex flex-col items-start justify-start h-auto flex-1">
-            <AboutMainComponent />
-            <AboutFullComponent />
-          </div>
-        </div>
-      </div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <AboutMainComponent />
+      <AboutFullComponent />
     </>
   )
 }

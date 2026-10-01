@@ -26,7 +26,8 @@ module.exports = {
       },
       colors: {
         primary: colors.blue,
-        gray: colors.gray,
+        // single neutral palette: legacy gray-* classes (incl. MDX content) render as slate
+        gray: colors.slate,
       },
 
       typography: ({ theme }) => ({
@@ -47,7 +48,7 @@ module.exports = {
               fontWeight: '600',
             },
             code: {
-              color: theme('colors.indigo.500'),
+              color: theme('colors.indigo.600'),
             },
           },
         },
@@ -61,7 +62,10 @@ module.exports = {
               code: { color: theme('colors.primary.400') },
             },
             'h1,h2,h3,h4,h5,h6': {
-              color: theme('colors.gray.100'),
+              color: theme('colors.slate.100'),
+            },
+            code: {
+              color: theme('colors.indigo.300'),
             },
           },
         },

@@ -1,4 +1,5 @@
-import { allPosts, Post } from '@/libs/velite'
+import { allPosts, allPostsRs, Post } from '@/libs/velite'
+import { notFound } from 'next/navigation'
 import PostSimple from '@/layouts/PostSimple'
 import { components } from '@/components/posts/MDXComponents'
 import { MDXRemote } from 'next-mdx-remote/rsc'
@@ -44,9 +45,19 @@ export async function generateMetadata({
     },
     alternates: {
       canonical: post.canonicalUrl ?? `${siteMetadata.siteUrl}/posts/${slug}`,
+      languages: allPostsRs.some((p) => p.slug === slug)
+        ? {
+            en: `${siteMetadata.siteUrl}/posts/${slug}`,
+            sr: `${siteMetadata.siteUrl}/posts/rs/${slug}`,
+            'x-default': `${siteMetadata.siteUrl}/posts/${slug}`,
+          }
+        : undefined,
     },
   }
 }
+
+// Only the generated posts exist; anything else is a real 404.
+export const dynamicParams = false
 
 export const generateStaticParams = async () => {
   return allPosts.map((post) => ({
@@ -60,7 +71,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
 
   const post = allPosts.find((p) => p.slug === slug)
 
-  if (!post) return <div>Not found</div>
+  if (!post) notFound()
 
   const sorted: Post[] = sortedPosts
 
@@ -98,6 +109,11 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       prev={prev}
       readingTime={readingTime}
       structuredData={structuredData}
+      translation={
+        allPostsRs.some((p) => p.slug === slug)
+          ? undefined //{ href: `/posts/rs/${slug}`, label: 'Pročitaj na srpskom', lang: 'sr' }
+          : undefined
+      }
     >
       <MDXRemote
         source={post.content}

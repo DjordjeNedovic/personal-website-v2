@@ -12,6 +12,14 @@ interface NavigationButtonProps {
   spanClassName?: string
 }
 
+// Full class names so Tailwind can detect them at build time.
+const linkColors = {
+  primary:
+    'inline-block text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300',
+  slate:
+    'inline-block text-slate-900 hover:text-primary-600 dark:text-slate-100 dark:hover:text-primary-400',
+}
+
 const NavigationButton = ({
   href,
   title,
@@ -22,29 +30,26 @@ const NavigationButton = ({
   spanClassName,
 }: NavigationButtonProps) => {
   return (
-    <button
+    <span
       className={ctm(
-        'btn group flex items-center bg-transparent tracking-widest font-medium justify-start',
+        'group inline-flex items-center justify-start bg-transparent font-medium tracking-widest',
         buttonClassName
       )}
     >
       <span
         className={ctm(
-          `relative pb-1text-white after:transition-transform after:duration-500 after:ease-out after:absolute after:bottom-0 after:left-0 after:block after:h-[2px] after:w-full after:origin-bottom-right after:scale-x-0 after:content-[''] after:group-hover:origin-bottom-left after:group-hover:scale-x-100 leading-6`,
+          `relative pb-1 after:transition-transform after:duration-500 after:ease-out after:absolute after:bottom-0 after:left-0 after:block after:h-[2px] after:w-full after:origin-bottom-right after:scale-x-0 after:content-[''] after:group-hover:origin-bottom-left after:group-hover:scale-x-100 leading-6`,
           isArrow ? 'pr-2' : 'pr-0',
           color === 'primary' ? `after:bg-primary-500` : `after:bg-slate-500`,
           spanClassName
         )}
       >
-        <Link
-          href={href}
-          className={`text-${color}-500 hover:text-${color}-600 dark:hover:text-${color}-400`}
-        >
+        <Link href={href} className={linkColors[color]}>
           {children ? children : title}
         </Link>
       </span>
       {isArrow && <ArrowIcon color={color} />}
-    </button>
+    </span>
   )
 }
 
