@@ -7,7 +7,7 @@ draft: false
 summary: 'Migracija na ESLint flat config je trebalo da bude rutinska. Umesto toga, lint je počeo da traje 70+ minuta bez greške — samo tišina. Ovo je priča o bisekciji, rekurzivnim tipovima i jednom test fajlu koji je oborio ceo CI.'
 images: ['/static/images/thumbnail/eslint.png']
 canonicalUrl: >-
-  https://djordjenedovic.tech/posts/eslint-flat-config-migration
+  https://djordjenedovic.tech/posts/rs/eslint-flat-config-migration
 ---
 
 Pošto rado uzimam optimizacijske storije, ovaj put je na red došla migracija sa legacy `.eslintrc.js` na flat config `eslint.config.js` — jedini podržan format za ESLint 9 i `angular-eslint 20` ([više detalja ovde](https://eslint.org/docs/latest/use/migrate-to-9.0.0#-new-default-config-format-eslintconfigjs)). Naš legacy fajl je imao minimalan set pravila, pa smo rešili da i to proširimo.
