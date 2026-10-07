@@ -1,0 +1,163 @@
+---
+title: 'How One Test File Made ESLint Run for 70+ Minutes'
+date: '2026-10-07'
+lastmod: '2026-10-07'
+tags: ['Angular', 'ESLint', 'TypeScript', 'Performance', 'Debugging', 'CI/CD']
+draft: false
+summary: 'The ESLint flat config migration was supposed to be routine. Instead, lint started taking 70+ minutes with no errors — just silence. This is a story about bisection, recursive types, and one test file that brought down the entire CI.'
+images: ['/static/images/thumbnail/eslint.png']
+canonicalUrl: >-
+  https://djordjenedovic.tech/posts/eslint-flat-config-migration
+---
+
+Since I enjoy a good optimization story, this time it was a migration from legacy `.eslintrc.js` to flat config `eslint.config.js` — the only supported format for ESLint 9 and `angular-eslint 20` ([more details here](https://eslint.org/docs/latest/use/migrate-to-9.0.0#-new-default-config-format-eslintconfigjs)). Our legacy file had a minimal set of rules, so we decided to expand that as well.
+
+## Why Would You Do This
+
+The old `.eslintrc.js` system was complicated — `extends` could override `plugins`, order mattered in non-intuitive ways, and every plugin had its own namespace.
+
+**`extends`** — you inherit someone else's config and it becomes your base:
+
+```js
+module.exports = {
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:rxjs/recommended'
+  ]
+}
+```
+
+Problem: every `extends` can override the previous one. Order matters, but it's not always obvious why a certain rule "wins".
+
+**`plugins`** — you register a plugin but don't activate its rules:
+
+```js
+module.exports = {
+  plugins: ['@typescript-eslint', 'rxjs'],  // registration only
+  rules: {
+    '@typescript-eslint/no-floating-promises': 'error'  // activation
+  }
+}
+```
+
+So a plugin has to appear in both `plugins` and `rules` — two places for one thing.
+
+**`overrides`** — different rules for different files, but inside the same object:
+
+```js
+module.exports = {
+  rules: { 'no-console': 'error' },
+  overrides: [
+    {
+      files: ['**/*.spec.ts'],
+      rules: { 'no-console': 'off' }
+    },
+    {
+      files: ['**/*.html'],
+      plugins: ['@angular-eslint/template'],
+      rules: { '@angular-eslint/template/no-negated-async': 'error' }
+    }
+  ]
+}
+```
+
+The biggest problem was that `extends` and `overrides` together became unpredictable. The entire config was one big object you had to read as a whole to understand what applied to which file.
+
+The new flat format fixes all of this — it's an array of objects where each one only applies to the files you explicitly specify in `files`:
+
+```js
+export default [
+  {
+    files: ['**/*.ts'],
+    plugins: {
+      '@typescript-eslint': typescriptPlugin
+    },
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'error'
+    }
+  },
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      'no-console': 'off'
+    }
+  },
+  {
+    files: ['**/*.html'],
+    plugins: {
+      '@angular-eslint/template': templatePlugin
+    },
+    rules: {
+      '@angular-eslint/template/no-negated-async': 'error'
+    }
+  }
+]
+```
+
+## Type-Aware Rules and the Ratchet Strategy
+
+The biggest change in this ticket wasn't the migration to flat config itself, but the introduction of type-aware lint rules — rules where ESLint doesn't just look at file syntax, but at actual TypeScript types.
+
+We enabled the `typescript-eslint` package's `recommendedTypeChecked` and `eslint-plugin-rxjs-x` with its `recommended` set. These rules catch things that pure syntax linting misses: `any` being passed through functions without checks, promises that are never awaited, RxJS subscriptions nested inside each other. The cost is that ESLint has to run the same TypeScript compiler that `tsc` uses, so lint is slower — but much more useful.
+
+The problem with introducing this many rules at once is that it would immediately surface hundreds of errors on existing code and block every build. So instead of enabling them as `error`, we ran them through a small helper called `newRulesAsWarn(...)`. It takes all the rule sets and downgrades every rule that would default to `error` to `warn`. Rules that are already `off` stay `off`.
+
+```js
+function newRulesAsWarn(...ruleSources) {
+  const resolved = Object.assign({}, ...ruleSources);
+  return Object.fromEntries(
+    Object.entries(resolved)
+      .filter(([, severity]) => {
+        const level = Array.isArray(severity) ? severity[0] : severity;
+        return level === 'error' || level === 2;
+      })
+      .map(([rule, severity]) => [rule, Array.isArray(severity) ? ['warn', ...severity.slice(1)] : 'warn'])
+  );
+}
+```
+
+Effect: new rules are visible, but don't block. Lint reports a warning, CI passes, and the team has time to clean up the code gradually. When the warning count for a rule hits zero, that rule is manually promoted to `error` in `eslint.config.js` — and from that point it can never come back, because the build would fail. This is essentially a ratchet: warnings can only decrease, while errors protect what's already been achieved.
+
+## 70-Minute Lint
+
+Everything was great and straightforward until the first run. The `eslint \"src/**/*.ts\" \"src/**/*.component.html\"` command ran for 70 minutes and I killed it.
+
+Through bisection — splitting the repo into folders and testing each one individually — we eventually landed on a single 139-line test file:
+
+```ts
+import { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec';
+// ...
+expect(layer.layerOptions.iconOptions.image as ExpressionSpecification).toEqual([...]);
+```
+
+`ExpressionSpecification` is a type from MapLibre that describes style expressions on a map — a massive, deeply recursive union type that branches into dozens of subtypes that reference each other. When the TypeScript checker has to compare a value against a type like this (which `toEqual`'s generic overload does), it has to consider every combination of all those branches. This is a known class of problem: exponential growth in the number of type combinations to validate, instead of linear.
+
+That one file, on its own: 90+ seconds and never finishes. Every neighboring file: ~7 seconds.
+
+The solution wasn't to split lint into chunks or parallelize it — we tried both and neither helped. The real solution was simple: add that one file to `ignores` in `eslint.config.js`. The full repo dropped from 78+ minutes (never finishing) to 27 seconds.
+
+## Third Round: --fix Has Its Own Problem
+
+We thought the story was over — until we tried `lint:fix`. Same config, same excluded file, but now 13+ minutes and climbing. Why? `--fix` doesn't run lint once — it re-lints every file up to 10 times until the fixes stabilize, and each pass asks the type checker again.
+
+We tried two approaches for parallelization:
+
+- **ESLint's `--concurrency`** — each thread builds its own TypeScript program from scratch, no sharing. Result: 18x slower (16.7s → 5m3s).
+- **Separate OS processes** (6 parallel `eslint --fix` instances) — together over 14GB of RAM, individual chunks that were previously fast ballooned to 20+ minutes.
+
+Conclusion: for this specific workload, parallelization doesn't help — type-checking is too CPU/memory-intensive to scale well on this machine. The solution that actually worked: scope `--fix` only to files that were actually changed on the branch (`git diff` vs develop + uncommitted changes) — a small script that reduces "lint:fix the whole app" to "lint:fix the 5-20 files you actually touched".
+
+```js
+const BASE = 'origin/develop';
+
+function getChangedFiles() {
+  const files = new Set([
+    ...gitFiles(`git diff --name-only --diff-filter=ACMR ${BASE}...HEAD`),
+    ...gitFiles('git diff --name-only --diff-filter=ACMR HEAD'),
+    ...gitFiles('git diff --name-only --diff-filter=ACMR --cached'),
+    ...gitFiles('git ls-files --others --exclude-standard')
+  ]);
+  return [...files].filter((f) => FILE_PATTERN.test(f) && fs.existsSync(f));
+}
+```
