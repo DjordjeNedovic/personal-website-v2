@@ -1,0 +1,164 @@
+---
+title: 'Kako je jedan test fajl terao ESLint da trci 70+ minuta'
+date: '2026-10-07'
+lastmod: '2026-10-07'
+tags: ['Angular', 'ESLint', 'TypeScript', 'Performance', 'Debugging', 'CI/CD']
+draft: false
+summary: 'Migracija na ESLint flat config je trebalo da bude rutinska. Umesto toga, lint je počeo da traje 70+ minuta bez greške — samo tišina. Ovo je priča o bisekciji, rekurzivnim tipovima i jednom test fajlu koji je oborio ceo CI.'
+images: ['/static/images/thumbnail/eslint.png']
+canonicalUrl: >-
+  https://djordjenedovic.tech/posts/eslint-flat-config-migration
+---
+
+Pošto rado uzimam optimizacijske storije, ovaj put je na red došla migracija sa legacy `.eslintrc.js` na flat config `eslint.config.js` — jedini podržan format za ESLint 9 i `angular-eslint 20` ([više detalja ovde](https://eslint.org/docs/latest/use/migrate-to-9.0.0#-new-default-config-format-eslintconfigjs)). Naš legacy fajl je imao minimalan set pravila, pa smo rešili da i to proširimo.
+
+## Zašto bi to radili
+
+Stari `.eslintrc.js` sistem je bio komplikovan — `extends` je mogao da override-uje `plugins`, redosled je bio bitan na neintuitivne načine, i svaki plugin je imao svoji namespace.
+
+**`extends`** — nasleđuješ tuđi konfig i on postaje baza:
+
+```js
+module.exports = {
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:rxjs/recommended'
+  ]
+}
+```
+
+Problem: svaki `extends` može da override-uje prethodni. Redosled je bitan, ali nije uvek očigledan zašto neko pravilo "pobeđuje".
+
+**`plugins`** — registruješ plugin ali ne aktiviraš njegova pravila:
+
+```js
+module.exports = {
+  plugins: ['@typescript-eslint', 'rxjs'],  // samo registracija
+  rules: {
+    '@typescript-eslint/no-floating-promises': 'error'  // aktivacija
+  }
+}
+```
+
+Dakle plugin mora biti i u `plugins` i u `rules` — dva mesta za jednu stvar.
+
+**`overrides`** — različita pravila za različite fajlove, ali unutar istog objekta:
+
+```js
+module.exports = {
+  rules: { 'no-console': 'error' },
+  overrides: [
+    {
+      files: ['**/*.spec.ts'],
+      rules: { 'no-console': 'off' }
+    },
+    {
+      files: ['**/*.html'],
+      plugins: ['@angular-eslint/template'],
+      rules: { '@angular-eslint/template/no-negated-async': 'error' }
+    }
+  ]
+}
+```
+
+Najveći problem je bio što `extends` i `overrides` zajedno postaju nepredvidivi. Ceo konfig je bio jedan veliki objekat koji si morao da čitaš kao celinu da bi razumeo šta važi za koji fajl.
+
+Novi flat format ispravlja sve to — niz je objekata gde svaki važi samo za fajlove koje eksplicitno navedeš u `files`:
+
+```js
+export default [
+  {
+    files: ['**/*.ts'],
+    plugins: {
+      '@typescript-eslint': typescriptPlugin
+    },
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'error'
+    }
+  },
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      'no-console': 'off'
+    }
+  },
+  {
+    files: ['**/*.html'],
+    plugins: {
+      '@angular-eslint/template': templatePlugin
+    },
+    rules: {
+      '@angular-eslint/template/no-negated-async': 'error'
+    }
+  }
+]
+```
+
+## Type-aware pravila i ratchet strategija
+
+Najveća promena u ovom tiketu nije sam prelazak na flat config, nego uvođenje type-aware lint pravila — onih kojima ESLint ne gleda samo sintaksu fajla, nego i stvarne tipove iz TypeScript-a.
+
+Uključili smo `typescript-eslint` paket `recommendedTypeChecked` i `eslint-plugin-rxjs-x` sa njegovim `recommended` setom. Ova pravila hvataju stvari koje čist sintaksni lint ne vidi: `any` koji se prosleđuje kroz funkcije bez provere, obećanja koja se nikad ne čekaju, RxJS pretplate koje se ugnežđavaju jedna u drugu. Cena je da ESLint mora da pokrene isti TypeScript compiler koji koristi `tsc`, pa je lint sporiji — ali je i mnogo korisniji.
+
+Problem sa uvođenjem ovoliko pravila odjednom je što bi odmah probudilo stotine grešaka na postojećem kodu i blokiralo svaki build. Zato umesto da ih uključimo kao `error`, prošli smo kroz mali helper `newRulesAsWarn(...)`. On uzme sve rule-setove i svako pravilo koje bi po defaultu bilo `error` prebaci u `warn`. Pravila koja su već `off` ostaju `off`.
+
+```js
+function newRulesAsWarn(...ruleSources) {
+  const resolved = Object.assign({}, ...ruleSources);
+  return Object.fromEntries(
+    Object.entries(resolved)
+      .filter(([, severity]) => {
+        const level = Array.isArray(severity) ? severity[0] : severity;
+        return level === 'error' || level === 2;
+      })
+      .map(([rule, severity]) => [rule, Array.isArray(severity) ? ['warn', ...severity.slice(1)] : 'warn'])
+  );
+}
+```
+
+Efekat: nova pravila se vide, ali ne blokiraju. Lint prijavi upozorenje, CI prođe, a tim ima vremena da čisti kod postepeno. Kad broj upozorenja za neko pravilo padne na nulu, to pravilo se ručno prebacuje na `error` — i od tog trenutka se ne može više pojaviti nazad, jer bi build pao. To je suštinski ratchet: warning-i mogu samo da se smanjuju, dok error-i štite postignuto stanje.
+
+## Lint od 70 minuta
+
+Sve je ovo bilo sjajno i jednostavno do prvog testa. `eslint \"src/**/*.ts\" \"src/**/*.component.html\"` komanda je trajala 70 minuta i tad sam je prekinuo.
+
+Bisekcijom — deljenje repo-a na foldere, testiranje svakog pojedinačno — konačno smo došli do jednog test fajla od 139 linija:
+
+```ts
+import { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec';
+// ...
+expect(layer.layerOptions.iconOptions.image as ExpressionSpecification).toEqual([...]);
+```
+
+`ExpressionSpecification` je tip iz MapLibre-a koji opisuje stil-izraze na karti — ogroman, duboko rekurzivan union tip koji se grana u desetine podtipova koji se međusobno referenciraju. Kad TypeScript checker treba da uporedi vrednost sa ovakvim tipom (što `toEqual`-ov generic overload radi), mora da razmotri kombinaciju svih tih grana. To je poznata kategorija problema: eksponencijalni rast broja kombinacija tipova, umesto linearnog.
+
+Taj jedan fajl, sam: 90+ sekundi i nikad ne završi. Svaki sused mu: ~7 sekundi.
+
+Rešenje nije bilo da cepamo lint u delove ili da ga paralelizujemo — probali smo oba pristupa i nijedan nije pomogao. Pravo rešenje je bilo jednostavno: `ignores` u `eslint.config.js` za taj jedan fajl. Pun repo je pao sa 78+ minuta na 27 sekundi.
+
+## Treći krug: --fix ima svoj problem
+
+Mislili smo da je priča gotova — dok nismo probali `lint:fix`. Isti config, isti isključen fajl, ali sad 13+ minuta i raste. Zašto? `--fix` ne radi lint jednom — on relint-uje svaki fajl do 10 puta, dok se fix-evi ne stabilizuju, a svaki prolaz ponovo pita type checker.
+
+Probali smo dva pristupa za paralelizaciju:
+
+- **ESLint-ov `--concurrency`** — svaki thread gradi sopstveni TypeScript program od nule, bez deljenja. Rezultat: 18x sporije (16.7s → 5m3s).
+- **Odvojeni OS procesi** (6 paralelnih `eslint --fix` instanci) — zajedno preko 14GB RAM-a, pojedinačni chunk-ovi ballooned na 20+ minuta.
+
+Zaključak: za ovaj workload, paralelizacija ne pomaže — type-checking je previše CPU/memory-intenzivan. Rešenje koje je stvarno upalilo: scope-ovati `--fix` samo na fajlove koji su stvarno promenjeni na grani (`git diff` vs develop + nekomitovane izmene) — mala skripta koja svodi "lint:fix cele app" na "lint:fix 5-20 fajlova koje si taknuo".
+
+```js
+const BASE = 'origin/develop';
+
+function getChangedFiles() {
+  const files = new Set([
+    ...gitFiles(`git diff --name-only --diff-filter=ACMR ${BASE}...HEAD`),
+    ...gitFiles('git diff --name-only --diff-filter=ACMR HEAD'),
+    ...gitFiles('git diff --name-only --diff-filter=ACMR --cached'),
+    ...gitFiles('git ls-files --others --exclude-standard')
+  ]);
+  return [...files].filter((f) => FILE_PATTERN.test(f) && fs.existsSync(f));
+}
+
+```
