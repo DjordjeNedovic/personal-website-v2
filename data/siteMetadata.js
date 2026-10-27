@@ -8,8 +8,8 @@ const siteMetadata = {
   theme: 'dark', // system, dark or light
   siteUrl: 'https://djordjenedovic.tech',
   siteRepo: 'https://github.com/DjordjeNedovic',
-  siteLogo: '/static/images/logo.png',
-  socialBanner: '/images/logo/social_banner.jpeg',
+  siteLogo: '/images/logo.svg',
+  socialBanner: '/images/logo/social_banner.png',
   email: 'nedovic.djordje@gmail.com',
   linkedin: 'https://linkedin.com/in/djordjenedovic',
   github: 'https://github.com/DjordjeNedovic',

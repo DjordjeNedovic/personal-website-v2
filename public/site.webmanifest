@@ -1,0 +1,8 @@
+{
+  "name": "Djordje Nedovic",
+  "short_name": "DN",
+  "icons": [{ "src": "/images/logo.svg", "sizes": "any", "type": "image/svg+xml" }],
+  "theme_color": "#2563EB",
+  "background_color": "#0f172a",
+  "display": "standalone"
+}

@@ -5,6 +5,7 @@ import siteMetadata from '@/data/siteMetadata'
 import Link from '../common/Link'
 import MobileNav from '../navigation/MobileNav'
 import ThemeSwitchWrapper from './ThemeSwitchWrapper'
+import LogoIcon from './LogoIcon'
 import NavigationButton from '../common/NavigationButton'
 
 const Header = () => {
@@ -13,7 +14,7 @@ const Header = () => {
       <div>
         <Link href="/" aria-label={siteMetadata.headerTitle}>
           <div className="flex items-center justify-between">
-            {/*<LogoIcon />*/}
+            <LogoIcon />
             {typeof siteMetadata.headerTitle === 'string' ? (
               <div className="hidden sm:flex flex-col">
                 <div className="hidden h-6 text-xl font-semibold sm:block ">

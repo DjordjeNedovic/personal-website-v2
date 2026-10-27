@@ -1,11 +1,11 @@
 ---
-title: 'Tagovanje na Azure-u kroz Terraform i Azure Policy (FinOps, deo 1)'
+title: 'Tagovanje na Azure-u: Terraform i Azure Policy'
 date: '2026-10-27'
 lastmod: '2026-10-27'
 tags: ['Azure', 'Terraform', 'FinOps', 'Azure Policy', 'Cost Management', 'Infrastructure as Code', 'Tagging']
 draft: false
 summary: 'U prvom delu FinOps serije: kako tagove definisati u Terraformu, automatski nasleđivati kroz Azure Policy i popraviti resurse koji već postoje.'
-images: ['/images/thumbnail/fionps.png']
+images: ['/images/thumbnail/finops.png']
 canonicalUrl: >-
   https://djordjenedovic.tech/posts/rs/finops-tagging-terraform-azure-policy
 ---
@@ -197,7 +197,7 @@ Registracija se ne vidi u `terraform plan` kao promena, jer nije resurs u state-
 Scan je najbolje pokrenuti ručno sa `az policy state trigger-scan --resource-group rg-team-a`. Za 4 resursa scan je trajao 5 minuta, pa za veći broj resursa spremite kokice. Po završetku, `az policy state list` bi trebalo da vrati nešto slično:
 
 ```text
-PS C:\Project\Others\terraform> az policy state list
+$ az policy state list
 [
   {
     "complianceReasonCode": "",
@@ -223,10 +223,12 @@ Ako resurs u Terraformu nema `tags`, a policy mu ih doda, sledeći `terraform pl
 
 U praksi se policy uglavnom deployuje odvojeno od aplikacionih resursa, često iz posebnog Terraform state-a koji vodi platform tim. Tako je sigurno aktivna pre nego što se pojave resursi koje treba da pokrije.
 
+azurerm provider ima još ovakvih iznenađenja. O jednom sam pisao u tekstu [Terraform upgrade sa 0.12 i glavobolje sa $ u nazivu](/posts/rs/subscription-rule-migration).
+
 ## Šta dalje
 
 Prostora za unapređenje ima. Vrednosti tagova se mogu postaviti kroz pipeline varijable i odvojiti od koda. Policy se može podići na nivo subskripcije ili management grupe. Za više tagova se assignmenti mogu grupisati u initiative. Ali to je tema za neki drugi put.
 
 U sledećem delu pravimo report: koliki procenat resursa i troška je stvarno tagovan, i šta vidimo kad pogledamo grupu `rg-team-b`, koju policy namerno ne pokriva. Kod možete naći na GitHub-u (link uskoro).
 
-Ako se vaš tim pita gde odlazi Azure budžet, javite se. Ovo je tačno vrsta problema kojom se bavim.
+Ako se vaš tim pita gde odlazi Azure budžet, [javite se](/services). Ovo je tačno vrsta problema kojom se bavim.

@@ -2,6 +2,7 @@ import { genPageMetadata } from 'app/seo'
 import AboutMainComponent from '@/components/about/AboutMainComponent'
 import AboutFullComponent from '@/components/about/AboutFullComponent'
 import { PERSON_ID } from '@/libs/seo/person'
+import siteMetadata from '@/data/siteMetadata'
 
 export const metadata = genPageMetadata({
   title: 'About',
@@ -30,7 +31,7 @@ export default function Page() {
       description:
         'Senior Software Engineer specializing in performance optimization, Azure cloud solutions, and full-stack development',
       url: 'https://djordjenedovic.tech',
-      sameAs: ['https://www.linkedin.com/in/djordjenedovic', 'https://github.com/DjordjeNedovic'],
+      sameAs: [siteMetadata.linkedin, siteMetadata.github],
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Novi Sad',

@@ -1,5 +1,5 @@
 ---
-title: 'Azure Tagging with Terraform and Azure Policy (FinOps, Part 1)'
+title: 'Azure Tag Inheritance with Terraform and Azure Policy'
 date: '2026-10-27'
 lastmod: '2026-10-27'
 tags: ['Azure', 'Terraform', 'FinOps', 'Azure Policy', 'Cost Management', 'Infrastructure as Code', 'Tagging']
@@ -196,7 +196,7 @@ The registration doesn't show up in `terraform plan` as a change, because it isn
 It's best to trigger the scan manually with `az policy state trigger-scan --resource-group rg-team-a`. For 4 resources the scan took 5 minutes, so for larger environments get some popcorn ready. Once it finishes, `az policy state list` should return something like:
 
 ```text
-PS C:\Project\Others\terraform> az policy state list
+$ az policy state list
 [
   {
     "complianceReasonCode": "",
@@ -223,10 +223,12 @@ If a resource in Terraform has no `tags`, and a policy adds them, the next `terr
 
 In practice, the policy is usually deployed separately from application resources, often from a dedicated Terraform state managed by the platform team. That way it's guaranteed to be active before any resources it needs to cover appear.
 
+The azurerm provider has a few more surprises like this one. I wrote about another one in [One Character That Broke My Terraform Migration](/posts/subscription-rule-migration).
+
 ## What's next
 
 There's room to improve. Tag values can be passed through pipeline variables and separated from the code. The policy can be raised to subscription or management group scope. For more tags, assignments can be grouped into an initiative. But that's a topic for another time.
 
 In the next part we build the report: what percentage of resources and spend is actually tagged, and what we see when we look at `rg-team-b`, which the policy intentionally doesn't cover. Code is on GitHub (link coming soon).
 
-If your team is wondering where the Azure budget is going, get in touch. This is exactly the kind of problem I work on.
+If your team is wondering where the Azure budget is going, [get in touch](/services). This is exactly the kind of problem I work on.
