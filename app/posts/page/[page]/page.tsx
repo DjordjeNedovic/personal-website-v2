@@ -2,7 +2,26 @@ import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allAuthors, Authors, allPosts } from '@/libs/velite'
 import { sortedPosts } from '@/libs/query/posts'
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
+import { genPageMetadata } from 'app/seo'
+import siteMetadata from '@/data/siteMetadata'
 const POSTS_PER_PAGE = 5
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ page: string }>
+}): Promise<Metadata> {
+  const { page } = await params
+  // Page 1 is the same list as /posts, so it points there instead of competing with it
+  const canonical =
+    page === '1' ? `${siteMetadata.siteUrl}/posts` : `${siteMetadata.siteUrl}/posts/page/${page}`
+  return genPageMetadata({
+    title: page === '1' ? 'All Posts' : `All Posts - Page ${page}`,
+    alternates: { canonical },
+    openGraph: { url: canonical },
+  })
+}
 
 export const dynamicParams = false
 

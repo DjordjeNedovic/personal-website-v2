@@ -4,10 +4,8 @@ date: '2026-10-07'
 lastmod: '2026-10-07'
 tags: ['Angular', 'ESLint', 'TypeScript', 'Performance', 'Debugging', 'CI/CD']
 draft: false
-summary: 'The ESLint flat config migration was supposed to be routine. Instead, lint started taking 70+ minutes with no errors — just silence. This is a story about bisection, recursive types, and one test file that brought down the entire CI.'
+summary: 'ESLint flat config migration made lint run 70+ minutes with no errors. How bisection led to recursive types in a single test file.'
 images: ['/images/thumbnail/eslint.png']
-canonicalUrl: >-
-  https://djordjenedovic.tech/posts/eslint-flat-config-migration
 ---
 
 Since I enjoy a good optimization story, this time it was a migration from legacy `.eslintrc.js` to flat config `eslint.config.js` — the only supported format for ESLint 9 and `angular-eslint 20` ([more details here](https://eslint.org/docs/latest/use/migrate-to-9.0.0#-new-default-config-format-eslintconfigjs)). Our legacy file had a minimal set of rules, so we decided to expand that as well.

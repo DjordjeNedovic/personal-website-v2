@@ -11,16 +11,16 @@
 - [Azure Tag Inheritance with Terraform and Azure Policy](https://djordjenedovic.tech/posts/finops-tagging-terraform-azure-policy): FinOps series, part 1. Defining tags in Terraform, inheriting them from the resource group with Azure Policy, and remediating existing resources.
 - [How One Test File Made ESLint Run for 70+ Minutes](https://djordjenedovic.tech/posts/eslint-migration-bug): Debugging an ESLint flat config migration where lint took 70+ minutes, traced through bisection to recursive types in one test file.
 - [One Character That Broke My Terraform Migration](https://djordjenedovic.tech/posts/subscription-rule-migration): Debugging a cryptic AzureRM provider error during Terraform 0.12 → 0.13 migration caused by a $ character in a resource name.
-- [Goodbye AutoMapper: Simple Mapping with Extension Methods and Delegates in .NET](https://djordjenedovic.tech/posts/migrate-from-automapper): Replacing AutoMapper with lightweight extension methods and delegates in .NET.
-- [How to Set Up a YAML Pipeline for Publishing a NuGet Package](https://djordjenedovic.tech/posts/publish-preview-nuget-package): Step-by-step guide for Azure DevOps YAML pipeline for NuGet packaging.
+- [Goodbye AutoMapper: Extension Methods in .NET](https://djordjenedovic.tech/posts/migrate-from-automapper): Replacing AutoMapper with lightweight extension methods and delegates in .NET.
+- [Preview NuGet Packages with Azure DevOps YAML](https://djordjenedovic.tech/posts/publish-preview-nuget-package): Step-by-step guide for Azure DevOps YAML pipeline for NuGet packaging.
 
 ## Blog (Serbian)
 
 - [Tagovanje na Azure-u: Terraform i Azure Policy](https://djordjenedovic.tech/posts/rs/finops-tagging-terraform-azure-policy): Serbian version of the Azure tag inheritance post.
 - [Kako je jedan test fajl terao ESLint da trči 70+ minuta](https://djordjenedovic.tech/posts/rs/eslint-migration-bug): Serbian version of the ESLint post.
 - [Terraform Upgrade sa 0.12 i Glavobolje sa $ u Nazivu](https://djordjenedovic.tech/posts/rs/subscription-rule-migration): Serbian version of the Terraform migration post.
-- [Zbogom AutoMapper](https://djordjenedovic.tech/posts/rs/migrate-from-automapper): Serbian version of the AutoMapper post.
-- [Kako podesiti YAML pipeline za objavljivanje preview NuGet paketa u Azure DevOps-u](https://djordjenedovic.tech/posts/rs/publish-preview-nuget-package): Serbian version of the NuGet pipeline post.
+- [Zbogom AutoMapper: extension metode u .NET-u](https://djordjenedovic.tech/posts/rs/migrate-from-automapper): Serbian version of the AutoMapper post.
+- [Preview NuGet paketi kroz Azure DevOps YAML](https://djordjenedovic.tech/posts/rs/publish-preview-nuget-package): Serbian version of the NuGet pipeline post.
 
 ## About
 
