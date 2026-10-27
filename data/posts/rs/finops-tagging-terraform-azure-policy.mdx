@@ -242,8 +242,6 @@ Posle remediationa, proverimo tagove na storage accountu:
 az storage account show -n stteama<unique_suffix> -g rg-team-a --query tags
 ```
 
-<!-- ovde ide izlaz/screenshot sa team i env tagovima, bez managed-by -->
-
 ## Jedna zamka za kraj: Terraform protiv policy-ja
 
 Ako resurs u Terraformu nema `tags`, a policy mu ih doda, sledeći `terraform plan` će hteti da ih skine. Na sledećem update-u policy ih vraća, i tako u krug. Dva rešenja:
