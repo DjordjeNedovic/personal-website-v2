@@ -36,7 +36,7 @@ klasa koja je nasleđuje može imati dodatne metode. Sve entity klase nasleđuju
 Za svaki par klasa dodajemo extension klasu koja sadrži bidirekciono mapiranje — iz entitija u DTO i obrnuto — kao i
 metodu za mapiranje kolekcije (`IEnumerable`) iz entitija u DTO. To izgleda ovako:
 
-```cs
+```csharp
 public static class BookMappingExtensions
 {
     public static BookDto ToDto(this BookEntity entity)
@@ -81,7 +81,7 @@ produkcijski primer [callback patterna](<https://en.wikipedia.org/wiki/Callback_
 
 Proširenje base klase:
 
-```csharp
+```diff
 public class BaseFileService{
 +    private readonly Func<TDto, TEntity> _fromDto;
 +    private readonly Func<TEntity, TDto> _toEntity;
@@ -109,7 +109,7 @@ public BookService(...)
 
 A kako to izgleda u samim base service metodama:
 
-```csharp
+```diff
 public async Task<TDto> SaveFile(TDto dto)
 {
 -    var dtoEntity = Mapper.Map<TEntity>(dto);

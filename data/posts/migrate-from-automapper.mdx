@@ -101,7 +101,7 @@ You can store a reference to a method and call it later. They allow you to pass 
 
 Extending the base class:
 
-```csharp
+```diff
 public class BaseFileService{
 +    private readonly Func<TDto, TEntity> _fromDto;
 +    private readonly Func<TEntity, TDto> _toEntity;
@@ -129,7 +129,7 @@ public BookService(...)
 
 And how it looks inside the base service methods:
 
-```csharp
+```diff
 public async Task<TDto> SaveFile(TDto dto)
 {
 -    var dtoEntity = Mapper.Map<TEntity>(dto);
