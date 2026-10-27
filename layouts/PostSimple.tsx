@@ -5,6 +5,7 @@ import { ReactNode } from 'react'
 import { ReadTimeResults } from 'reading-time'
 import { formatDate } from '@/libs/utils/utils'
 import Image from 'next/image'
+import LanguageToggle from '@/components/posts/LanguageToggle'
 
 interface PostContent {
   title: string
@@ -23,7 +24,8 @@ interface LayoutProps {
   structuredData?: Record<string, unknown>
   /** Content language; the root layout is English, so Serbian posts mark their article. */
   lang?: 'en' | 'sr'
-  translation?: { href: string; label: string; lang: 'en' | 'sr' }
+  /** URL of the same post in the other language, if it exists */
+  translationHref?: string
 }
 
 export default function PostLayout({
@@ -34,7 +36,7 @@ export default function PostLayout({
   readingTime,
   structuredData,
   lang = 'en',
-  translation,
+  translationHref,
 }: LayoutProps) {
   const { date, title } = content
 
@@ -68,20 +70,16 @@ export default function PostLayout({
                       <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
                       <span>·</span>
                       <span>{readingTime?.text}</span>
+                      {translationHref && (
+                        <>
+                          <span>·</span>
+                          <LanguageToggle current={lang} href={translationHref} />
+                        </>
+                      )}
                     </div>
                   </dd>
                 </div>
               </dl>
-              {translation && (
-                <Link
-                  href={translation.href}
-                  hrefLang={translation.lang}
-                  lang={translation.lang}
-                  className="mt-4 inline-block text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
-                >
-                  {translation.label} &rarr;
-                </Link>
-              )}
             </div>
           </header>
           <div className="grid-rows-[auto_1fr] divide-y divide-slate-200 pb-8 dark:divide-slate-700 xl:divide-y-0">

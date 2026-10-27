@@ -1,0 +1,230 @@
+---
+title: 'Tagovanje na Azure-u: Terraform i Azure Policy'
+date: '2026-10-27'
+lastmod: '2026-10-27'
+tags: []
+draft: false
+summary: 'U prvom delu FinOps serije: kako tagove definisati u Terraformu, automatski nasleđivati kroz Azure Policy i popraviti resurse koji već postoje.'
+images: ['/images/thumbnail/finops.png']
+---
+
+## TL;DR
+
+- Ako ne znate kome pripada koji deo cloud računa, ne možete ni da ga optimizujete. U FinOps rečniku to je **Allocation**, i to je prvi korak svake ozbiljne priče o cloud troškovima.
+- Na Azure-u se alokacija najčešće radi kroz **tagove**. Problem nije da se tagovi postave jednom, nego da ostanu tačni i u situacijama kad ljudi ručno dodaju resurse.
+- U ovom delu pokazujem kako se tagovi definišu u Terraformu, kako ih **Azure Policy** automatski nasleđuje sa resource grupe i kako se popravljaju resursi koji već postoje.
+
+## Zašto ovo uopšte treba nekome
+
+FinOps Foundation meri zrelost alokacije kroz procenat troška koji može da se pripiše vlasniku. Po njihovom [maturity modelu](https://www.finops.org/framework/maturity-model/), u **Crawl** fazi je cilj da se alocira bar 50% troška, u **Walk** fazi bar 80%, a u **Run** fazi više od 90%. Ključna reč je *trošak*, a ne broj resursa. Jedan zaboravljeni VM bez taga može da nosi više troška od sto tagovanih storage accounta. Mesečni Azure račun bez tagova je samo jedan broj. Taj broj ne kaže koji tim troši, koja aplikacija, ni da li je u pitanju produkcija ili test koji je neko zaboravio da ugasi.
+
+## O labu
+
+Spremam FinOps Certified Practitioner (FOCP) sertifikat i napravio sam sebi lab da bih istražio maturity model u praksi. Plan je da ovo bude serija blogova, a ovo je prvi od njih.
+
+## Osnovni resursi
+
+Krećemo od dve resource grupe i dva storage accounta, sa različitim tagovima:
+
+```hcl
+resource "azurerm_resource_group" "rg_team_a" {
+  name     = "rg-team-a"
+  location = "northeurope"
+  tags     = { "team" : "Team A", "env" : "dev01" }
+}
+
+resource "azurerm_storage_account" "sa_team_a" {
+  name                     = "stteama${var.unique_suffix}"
+  resource_group_name      = azurerm_resource_group.rg_team_a.name
+  location                 = azurerm_resource_group.rg_team_a.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  tags                     = azurerm_resource_group.rg_team_a.tags
+}
+
+resource "azurerm_resource_group" "rg_team_b" {
+  name     = "rg-team-b"
+  location = "northeurope"
+  tags     = { "team" : "Team B", "env" : "dev02" }
+}
+
+resource "azurerm_storage_account" "sa_team_b" {
+  name                     = "stteamb${var.unique_suffix}"
+  resource_group_name      = azurerm_resource_group.rg_team_b.name
+  location                 = azurerm_resource_group.rg_team_b.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  tags                     = azurerm_resource_group.rg_team_b.tags
+}
+```
+
+`var.unique_suffix` je kratak sufiks koji svako postavi za sebe, jer imena storage accounta moraju biti globalno jedinstvena.
+
+Obratite pažnju na `tags = azurerm_resource_group.rg_team_a.tags` kod storage accounta. **Azure ne propagira tagove sa resource grupe na resurse**, a Cost Management trošak vezuje za resurs, ne za grupu. Storage account bez tog reda bi u reportu završio kao netagovan, iako je njegova grupa uredno tagovana.
+
+Četiri resursa sa različitim tagovima su sjajni za lab, ali za stvarni use case ovo nije dobro, prvenstveno zato što su tagovi hardkodovani u sklopu resursa.
+
+## Tagovi u `locals`
+
+Zato ćemo tagove izdvojiti u `locals`:
+
+```hcl
+locals {
+  # Tagovi koji važe za sve što ovaj Terraform kreira
+  common_tags = {
+    managed-by = "terraform"
+  }
+
+  # Tagovi specifični za workload
+  workloads = {
+    dev01 = { env = "dev01" }
+    dev02 = { env = "dev02" }
+  }
+
+  teams = {
+    teamA = { team = "Team A" }
+    teamB = { team = "Team B" }
+  }
+}
+```
+
+Resursi se menjaju ovako:
+
+```diff
+ resource "azurerm_resource_group" "rg_team_a" {
+   name     = "rg-team-a"
+   location = "northeurope"
+-  tags     = { "team" : "Team A", "env" : "dev01" }
++  tags     = merge(local.common_tags, local.teams.teamA, local.workloads.dev01)
+ }
+
+ resource "azurerm_resource_group" "rg_team_b" {
+   name     = "rg-team-b"
+   location = "northeurope"
+-  tags     = { "team" : "Team B", "env" : "dev02" }
++  tags     = merge(local.common_tags, local.teams.teamB, local.workloads.dev02)
+ }
+```
+
+Zajednički tag `managed-by = "terraform"` označava sve resurse koji se kreiraju iz koda. Tako ćemo u reportu lako izdvojiti resurse koji su kreirani ručno, a to su obično oni o kojima niko ne zna ništa.
+
+Usput, vrednosti tagova držite konzistentnim. Cost Management razlikuje velika i mala slova, pa `prod`, `Prod` i `production` postaju tri različite grupe u reportu.
+
+## Policy za nasleđivanje tagova
+
+Terraform vidi samo resurse koje sam kreira. Ako kolega "samo brzo nešto testira" i ručno napravi resurs kroz portal, Terraform za njega ne zna, a resurs završava kao netagovan trošak.
+
+Zato sledeći korak radi na samom Azure-u: dodajemo policy koja svakom resursu koji nema obavezne tagove dodeljuje vrednosti njegove resource grupe. Azure Policy se može dodeliti na nivou management grupe, subskripcije ili resource grupe. Ja sam je namerno stavio samo na jednu resource grupu. U sledećem blogu ću pokazati kako ovi netagovani resursi utiču na report.
+
+Azure ima mnogo ugrađenih policy-ja za tagove. Mi ćemo koristiti [Inherit a tag from the resource group if missing](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/tag-policies). Varijanta "if missing" ne gazi tag koji resurs već ima, pa tim koji namerno taguje resurs drugačije od grupe neće biti pregažen. Umesto da hardkodujemo GUID definicije, nalazimo je po imenu:
+
+```hcl
+data "azurerm_policy_definition" "inherit_tag" {
+  display_name = "Inherit a tag from the resource group if missing"
+}
+```
+
+Zatim pravimo policy assignment za nju. Definicija je jedna, ali svaki tag dobija svoj assignment, pa koristimo `for_each`:
+
+```hcl
+resource "azurerm_resource_group_policy_assignment" "inherit_tag" {
+  for_each = toset(["team", "env"]) # imena tagova koje nasleđujemo
+
+  name                 = "inherit-${each.key}"
+  resource_group_id    = azurerm_resource_group.rg_team_a.id
+  policy_definition_id = data.azurerm_policy_definition.inherit_tag.id
+  location             = "northeurope"
+
+  parameters = jsonencode({
+    tagName = { value = each.key }
+  })
+
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+resource "azurerm_role_assignment" "inherit_tag" {
+  for_each = azurerm_resource_group_policy_assignment.inherit_tag
+
+  scope                = azurerm_resource_group.rg_team_a.id
+  role_definition_name = "Tag Contributor"
+  principal_id         = each.value.identity[0].principal_id
+}
+```
+
+Nekoliko napomena:
+
+- **`managed-by` se namerno ne nasleđuje.** Ručno kreiran resurs bi inače dobio tag koji tvrdi da ga vodi Terraform, a to nije istina.
+- **Policy sa `Modify` efektom menja resurse, pa joj treba identitet.** Zato `identity` blok, a uz njega je obavezan i `location`.
+- **Identitet bez prava ne može ništa.** `azurerm_role_assignment` mu daje ulogu na resource grupi. Za policy koja menja samo tagove dovoljan je uži `Tag Contributor`, po principu least privilege.
+
+## Remediation za postojeće resurse
+
+Policy sa `Modify` efektom reaguje kad se resurs kreira ili ažurira. To pokriva sve buduće ručno kreirane resurse. Šta je sa resursima koji su već postojali pre policy-ja? Za njih postoji remediation task, koji proverava postojeće resurse i dodaje tagove koji fale:
+
+```hcl
+resource "azurerm_resource_group_policy_remediation" "inherit_tag" {
+  for_each = azurerm_resource_group_policy_assignment.inherit_tag
+
+  name                 = "remediate-inherit-${each.key}"
+  resource_group_id    = azurerm_resource_group.rg_team_a.id
+  policy_assignment_id = each.value.id
+  location_filters     = ["northeurope"]
+
+  depends_on = [azurerm_role_assignment.inherit_tag]
+}
+```
+
+`depends_on` je ovde bitan. Remediation nigde ne koristi vrednost iz role assignmenta, pa Terraform ne zna da mora da sačeka da identitet dobije prava. Bez toga remediation može da krene pre nego što ima dozvolu da bilo šta promeni.
+
+## Provera
+
+Stanje compliance-a proveravamo sa `az policy state list`. Ako komanda vrati `[]`, postoje dva česta razloga: evaluacija još nije prošla ili `Microsoft.PolicyInsights` nije registrovan. Kod mene je bio ovaj drugi, i koštao me je dan. Posledica iste promene u azurerm 5.0:
+
+```diff
+ provider "azurerm" {
+   features {}
+-  resource_providers_to_register = ["Microsoft.Storage"]
++  resource_providers_to_register = ["Microsoft.Storage", "Microsoft.PolicyInsights"]
+ }
+```
+
+Registracija se ne vidi u `terraform plan` kao promena, jer nije resurs u state-u. Proverava se sa `az provider show --namespace Microsoft.PolicyInsights`.
+
+Scan je najbolje pokrenuti ručno sa `az policy state trigger-scan --resource-group rg-team-a`. Za 4 resursa scan je trajao 5 minuta, pa za veći broj resursa spremite kokice. Po završetku, `az policy state list` bi trebalo da vrati nešto slično:
+
+```text
+$ az policy state list
+[
+  {
+    "complianceReasonCode": "",
+    "complianceState": "NonCompliant",
+    "components": null,
+    "effectiveParameters": "",
+    "isCompliant": false,
+    "managementGroupIds": "<tenant-id>",
+    "odataContext": "https://management.azure.com/subscriptions/<subscription-id>/providers/Microsoft.PolicyInsights/policyStates/$metadata#latest/$entity",
+```
+Posle remediationa, proverimo tagove na storage accountu:
+
+```text
+az storage account show -n stteama<unique_suffix> -g rg-team-a --query tags
+```
+
+## Jedna zamka za kraj: Terraform protiv policy-ja
+
+Ako resurs u Terraformu nema `tags`, a policy mu ih doda, sledeći `terraform plan` će hteti da ih skine. Na sledećem update-u policy ih vraća, i tako u krug. Dva rešenja:
+
+- tagovi ostaju u Terraform kodu, a policy služi kao sigurnosna mreža za ono što prođe mimo koda,
+- ili Terraformu kažete da ignoriše promene tagova kroz `lifecycle { ignore_changes = [tags] }`.
+
+U praksi se policy uglavnom deployuje odvojeno od aplikacionih resursa, često iz posebnog Terraform state-a koji vodi platform tim. Tako je sigurno aktivna pre nego što se pojave resursi koje treba da pokrije.
+
+azurerm provider ima još ovakvih iznenađenja. O jednom sam pisao u tekstu [Terraform upgrade sa 0.12 i glavobolje sa $ u nazivu](/posts/rs/subscription-rule-migration).
+
+## Šta dalje
+
+Prostora za unapređenje ima. Vrednosti tagova se mogu postaviti kroz pipeline varijable i odvojiti od koda. Policy se može podići na nivo subskripcije ili management grupe. Za više tagova se assignmenti mogu grupisati u initiative. Ali to je tema za neki drugi put.
+
+U sledećem delu pravimo report: koliki procenat resursa i troška je stvarno tagovan, i šta vidimo kad pogledamo grupu `rg-team-b`, koju policy namerno ne pokriva. Kod možete naći na GitHub-u (link uskoro).

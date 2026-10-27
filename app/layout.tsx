@@ -6,7 +6,7 @@ import Header from '@/components/header/Header'
 import siteMetadata from '@/data/siteMetadata'
 import { Metadata } from 'next'
 import { ThemeProviders } from './theme-providers'
-import { GoogleAnalytics } from '@next/third-parties/google'
+import Script from 'next/script'
 import 'prismjs/themes/prism-tomorrow.css'
 
 const space_grotesk = Space_Grotesk({
@@ -54,6 +54,10 @@ export const metadata: Metadata = {
     images: [siteMetadata.socialBanner],
   },
   authors: [{ name: 'Djordje Nedovic' }],
+  icons: {
+    icon: { url: siteMetadata.siteLogo, type: 'image/svg+xml' },
+  },
+  manifest: '/site.webmanifest',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -73,7 +77,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </SectionContainer>
         </ThemeProviders>
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ID!} />
+        {/* GA loaded after page load so it doesn't compete with LCP resources */}
+        {process.env.NEXT_PUBLIC_GOOGLE_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ID}`}
+              strategy="lazyOnload"
+            />
+            <Script id="google-analytics" strategy="lazyOnload">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ID}');`}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   )

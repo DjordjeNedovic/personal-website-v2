@@ -109,11 +109,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       prev={prev}
       readingTime={readingTime}
       structuredData={structuredData}
-      translation={
-        allPostsRs.some((p) => p.slug === slug)
-          ? undefined //{ href: `/posts/rs/${slug}`, label: 'Pročitaj na srpskom', lang: 'sr' }
-          : undefined
-      }
+      translationHref={allPostsRs.some((p) => p.slug === slug) ? `/posts/rs/${slug}` : undefined}
     >
       <MDXRemote
         source={post.content}

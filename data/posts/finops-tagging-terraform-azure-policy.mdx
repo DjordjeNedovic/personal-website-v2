@@ -1,0 +1,231 @@
+---
+title: 'Azure Tag Inheritance with Terraform and Azure Policy'
+date: '2026-10-27'
+lastmod: '2026-10-27'
+tags: ['Azure', 'Terraform', 'FinOps', 'Azure Policy', 'Cost Management', 'Infrastructure as Code', 'Tagging']
+draft: false
+summary: 'Part one of a FinOps series: how to define tags in Terraform, automatically inherit them through Azure Policy, and fix resources that already exist.'
+images: ['/images/thumbnail/finops.png']
+---
+
+## TL;DR
+
+- If you don't know which team owns which part of your cloud bill, you can't optimise it. In FinOps terminology this is **Allocation**, and it's the first step of any serious conversation about cloud costs.
+- On Azure, allocation is most commonly done through **tags**. The hard part isn't setting tags once — it's keeping them accurate when people add resources manually.
+- In this post I'll show how to define tags in Terraform, how **Azure Policy** automatically inherits them from the resource group, and how to remediate resources that already exist.
+
+## Why this matters
+
+The FinOps Foundation measures allocation maturity by the percentage of spend that can be attributed to an owner. According to their [maturity model](https://www.finops.org/framework/maturity-model/), the **Crawl** phase targets at least 50% of spend allocated, **Walk** targets 80%, and **Run** targets over 90%. The key word is *spend*, not number of resources. One forgotten VM without a tag can carry more cost than a hundred tagged storage accounts. A monthly Azure bill without tags is just one number. That number doesn't tell you which team is spending, which application, or whether it's production or a test environment someone forgot to turn off.
+
+## About the lab
+
+I'm preparing for the FinOps Certified Practitioner (FOCP) certification and built myself a lab to explore the maturity model in practice. This is planned as a series of posts, and this is the first one.
+
+## Base resources
+
+We start with two resource groups and two storage accounts, each with different tags:
+
+```hcl
+resource "azurerm_resource_group" "rg_team_a" {
+  name     = "rg-team-a"
+  location = "northeurope"
+  tags     = { "team" : "Team A", "env" : "dev01" }
+}
+
+resource "azurerm_storage_account" "sa_team_a" {
+  name                     = "stteama${var.unique_suffix}"
+  resource_group_name      = azurerm_resource_group.rg_team_a.name
+  location                 = azurerm_resource_group.rg_team_a.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  tags                     = azurerm_resource_group.rg_team_a.tags
+}
+
+resource "azurerm_resource_group" "rg_team_b" {
+  name     = "rg-team-b"
+  location = "northeurope"
+  tags     = { "team" : "Team B", "env" : "dev02" }
+}
+
+resource "azurerm_storage_account" "sa_team_b" {
+  name                     = "stteamb${var.unique_suffix}"
+  resource_group_name      = azurerm_resource_group.rg_team_b.name
+  location                 = azurerm_resource_group.rg_team_b.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  tags                     = azurerm_resource_group.rg_team_b.tags
+}
+```
+
+`var.unique_suffix` is a short suffix each person sets for themselves, since storage account names must be globally unique.
+
+Note the `tags = azurerm_resource_group.rg_team_a.tags` on the storage account. **Azure does not propagate tags from the resource group to its resources**, and Cost Management ties spend to the resource, not the group. A storage account without that line would show up as untagged in a report, even though its resource group is properly tagged.
+
+Four resources with different tags are great for a lab, but for a real use case this isn't good — the tags are hardcoded inside each resource.
+
+## Tags in `locals`
+
+So we extract the tags into `locals`:
+
+```hcl
+locals {
+  # Tags that apply to everything this Terraform creates
+  common_tags = {
+    managed-by = "terraform"
+  }
+
+  # Workload-specific tags
+  workloads = {
+    dev01 = { env = "dev01" }
+    dev02 = { env = "dev02" }
+  }
+
+  teams = {
+    teamA = { team = "Team A" }
+    teamB = { team = "Team B" }
+  }
+}
+```
+
+The resources are updated like this:
+
+```diff
+ resource "azurerm_resource_group" "rg_team_a" {
+   name     = "rg-team-a"
+   location = "northeurope"
+-  tags     = { "team" : "Team A", "env" : "dev01" }
++  tags     = merge(local.common_tags, local.teams.teamA, local.workloads.dev01)
+ }
+
+ resource "azurerm_resource_group" "rg_team_b" {
+   name     = "rg-team-b"
+   location = "northeurope"
+-  tags     = { "team" : "Team B", "env" : "dev02" }
++  tags     = merge(local.common_tags, local.teams.teamB, local.workloads.dev02)
+ }
+```
+
+The shared tag `managed-by = "terraform"` marks every resource created from code. This makes it easy to filter out manually created resources in a report — and those are usually the ones nobody knows anything about.
+
+One more thing: keep tag values consistent. Cost Management is case-sensitive, so `prod`, `Prod`, and `production` become three separate groups in a report.
+
+## Policy for tag inheritance
+
+Terraform only sees resources it creates. If a colleague "just quickly tests something" and manually creates a resource through the portal, Terraform doesn't know about it, and that resource ends up as untagged spend.
+
+The next step works at the Azure level itself: we add a policy that assigns each resource that is missing required tags the values from its resource group. Azure Policy can be assigned at the management group, subscription, or resource group level. I intentionally scoped it to a single resource group. In the next post I'll show how untagged resources affect the report.
+
+Azure has many built-in policies for tags. We'll use [Inherit a tag from the resource group if missing](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/tag-policies). The "if missing" variant doesn't overwrite a tag the resource already has, so a team that intentionally tags a resource differently from its group won't be overridden. Instead of hardcoding the policy definition GUID, we look it up by name:
+
+```hcl
+data "azurerm_policy_definition" "inherit_tag" {
+  display_name = "Inherit a tag from the resource group if missing"
+}
+```
+
+Then we create a policy assignment for it. One definition, but each tag gets its own assignment, so we use `for_each`:
+
+```hcl
+resource "azurerm_resource_group_policy_assignment" "inherit_tag" {
+  for_each = toset(["team", "env"]) # tag names to inherit
+
+  name                 = "inherit-${each.key}"
+  resource_group_id    = azurerm_resource_group.rg_team_a.id
+  policy_definition_id = data.azurerm_policy_definition.inherit_tag.id
+  location             = "northeurope"
+
+  parameters = jsonencode({
+    tagName = { value = each.key }
+  })
+
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+resource "azurerm_role_assignment" "inherit_tag" {
+  for_each = azurerm_resource_group_policy_assignment.inherit_tag
+
+  scope                = azurerm_resource_group.rg_team_a.id
+  role_definition_name = "Tag Contributor"
+  principal_id         = each.value.identity[0].principal_id
+}
+```
+
+A few notes:
+
+- **`managed-by` is intentionally not inherited.** A manually created resource would otherwise get a tag claiming Terraform manages it, which isn't true.
+- **A policy with `Modify` effect changes resources, so it needs an identity.** Hence the `identity` block, and with it the required `location`.
+- **An identity without permissions can't do anything.** `azurerm_role_assignment` grants it a role on the resource group. For a policy that only modifies tags, the narrower `Tag Contributor` is sufficient — principle of least privilege.
+
+## Remediation for existing resources
+
+A policy with `Modify` effect reacts when a resource is created or updated. That covers all future manually created resources. What about resources that existed before the policy? For those there is a remediation task, which scans existing resources and adds any missing tags:
+
+```hcl
+resource "azurerm_resource_group_policy_remediation" "inherit_tag" {
+  for_each = azurerm_resource_group_policy_assignment.inherit_tag
+
+  name                 = "remediate-inherit-${each.key}"
+  resource_group_id    = azurerm_resource_group.rg_team_a.id
+  policy_assignment_id = each.value.id
+  location_filters     = ["northeurope"]
+
+  depends_on = [azurerm_role_assignment.inherit_tag]
+}
+```
+
+`depends_on` matters here. Remediation doesn't use any value from the role assignment, so Terraform doesn't know it needs to wait for the identity to be granted permissions. Without it, remediation can start before it has the rights to change anything.
+
+## Verification
+
+Check compliance state with `az policy state list`. If the command returns `[]`, there are two common reasons: the evaluation hasn't run yet, or `Microsoft.PolicyInsights` isn't registered. For me it was the latter, and it cost me a day. A consequence of the same change in azurerm 5.0:
+
+```diff
+ provider "azurerm" {
+   features {}
+-  resource_providers_to_register = ["Microsoft.Storage"]
++  resource_providers_to_register = ["Microsoft.Storage", "Microsoft.PolicyInsights"]
+ }
+```
+
+The registration doesn't show up in `terraform plan` as a change, because it isn't a resource in state. Verify with `az provider show --namespace Microsoft.PolicyInsights`.
+
+It's best to trigger the scan manually with `az policy state trigger-scan --resource-group rg-team-a`. For 4 resources the scan took 5 minutes, so for larger environments get some popcorn ready. Once it finishes, `az policy state list` should return something like:
+
+```text
+$ az policy state list
+[
+  {
+    "complianceReasonCode": "",
+    "complianceState": "NonCompliant",
+    "components": null,
+    "effectiveParameters": "",
+    "isCompliant": false,
+    "managementGroupIds": "<tenant-id>",
+    "odataContext": "https://management.azure.com/subscriptions/<subscription-id>/providers/Microsoft.PolicyInsights/policyStates/$metadata#latest/$entity",
+```
+
+After remediation, check the tags on the storage account:
+
+```text
+az storage account show -n stteama<unique_suffix> -g rg-team-a --query tags
+```
+
+## One gotcha to close out: Terraform vs. policy
+
+If a resource in Terraform has no `tags`, and a policy adds them, the next `terraform plan` will want to remove them. On the next update the policy adds them back, and so on in a loop. Two solutions:
+
+- keep the tags in Terraform code and let the policy act as a safety net for anything that slips through,
+- or tell Terraform to ignore tag changes with `lifecycle { ignore_changes = [tags] }`.
+
+In practice, the policy is usually deployed separately from application resources, often from a dedicated Terraform state managed by the platform team. That way it's guaranteed to be active before any resources it needs to cover appear.
+
+The azurerm provider has a few more surprises like this one. I wrote about another one in [One Character That Broke My Terraform Migration](/posts/subscription-rule-migration).
+
+## What's next
+
+There's room to improve. Tag values can be passed through pipeline variables and separated from the code. The policy can be raised to subscription or management group scope. For more tags, assignments can be grouped into an initiative. But that's a topic for another time.
+
+In the next part we build the report: what percentage of resources and spend is actually tagged, and what we see when we look at `rg-team-b`, which the policy intentionally doesn't cover. Code is on GitHub (link coming soon).
