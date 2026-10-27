@@ -13,31 +13,16 @@ canonicalUrl: >-
 ## TL;DR
 
 - Ako ne znate kome pripada koji deo cloud računa, ne možete ni da ga optimizujete. U FinOps rečniku to je **Allocation**, i to je prvi korak svake ozbiljne priče o cloud troškovima.
-- Na Azure-u se alokacija najčešće radi kroz **tagove**. Problem nije da se tagovi postave jednom, nego da ostanu tačni kad ljudi ručno dodaju resurse.
+- Na Azure-u se alokacija najčešće radi kroz **tagove**. Problem nije da se tagovi postave jednom, nego da ostanu tačni i u situacijama kad ljudi ručno dodaju resurse.
 - U ovom delu pokazujem kako se tagovi definišu u Terraformu, kako ih **Azure Policy** automatski nasleđuje sa resource grupe i kako se popravljaju resursi koji već postoje.
-- Usput: tri greške na koje ćete skoro sigurno naleteti, i kako da ih izbegnete.
 
 ## Zašto ovo uopšte treba nekome
 
-Mesečni Azure račun bez tagova je jedan broj. Taj broj ne kaže koji tim troši, koja aplikacija, ni da li je u pitanju produkcija ili test koji je neko zaboravio da ugasi.
-
-Zato FinOps Foundation meri zrelost alokacije kroz procenat troška koji može da se pripiše vlasniku. Po njihovom [maturity modelu](https://www.finops.org/framework/maturity-model/), u **Crawl** fazi je cilj da se alocira bar 50% troška, u **Walk** fazi bar 80%, a u **Run** fazi više od 90%. Ključna reč je *trošak*, a ne broj resursa. Jedan zaboravljeni VM bez taga može da nosi više troška od sto tagovanih storage accounta.
-
-Šta to znači po ulozi:
-
-- **CEO i finansije:** dobijate odgovor na pitanje "koliko nas košta proizvod X", umesto jednog nerazumljivog računa.
-- **Tech leadovi:** svaki tim vidi svoj trošak i može da ga brani ili smanji.
-- **Developeri:** tagovi su deo koda, a ne ručni posao u portalu koji se zaboravi.
+FinOps Foundation meri zrelost alokacije kroz procenat troška koji može da se pripiše vlasniku. Po njihovom [maturity modelu](https://www.finops.org/framework/maturity-model/), u **Crawl** fazi je cilj da se alocira bar 50% troška, u **Walk** fazi bar 80%, a u **Run** fazi više od 90%. Ključna reč je *trošak*, a ne broj resursa. Jedan zaboravljeni VM bez taga može da nosi više troška od sto tagovanih storage accounta. Mesečni Azure račun bez tagova je samo jedan broj. Taj broj ne kaže koji tim troši, koja aplikacija, ni da li je u pitanju produkcija ili test koji je neko zaboravio da ugasi.
 
 ## O labu
 
-Spremam FinOps Certified Practitioner (FOCP) sertifikat i napravio sam sebi lab da bih istražio maturity model u praksi. Plan je da ovo bude serija blogova, a ovo je prvi od njih:
-
-1. **Tagovanje i Azure Policy** (ovaj tekst)
-2. Report: koliko je troška stvarno alocirano, a koliko nije
-3. Teorija: FinOps Framework iza svega ovoga
-
-Iskoristio sam 200$ besplatnog kredita na Azure-u. Ceo lab koristi samo resource grupe i LRS storage accounte, pa košta par centi.
+Spremam FinOps Certified Practitioner (FOCP) sertifikat i napravio sam sebi lab da bih istražio maturity model u praksi. Plan je da ovo bude serija blogova, a ovo je prvi od njih.
 
 ## Osnovni resursi
 
@@ -80,19 +65,6 @@ resource "azurerm_storage_account" "sa_team_b" {
 Obratite pažnju na `tags = azurerm_resource_group.rg_team_a.tags` kod storage accounta. **Azure ne propagira tagove sa resource grupe na resurse**, a Cost Management trošak vezuje za resurs, ne za grupu. Storage account bez tog reda bi u reportu završio kao netagovan, iako je njegova grupa uredno tagovana.
 
 Četiri resursa sa različitim tagovima su sjajni za lab, ali za stvarni use case ovo nije dobro, prvenstveno zato što su tagovi hardkodovani u sklopu resursa.
-
-> **Zamke na koje sam naleteo već ovde:**
->
-> - **West Europe** trenutno ne prima nove korisnike, posebno na Free Trial subskripcijama. Kreiranje storage accounta je palo sa `RequestDisallowedByAzure`, pa sam prešao na `northeurope`.
-> - **Ime storage accounta je globalno jedinstveno**, jer je deo javnog URL-a. Dozvoljeno je 3 do 24 karaktera, samo mala slova i brojevi.
-> - **azurerm 5.0 više ne registruje resource providere automatski.** Default za `resource_provider_registrations` je promenjen u `none`, pa nova subskripcija pada sa `MissingSubscriptionRegistration`. Rešenje je da eksplicitno navedete servise koje koristite:
->
-> ```hcl
-> provider "azurerm" {
->   features {}
->   resource_providers_to_register = ["Microsoft.Storage"]
-> }
-> ```
 
 ## Tagovi u `locals`
 
