@@ -70,11 +70,16 @@ export default function PostLayout({
                       <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
                       <span>·</span>
                       <span>{readingTime?.text}</span>
+                      {translationHref && (
+                        <>
+                          <span>·</span>
+                          <LanguageToggle current={lang} href={translationHref} />
+                        </>
+                      )}
                     </div>
                   </dd>
                 </div>
               </dl>
-              {translationHref && <LanguageToggle current={lang} href={translationHref} />}
             </div>
           </header>
           <div className="grid-rows-[auto_1fr] divide-y divide-slate-200 pb-8 dark:divide-slate-700 xl:divide-y-0">
