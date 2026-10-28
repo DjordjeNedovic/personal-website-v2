@@ -27,7 +27,7 @@ export default async function Page() {
       '@type': 'Organization',
       name: 'Combined Ratio Solutions',
     },
-    sameAs: [siteMetadata.linkedin, siteMetadata.github, siteMetadata.twitter],
+    sameAs: [siteMetadata.linkedin, siteMetadata.github, siteMetadata.twitter].filter(Boolean),
   }
 
   return (

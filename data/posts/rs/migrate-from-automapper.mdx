@@ -1,14 +1,14 @@
 ---
-title: 'Zbogom AutoMapper'
+title: 'Zbogom AutoMapper: extension metode u .NET-u'
 date: '2026-05-05'
-lastmod: '2026-05-05'
-tags: ['.NET', 'Performance', 'Architecture', 'AutoMapper']
+lastmod: '2026-10-27'
+tags: []
 draft: false
 summary: 'Zašto smo izbacili AutoMapper i prešli na .NET extension metode i delegate — kako smo to uradili, zašto radi i šta kažu benchmark rezultati.'
 images: ['/images/thumbnail/dotnet.png']
-canonicalUrl: >-
-  https://djordjenedovic.tech/posts/rs/migrate-from-automapper
 ---
+
+## Zašto smo izbacili AutoMapper
 
 Pošto je AutoMapper odlučio da pređe na [komercijalnu licencu počevši od verzije 15](https://www.jimmybogard.com/automapper-and-mediatr-going-commercial/), u timu smo odlučili da ga se rešimo.
 Umesto da posegnemo za još jednom bibliotekom, odlučili smo se za .NET extension metode. Performanse ćemo testirati
@@ -33,10 +33,12 @@ klasa koja je nasleđuje može imati dodatne metode. Sve entity klase nasleđuju
 │   ├── ....
 ```
 
+## Pristup sa extension metodama
+
 Za svaki par klasa dodajemo extension klasu koja sadrži bidirekciono mapiranje — iz entitija u DTO i obrnuto — kao i
 metodu za mapiranje kolekcije (`IEnumerable`) iz entitija u DTO. To izgleda ovako:
 
-```cs
+```csharp
 public static class BookMappingExtensions
 {
     public static BookDto ToDto(this BookEntity entity)
@@ -71,6 +73,8 @@ public static class BookMappingExtensions
 }
 ```
 
+## Prosleđivanje mapera baznom servisu kroz delegate
+
 I da ovo ne bi zvučalo kao najbesmisleniji blog na svetu — tu dolazi generičnost, odnosno kako ovo proslediti baznoj
 servis klasi i njenim 3 osnovnim metodama koje dele svi entiteti. Odgovor je u delegatima. I nije me sramota da priznam
 da sam ih, posle 8 godina, prvi put koristio.
@@ -81,7 +85,7 @@ produkcijski primer [callback patterna](<https://en.wikipedia.org/wiki/Callback_
 
 Proširenje base klase:
 
-```csharp
+```diff
 public class BaseFileService{
 +    private readonly Func<TDto, TEntity> _fromDto;
 +    private readonly Func<TEntity, TDto> _toEntity;
@@ -109,7 +113,7 @@ public BookService(...)
 
 A kako to izgleda u samim base service metodama:
 
-```csharp
+```diff
 public async Task<TDto> SaveFile(TDto dto)
 {
 -    var dtoEntity = Mapper.Map<TEntity>(dto);

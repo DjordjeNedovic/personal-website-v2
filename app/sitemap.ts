@@ -5,14 +5,32 @@ import { MetadataRoute } from 'next'
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = siteMetadata.siteUrl
 
+  // hreflang alternates for posts that exist in both languages
+  const enSlugs = new Set(allPosts.map((post) => post.slug))
+  const rsSlugs = new Set(allPostsRs.map((post) => post.slug))
+  const languageAlternates = (slug: string) =>
+    enSlugs.has(slug) && rsSlugs.has(slug)
+      ? {
+          alternates: {
+            languages: {
+              en: `${siteUrl}/posts/${slug}`,
+              sr: `${siteUrl}/posts/rs/${slug}`,
+              'x-default': `${siteUrl}/posts/${slug}`,
+            },
+          },
+        }
+      : {}
+
   const blogRoutes = allPosts.map((post) => ({
     url: `${siteUrl}/posts/${post.slug}`,
     lastModified: post.lastmod || post.date,
+    ...languageAlternates(post.slug),
   }))
 
   const blogRoutesRs = allPostsRs.map((post) => ({
     url: `${siteUrl}/posts/rs/${post.slug}`,
     lastModified: post.lastmod || post.date,
+    ...languageAlternates(post.slug),
   }))
   const routes = [
     { route: '', file: 'app/page.tsx' },

@@ -5,10 +5,13 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 })
 
+// 'unsafe-eval' is only needed by the Next.js dev server (React Refresh)
+const unsafeEval = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''
+
 // You might need to insert additional domains in script-src if you are using external services
 const ContentSecurityPolicy = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app analytics.umami.is https://www.googletagmanager.com;;
+  script-src 'self'${unsafeEval} 'unsafe-inline' giscus.app analytics.umami.is https://www.googletagmanager.com;
   style-src 'self' 'unsafe-inline';
   img-src * blob: data:;
   media-src *.s3.amazonaws.com;

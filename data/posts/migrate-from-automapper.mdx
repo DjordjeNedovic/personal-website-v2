@@ -1,7 +1,7 @@
 ---
-title: 'Goodbye AutoMapper: Simple Mapping with Extension Methods and Delegates in .NET'
+title: 'Goodbye AutoMapper: Extension Methods in .NET'
 date: '2026-05-05'
-lastmod: '2026-07-04'
+lastmod: '2026-10-27'
 tags:
   [
     '.NET',
@@ -16,8 +16,6 @@ tags:
 draft: false
 summary: 'Dropping AutoMapper for .NET extension methods and delegates — how we did it, why it works, and what the benchmarks say.'
 images: ['/images/thumbnail/dotnet.png']
-canonicalUrl: >-
-  https://djordjenedovic.tech/posts/migrate-from-automapper
 ---
 
 ## Why we dropped AutoMapper
@@ -101,7 +99,7 @@ You can store a reference to a method and call it later. They allow you to pass 
 
 Extending the base class:
 
-```csharp
+```diff
 public class BaseFileService{
 +    private readonly Func<TDto, TEntity> _fromDto;
 +    private readonly Func<TEntity, TDto> _toEntity;
@@ -129,7 +127,7 @@ public BookService(...)
 
 And how it looks inside the base service methods:
 
-```csharp
+```diff
 public async Task<TDto> SaveFile(TDto dto)
 {
 -    var dtoEntity = Mapper.Map<TEntity>(dto);

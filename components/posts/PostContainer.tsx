@@ -3,6 +3,7 @@ import type { Authors, Post } from '@/libs/velite'
 import NavigationButton from '../common/NavigationButton'
 import PostThumbnailWrapper from '../common/PostThumbnailWrapper'
 import PostAuthorSection from '../common/PostAuthorSection'
+import siteMetadata from '@/data/siteMetadata'
 
 export default function PostContainer({
   post,
@@ -20,7 +21,7 @@ export default function PostContainer({
       <PostThumbnailWrapper
         title={title}
         slug={slug}
-        image={Array.isArray(images) ? images[0] : '/static/images/banner.jpeg'}
+        image={Array.isArray(images) ? images[0] : siteMetadata.socialBanner}
         className="h-72 rounded-xl border border-slate-300/40 lg:w-1/3"
         imageObjectFit="cover"
         priority={priority}
