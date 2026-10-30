@@ -14,6 +14,11 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
+import Link from '@/components/common/Link'
+
+// Inline links from experience highlights to related blog posts
+const postLinkClass =
+  'font-medium text-primary-600 underline underline-offset-2 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
 
 export default function AboutFullComponent() {
   const skills = {
@@ -59,9 +64,26 @@ export default function AboutFullComponent() {
       location: 'Novi Sad, Serbia · Remote',
       period: 'April 2025 – Present',
       highlights: [
-        'Architecting and building a greenfield cloud-native platform on .NET and Azure from scratch, owning core backend services, API design, and data modelling.',
-        'Delivering features end-to-end in a small team — React UI, CI/CD pipelines in Azure DevOps, and production deployments.',
-        'Improving performance and reliability through refactoring, code reviews, and solid unit test coverage.',
+        'Building CRS OSPolicy, a greenfield, cloud-native core Policy Administration System for commercial P&C insurance, from the ground up in .NET, Azure, and Angular.',
+        'Implementing end-to-end policy lifecycle functionality (submission, quoting, binding, endorsement, renewal, cancellation) and a configurable, low-code UI/workflow layer that lets carriers tailor the system to their own lines of business.',
+        'Developing serverless business logic and document automation on Azure Functions and Blob Storage, plus integration endpoints towards rating, billing, claims, and reinsurance systems.',
+        'Developing a new cloud-native .NET and React platform in Azure from the ground up for a US insurance/PEO client, designing core backend services, frontend modules, and ensuring a clean, extensible architecture.',
+        <>
+          Owning end-to-end delivery across the stack in a compact team: API design, data modelling,
+          React UI development, feature work, bug fixing,{' '}
+          <Link href="/posts/eslint-migration-bug" className={postLinkClass}>
+            CI/CD automation
+          </Link>
+          , and production-ready deployments.
+        </>,
+        <>
+          Improving performance, reliability, and maintainability through{' '}
+          <Link href="/posts/migrate-from-automapper" className={postLinkClass}>
+            targeted refactoring
+          </Link>{' '}
+          and optimisation of critical execution paths, while maintaining strong unit test coverage
+          across backend and frontend code.
+        </>,
       ],
     },
     {
@@ -74,7 +96,14 @@ export default function AboutFullComponent() {
         'Designed and built a distributed REST API for foreign-currency transaction processing, improving system throughput and stability — enabling ~€50k in annual operational savings.',
         'Migrated legacy microservices from Azure Service Fabric to AKS, including a .NET Framework to .NET Core upgrade, improving scalability and reducing operational overhead.',
         'Built and maintained CI/CD pipelines in Azure DevOps, automating build, test, and deployment workflows across multiple environments.',
-        "Upgraded Terraform infrastructure across multiple major versions (0.10 → 1.9), debugging and documenting an undocumented AzureRM provider bug that wasn't solvable through official docs or community resources.",
+        <>
+          Upgraded Terraform infrastructure across multiple major versions (0.10 → 1.9), debugging
+          and documenting an{' '}
+          <Link href="/posts/subscription-rule-migration" className={postLinkClass}>
+            undocumented AzureRM provider bug
+          </Link>{' '}
+          that wasn&apos;t solvable through official docs or community resources.
+        </>,
         "Acted as the team's security champion — running code reviews, identifying vulnerable dependencies, and driving remediation across the codebase.",
         'Developed event-driven microservices using Azure Service Bus, Functions, and App Services.',
         'Delivered a user-permissions compliance report for an external banking audit that passed independent regulatory review.',
