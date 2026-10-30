@@ -38,7 +38,8 @@ Preview versions allow us to:
 This way, teams can gradually integrate changes without the risk of prematurely locking
 in a stable version. When development and testing are done, the preview package isn't
 "converted" into a stable one — instead, a new stable version is published that represents
-the finalized API.
+the finalized API. NuGet treats any version with a suffix such as `-beta` as
+[a prerelease package](https://learn.microsoft.com/en-us/nuget/create-packages/prerelease-packages).
 
 ## 1. Defining the Package Version
 
@@ -71,7 +72,7 @@ for production or `1.0.42-preview-20260617` for preview versions.
 ## 2. Packing the Project
 
 Once the package version is defined, the next step is packing the .csproj file into a NuGet package.
-This is done using the DotNetCoreCLI task. We pack the project with the `--no-build` option since we
+This is done using the [DotNetCoreCLI task](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/dotnet-core-cli-v2). We pack the project with the `--no-build` option since we
 assume the project has already been built, and we set the package version using the previously
 defined $(pkgVer) variable.
 
@@ -89,7 +90,8 @@ The package is placed in the $(Build.ArtifactStagingDirectory)/nupkgs directory,
 
 ## 3. Publishing the Package to a NuGet Feed
 
-Once the project is packed, the next step is publishing the package to a NuGet feed. This is
+Once the project is packed, the next step is publishing the package to a NuGet feed (here, an
+[Azure Artifacts feed](https://learn.microsoft.com/en-us/azure/devops/artifacts/start-using-azure-artifacts)). This is
 done using the DotNetCoreCLI task with the push command. The package we previously generated
 is pushed to the desired feed.
 

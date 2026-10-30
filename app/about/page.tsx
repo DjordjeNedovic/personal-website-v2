@@ -4,19 +4,21 @@ import AboutFullComponent from '@/components/about/AboutFullComponent'
 import { PERSON_ID } from '@/libs/seo/person'
 import siteMetadata from '@/data/siteMetadata'
 
+const title = 'About – Senior .NET & Azure Engineer'
+const description =
+  'Djordje Nedovic is a Senior Software Engineer specializing in .NET, Azure, and distributed systems, with 8+ years in fintech, aviation, and insurance.'
+
 export const metadata = genPageMetadata({
-  title: 'About',
-  description:
-    'Djordje Nedovic is a Senior Software Engineer specializing in .NET, Azure cloud architecture, and distributed systems. Based in Novi Sad, Serbia.',
+  title,
+  description,
   image: '/images/logo/social_banner.png',
   openGraph: {
-    title: 'About',
-    description:
-      'Senior Software Engineer specializing in .NET, Azure cloud architecture, and performance optimization.',
     url: 'https://djordjenedovic.tech/about',
     type: 'profile',
   },
 })
+
+const microsoft = { '@type': 'Organization', name: 'Microsoft', url: 'https://www.microsoft.com' }
 
 export default function Page() {
   const jsonLd = {
@@ -28,14 +30,26 @@ export default function Page() {
       '@id': PERSON_ID,
       name: 'Djordje Nedovic',
       jobTitle: 'Senior Software Engineer',
-      description:
-        'Senior Software Engineer specializing in performance optimization, Azure cloud solutions, and full-stack development',
+      description,
       url: 'https://djordjenedovic.tech',
+      image: `${siteMetadata.siteUrl}/images/profile.jpg`,
       sameAs: [siteMetadata.linkedin, siteMetadata.github],
+      worksFor: {
+        '@type': 'Organization',
+        name: 'Combined Ratio Solutions',
+      },
+      knowsAbout: [
+        '.NET',
+        'Microsoft Azure',
+        'Distributed systems',
+        'Terraform',
+        'Azure DevOps',
+        'Performance optimization',
+      ],
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Novi Sad',
-        addressCountry: 'Serbia',
+        addressCountry: 'RS',
       },
       email: 'nedovic.djordje@gmail.com',
       alumniOf: {
@@ -45,11 +59,24 @@ export default function Page() {
       hasCredential: [
         {
           '@type': 'EducationalOccupationalCredential',
+          name: 'AZ-900: Microsoft Certified: Azure Fundamentals',
+          credentialCategory: 'certification',
+          recognizedBy: microsoft,
+          dateCreated: '2021-12',
+        },
+        {
+          '@type': 'EducationalOccupationalCredential',
           name: 'AZ-204: Microsoft Certified: Azure Developer Associate',
+          credentialCategory: 'certification',
+          recognizedBy: microsoft,
+          dateCreated: '2022-01',
         },
         {
           '@type': 'EducationalOccupationalCredential',
           name: 'AZ-500: Microsoft Certified: Azure Security Engineer Associate',
+          credentialCategory: 'certification',
+          recognizedBy: microsoft,
+          dateCreated: '2022-02',
         },
       ],
     },

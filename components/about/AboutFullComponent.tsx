@@ -64,25 +64,27 @@ export default function AboutFullComponent() {
       location: 'Novi Sad, Serbia · Remote',
       period: 'April 2025 – Present',
       highlights: [
-        'Building CRS OSPolicy, a greenfield, cloud-native core Policy Administration System for commercial P&C insurance, from the ground up in .NET, Azure, and Angular.',
-        'Implementing end-to-end policy lifecycle functionality (submission, quoting, binding, endorsement, renewal, cancellation) and a configurable, low-code UI/workflow layer that lets carriers tailor the system to their own lines of business.',
-        'Developing serverless business logic and document automation on Azure Functions and Blob Storage, plus integration endpoints towards rating, billing, claims, and reinsurance systems.',
-        'Developing a new cloud-native .NET and React platform in Azure from the ground up for a US insurance/PEO client, designing core backend services, frontend modules, and ensuring a clean, extensible architecture.',
         <>
-          Owning end-to-end delivery across the stack in a compact team: API design, data modelling,
-          React UI development, feature work, bug fixing,{' '}
+          Building CRS OSPolicy, a greenfield, cloud-native core Policy Administration System for
+          commercial property and casualty (P&C) insurance, from the ground up in .NET, Azure, and
+          Angular, including the build tooling behind it (such as{' '}
           <Link href="/posts/eslint-migration-bug" className={postLinkClass}>
-            CI/CD automation
+            debugging a 70-minute ESLint run
           </Link>
-          , and production-ready deployments.
+          ).
         </>,
+        'Implementing the full policy lifecycle (submission, quoting, binding, endorsement, renewal, cancellation) and a low-code UI/workflow layer that lets carriers tailor the system to their lines of business.',
+        'Delivering serverless business logic and document automation on Azure Functions and Blob Storage, plus integration endpoints to rating, billing, claims, and reinsurance systems.',
+        'On a separate project, developing a cloud-native HR/PEO platform in .NET, React, and Azure from the ground up for a US client, designing core backend services, frontend modules, and a clean, extensible architecture.',
+        'Owning end-to-end delivery across the stack in a compact team: API design, data modeling, React UI development, feature work, bug fixing, CI/CD automation, and production-ready deployments.',
         <>
-          Improving performance, reliability, and maintainability through{' '}
+          Improving performance, reliability, and maintainability through targeted refactoring (such
+          as{' '}
           <Link href="/posts/migrate-from-automapper" className={postLinkClass}>
-            targeted refactoring
-          </Link>{' '}
-          and optimisation of critical execution paths, while maintaining strong unit test coverage
-          across backend and frontend code.
+            replacing AutoMapper with extension methods
+          </Link>
+          ) and optimization of critical execution paths, while maintaining strong unit test
+          coverage across backend and frontend code.
         </>,
       ],
     },

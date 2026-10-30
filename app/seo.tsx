@@ -25,8 +25,9 @@ export function genPageMetadata({
     ...rest,
     // Merge page overrides into the defaults so a partial openGraph/twitter object
     // does not drop the image, site name or description.
+    // Same as the <title> produced by the root layout template
     openGraph: {
-      title: `${title} | ${siteMetadata.title}`,
+      title: `${title} | ${siteMetadata.author}`,
       description: pageDescription,
       url: './',
       siteName: siteMetadata.title,
@@ -36,7 +37,7 @@ export function genPageMetadata({
       ...openGraph,
     },
     twitter: {
-      title: `${title} | ${siteMetadata.title}`,
+      title: `${title} | ${siteMetadata.author}`,
       description: pageDescription,
       card: 'summary_large_image',
       images,
