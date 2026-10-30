@@ -4,6 +4,7 @@ import PostSimple from '@/layouts/PostSimple'
 import { components } from '@/components/posts/MDXComponents'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getStructuredData } from '@/libs/seo/structuredData'
+import { postTitle } from '@/libs/seo/title'
 import { getReadingTime } from '@/libs/utils/utils'
 import { Metadata } from 'next'
 import siteMetadata from '@/data/siteMetadata'
@@ -23,7 +24,7 @@ export async function generateMetadata({
   const imageList = post.images?.length ? post.images : [siteMetadata.socialBanner]
 
   return {
-    title: post.title,
+    title: postTitle(post.title),
     description: post.summary,
     authors: [{ name: 'Djordje Nedovic' }],
     openGraph: {
@@ -33,6 +34,7 @@ export async function generateMetadata({
       locale: 'sr_RS',
       type: 'article',
       publishedTime: new Date(post.date).toISOString(),
+      modifiedTime: new Date(post.lastmod || post.date).toISOString(),
       url: `${siteMetadata.siteUrl}/posts/rs/${slug}`,
       images: imageList,
     },

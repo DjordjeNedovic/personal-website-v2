@@ -23,6 +23,8 @@ export default async function Page() {
     name: 'Djordje Nedovic',
     url: siteMetadata.siteUrl,
     jobTitle: 'Senior Software Engineer',
+    description: siteMetadata.description,
+    image: `${siteMetadata.siteUrl}/images/profile.jpg`,
     worksFor: {
       '@type': 'Organization',
       name: 'Combined Ratio Solutions',

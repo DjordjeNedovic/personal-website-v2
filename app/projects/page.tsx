@@ -4,7 +4,7 @@ import { genPageMetadata } from 'app/seo'
 export const metadata = genPageMetadata({
   title: 'Projects',
   description:
-    'Explore my software development projects including Advent of Code solutions, personal blog, and other technical implementations showcasing .NET, React, and cloud technologies.',
+    'Software projects by Djordje Nedovic, from Advent of Code solutions to this blog, built with .NET, React, and cloud technologies.',
   keywords: [
     'software projects',
     'portfolio',
@@ -15,8 +15,6 @@ export const metadata = genPageMetadata({
     'open source',
   ],
   openGraph: {
-    title: 'Projects',
-    description: 'Software development projects and technical implementations',
     type: 'website',
     url: 'https://djordjenedovic.tech/projects',
   },
@@ -29,7 +27,7 @@ export default function Projects() {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: 'Projects — Djordje Nedovic',
-    description: 'Software development projects and technical implementations',
+    description: metadata.description,
     url: `${siteMetadata.siteUrl}/projects`,
     author: personRef,
   }

@@ -30,7 +30,7 @@ export default function AboutMainComponent() {
                 <div className="space-y-2">
                   <PageTitle>Djordje Nedovic</PageTitle>
                   <p className="text-lg text-slate-600 dark:text-slate-400">
-                    Senior Software Engineer & Performance Optimization Expert
+                    Senior Software Engineer · .NET & Azure
                   </p>
                 </div>
 
@@ -83,15 +83,19 @@ export default function AboutMainComponent() {
                 About Me
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="leading-relaxed text-slate-600 dark:text-slate-400">
+            <CardContent className="space-y-4 leading-relaxed text-slate-600 dark:text-slate-400">
+              <p>
                 I'm a Senior Software Engineer based in Novi Sad, Serbia. I work primarily in .NET
                 and Azure, building distributed systems for fintech and enterprise - backend mostly,
                 though I end up touching everything from infrastructure to frontend when needed.
-                I've spent the last 8 years working on systems where things actually have to work -
-                banking platforms, airline operations, cloud-native products built from scratch. I
-                tend to be the person who digs into the hard problems, figures out what's going on,
-                and documents it so the next person doesn't have to suffer through the same thing.
+              </p>
+              <p>
+                Since 2017 I've been working on systems where things actually have to work - banking
+                platforms, airline operations, cloud-native products built from scratch. I tend to
+                be the person who digs into the hard problems, figures out what's going on, and
+                documents it so the next person doesn't have to suffer through the same thing.
+              </p>
+              <p>
                 Outside of work I write occasionally about things I run into - undocumented bugs,
                 .NET patterns, DevOps workflows. Not on a schedule, just when something seems worth
                 sharing.

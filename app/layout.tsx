@@ -55,7 +55,11 @@ export const metadata: Metadata = {
   },
   authors: [{ name: 'Djordje Nedovic' }],
   icons: {
-    icon: { url: siteMetadata.siteLogo, type: 'image/svg+xml' },
+    icon: [
+      { url: siteMetadata.siteLogo, type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32' },
+    ],
+    apple: '/apple-touch-icon.png',
   },
   manifest: '/site.webmanifest',
 }

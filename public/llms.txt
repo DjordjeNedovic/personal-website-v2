@@ -18,7 +18,7 @@
 
 - [Tagovanje na Azure-u: Terraform i Azure Policy](https://djordjenedovic.tech/posts/rs/finops-tagging-terraform-azure-policy): Serbian version of the Azure tag inheritance post.
 - [Kako je jedan test fajl terao ESLint da trči 70+ minuta](https://djordjenedovic.tech/posts/rs/eslint-migration-bug): Serbian version of the ESLint post.
-- [Terraform Upgrade sa 0.12 i Glavobolje sa $ u Nazivu](https://djordjenedovic.tech/posts/rs/subscription-rule-migration): Serbian version of the Terraform migration post.
+- [Terraform upgrade sa 0.12 i glavobolje sa $ u nazivu](https://djordjenedovic.tech/posts/rs/subscription-rule-migration): Serbian version of the Terraform migration post.
 - [Zbogom AutoMapper: extension metode u .NET-u](https://djordjenedovic.tech/posts/rs/migrate-from-automapper): Serbian version of the AutoMapper post.
 - [Preview NuGet paketi kroz Azure DevOps YAML](https://djordjenedovic.tech/posts/rs/publish-preview-nuget-package): Serbian version of the NuGet pipeline post.
 
