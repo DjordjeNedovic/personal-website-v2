@@ -32,16 +32,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: post.lastmod || post.date,
     ...languageAlternates(post.slug),
   }))
+  // The post list changes whenever a post does, not only when its page.tsx changes
+  const newestPost = [...allPosts, ...allPostsRs]
+    .map((post) => post.lastmod || post.date)
+    .sort()
+    .at(-1)
+
+  // /tags is noindex like the tag pages, so it stays out of the sitemap
   const routes = [
     { route: '', file: 'app/page.tsx' },
-    { route: 'posts', file: 'app/posts/page.tsx' },
+    { route: 'posts', file: 'app/posts/page.tsx', lastModified: newestPost },
     { route: 'services', file: 'app/services/page.tsx' },
     { route: 'projects', file: 'app/projects/page.tsx' },
-    { route: 'tags', file: 'app/tags/page.tsx' },
     { route: 'about', file: 'app/about/page.tsx' },
-  ].map(({ route, file }) => ({
-    url: `${siteUrl}/${route}`,
-    lastModified: getLastModified(file),
+  ].map(({ route, file, lastModified }) => ({
+    // No trailing slash on the home page, same as its canonical
+    url: route ? `${siteUrl}/${route}` : siteUrl,
+    lastModified: lastModified ?? getLastModified(file),
   }))
 
   return [...routes, ...blogRoutes, ...blogRoutesRs]

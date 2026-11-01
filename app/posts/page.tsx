@@ -20,15 +20,8 @@ export const metadata = genPageMetadata({
     'cloud architecture',
   ],
   openGraph: {
-    title: 'All Posts',
-    description: 'Technical blog posts about software engineering and cloud architecture',
     type: 'website',
     url: 'https://djordjenedovic.tech/posts',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'All Posts',
-    description: 'Technical blog posts about software engineering and cloud architecture',
   },
 })
 

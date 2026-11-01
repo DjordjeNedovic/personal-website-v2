@@ -7,6 +7,8 @@ export const metadata = genPageMetadata({
   title: 'Tags',
   description:
     'Browse posts by topic: .NET, Azure, Azure DevOps, Terraform, CI/CD and performance — practical notes from real production work.',
+  // Same as the individual tag pages: useful for navigation, not as a search landing page
+  robots: { index: false, follow: true },
 })
 
 export default async function Page() {

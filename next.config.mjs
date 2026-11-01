@@ -11,7 +11,7 @@ const unsafeEval = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : '
 // You might need to insert additional domains in script-src if you are using external services
 const ContentSecurityPolicy = `
   default-src 'self';
-  script-src 'self'${unsafeEval} 'unsafe-inline' giscus.app analytics.umami.is https://www.googletagmanager.com;
+  script-src 'self'${unsafeEval} 'unsafe-inline' giscus.app https://www.googletagmanager.com;
   style-src 'self' 'unsafe-inline';
   img-src * blob: data:;
   media-src *.s3.amazonaws.com;
@@ -50,6 +50,7 @@ export default () => {
   const plugins = [withBundleAnalyzer]
   return plugins.reduce((acc, next) => next(acc), {
     reactStrictMode: true,
+    poweredByHeader: false,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
     images: {
       minimumCacheTTL: 60 * 60 * 24 * 365,
@@ -60,6 +61,14 @@ export default () => {
     },
     async headers() {
       return [{ source: '/(.*)', headers: securityHeaders }]
+    },
+    async redirects() {
+      return [
+        // Page 1 is the same list as /posts
+        { source: '/posts/page/1', destination: '/posts', permanent: true },
+        // There is no Serbian post index; Serbian posts are listed through their EN versions
+        { source: '/posts/rs', destination: '/posts', permanent: false },
+      ]
     },
     webpack: (config, options) => {
       config.plugins.push(new VeliteWebpackPlugin())

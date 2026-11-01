@@ -7,3 +7,16 @@ package = "@netlify/plugin-nextjs"
 
 [build.environment]
 NODE_VERSION = "22"
+
+# Straight to the apex domain in one hop, instead of http://www -> https://www -> apex
+[[redirects]]
+from = "http://www.djordjenedovic.tech/*"
+to = "https://djordjenedovic.tech/:splat"
+status = 301
+force = true
+
+[[redirects]]
+from = "https://www.djordjenedovic.tech/*"
+to = "https://djordjenedovic.tech/:splat"
+status = 301
+force = true
